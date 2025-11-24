@@ -1,0 +1,631 @@
+<?php
+
+/**
+ * The admin-specific functionality of the plugin.
+ *
+ * @since      1.0.0
+ *
+ * @package    Aethos_Chat
+ * @subpackage Aethos_Chat/includes
+ */
+
+class Aethos_Admin {
+
+	/**
+	 * The ID of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string    $plugin_name    The ID of this plugin.
+	 */
+	private $plugin_name;
+
+	/**
+	 * The version of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string    $version    The current version of this plugin.
+	 */
+	private $version;
+
+    /**
+     * The API client.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      Aethos_API    $api    The API client.
+     */
+    private $api;
+
+	/**
+	 * Initialize the class and set its properties.
+	 *
+	 * @since    1.0.0
+	 * @param    string    $plugin_name       The name of this plugin.
+	 * @param    string    $version    The version of this plugin.
+	 */
+	public function __construct( $plugin_name, $version ) {
+		$this->plugin_name = $plugin_name;
+		$this->version = $version;
+        $this->api = new Aethos_API();
+	}
+
+	/**
+	 * Register the stylesheets for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function enqueue_styles() {
+		wp_enqueue_style( 
+			$this->plugin_name . '-admin', 
+			AETHOS_PLUGIN_URL . 'assets/css/admin.css', 
+			array(), 
+			$this->version, 
+			'all' 
+		);
+		
+		wp_enqueue_style( 
+			$this->plugin_name . '-admin-modern', 
+			AETHOS_PLUGIN_URL . 'assets/css/admin-modern.css', 
+			array(), 
+			time(), 
+			'all' 
+		);
+		
+		// Enqueue WordPress color picker
+		wp_enqueue_style( 'wp-color-picker' );
+	} 
+
+	/**
+	 * Register the JavaScript for the admin area.
+	 *
+	 * @since    1.0.0
+	 */
+	public function enqueue_scripts() {
+		wp_enqueue_script( 
+			$this->plugin_name . '-admin', 
+			AETHOS_PLUGIN_URL . 'assets/js/admin.js', 
+			array( 'jquery', 'wp-color-picker' ), 
+			$this->version, 
+			false 
+		);
+
+		// Localize script with data
+		wp_localize_script( 
+			$this->plugin_name . '-admin', 
+			'aethosAdmin', 
+			array(
+				'nonce' => wp_create_nonce( 'aethos_admin_nonce' ),
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                'apiEndpoint' => $this->api->get_api_endpoint()
+			)
+		);
+	}
+
+    /**
+     * Add plugin admin menu
+     *
+     * @since    1.0.0
+     */
+    public function add_plugin_admin_menu() {
+        // Main menu page (Dashboard)
+        add_menu_page(
+            'Aethos Chat', 
+            'Aethos Chat', 
+            'manage_options', 
+            'aethos-chat', 
+            array($this, 'display_dashboard_page'),
+            'dashicons-format-chat',
+            90
+        );
+        
+        // Dashboard submenu (same as main)
+        add_submenu_page(
+            'aethos-chat',
+            'Dashboard',
+            'Dashboard',
+            'manage_options',
+            'aethos-chat',
+            array($this, 'display_dashboard_page')
+        );
+        
+        // Setup & Configuration
+        add_submenu_page(
+            'aethos-chat',
+            'Setup & Configuration',
+            'Setup & Configuration',
+            'manage_options',
+            'aethos-chat-setup',
+            array($this, 'display_setup_page')
+        );
+        
+        // Look & Feel
+        add_submenu_page(
+            'aethos-chat',
+            'Look & Feel',
+            'Look & Feel',
+            'manage_options',
+            'aethos-chat-customization',
+            array($this, 'display_customization_page')
+        );
+        
+        // Content Management
+        add_submenu_page(
+            'aethos-chat',
+            'Content Management',
+            'Content Management',
+            'manage_options',
+            'aethos-chat-content',
+            array($this, 'display_content_page')
+        );
+        
+        // Monitoring & Analytics
+        add_submenu_page(
+            'aethos-chat',
+            'Monitoring & Analytics',
+            'Monitoring & Analytics',
+            'manage_options',
+            'aethos-chat-monitoring',
+            array($this, 'display_monitoring_page')
+        );
+        
+        // Advanced Configuration
+        add_submenu_page(
+            'aethos-chat',
+            'Advanced Configuration',
+            'Advanced Configuration',
+            'manage_options',
+            'aethos-chat-advanced-config',
+            array($this, 'display_advanced_config_page')
+        );
+    }
+
+    /**
+     * Register all settings
+     *
+     * @since    1.0.0
+     */
+    public function register_settings() {
+        // Connection settings
+        register_setting( 'aethos_connection', 'aethos_api_key', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => ''
+        ));
+        
+        register_setting( 'aethos_connection', 'aethos_api_endpoint', array(
+            'type' => 'string',
+            'sanitize_callback' => 'esc_url_raw',
+            'default' => $this->api->get_api_endpoint()
+        ));
+        
+        register_setting( 'aethos_connection', 'aethos_connection_status', array(
+            'type' => 'string',
+            'default' => 'unknown'
+        ));
+
+        // Appearance settings
+        register_setting( 'aethos_appearance', 'aethos_widget_position', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'bottom-right'
+        ));
+        
+        register_setting( 'aethos_appearance', 'aethos_widget_size', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'medium'
+        ));
+        
+        register_setting( 'aethos_appearance', 'aethos_primary_color', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'default' => '#1400CC'
+        ));
+        
+        register_setting( 'aethos_appearance', 'aethos_accent_color', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'default' => '#33C2E3'
+        ));
+        
+        register_setting( 'aethos_appearance', 'aethos_success_color', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'default' => '#59BA47'
+        ));
+        
+        register_setting( 'aethos_appearance', 'aethos_error_color', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'default' => '#E5233D'
+        ));
+        
+        register_setting( 'aethos_appearance', 'aethos_dark_mode', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'auto'
+        ));
+
+        // New Appearance Settings (Overhaul)
+        register_setting( 'aethos_appearance', 'aethos_chat_icon', array(
+            'type' => 'string',
+            'sanitize_callback' => 'esc_url_raw',
+            'default' => ''
+        ));
+
+        register_setting( 'aethos_appearance', 'aethos_user_text_color', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'default' => '#FFFFFF'
+        ));
+
+        register_setting( 'aethos_appearance', 'aethos_ai_bubble_color', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'default' => '#F3F4F6'
+        ));
+
+        register_setting( 'aethos_appearance', 'aethos_font_family', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'Roboto'
+        ));
+
+        register_setting( 'aethos_appearance', 'aethos_font_size', array(
+            'type' => 'integer',
+            'sanitize_callback' => 'absint',
+            'default' => 16
+        ));
+
+        // Behavior settings
+        register_setting( 'aethos_behavior', 'aethos_auto_open', array(
+            'type' => 'boolean',
+            'default' => false
+        ));
+        
+        register_setting( 'aethos_behavior', 'aethos_auto_open_delay', array(
+            'type' => 'integer',
+            'sanitize_callback' => 'absint',
+            'default' => 3
+        ));
+        
+        register_setting( 'aethos_behavior', 'aethos_greeting_message', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_textarea_field',
+            'default' => 'Welcome! How can I help you today?'
+        ));
+        
+        register_setting( 'aethos_behavior', 'aethos_offline_message', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_textarea_field',
+            'default' => 'We\'re currently offline. Please try again later.'
+        ));
+        
+        register_setting( 'aethos_behavior', 'aethos_persona', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'friendly'
+        ));
+        
+        register_setting( 'aethos_behavior', 'aethos_greeting', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'Hi! How can I help you today?'
+        ));
+        
+        // Advanced settings
+        register_setting( 'aethos_behavior', 'aethos_log_conversations', array(
+            'type' => 'boolean',
+            'default' => true
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_log_ip', array(
+            'type' => 'boolean',
+            'default' => false
+        ));
+        
+        // New Phase 1 settings
+        register_setting( 'aethos_options', 'aethos_header_title', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'Aethos AI Assistant'
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_chatbot_persona', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'friendly'
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_fallback_response', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_textarea_field',
+            'default' => 'I\'m sorry, I couldn\'t find an answer to that. Please try rephrasing your question.'
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_log_retention_days', array(
+            'type' => 'integer',
+            'sanitize_callback' => 'absint',
+            'default' => 30
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_disable_ip_logging', array(
+            'type' => 'boolean',
+            'default' => false
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_enable_minification', array(
+            'type' => 'boolean',
+            'default' => false
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_request_timeout', array(
+            'type' => 'integer',
+            'sanitize_callback' => 'absint',
+            'default' => 30
+        ));
+
+        // Advanced settings
+        register_setting( 'aethos_options', 'aethos_debug_mode', array(
+            'type' => 'boolean',
+            'default' => false
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_cache_enabled', array(
+            'type' => 'boolean',
+            'default' => true
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_rate_limit', array(
+            'type' => 'integer',
+            'sanitize_callback' => 'absint',
+            'default' => 60
+        ));
+        
+        register_setting( 'aethos_options', 'aethos_enable_analytics', array(
+            'type' => 'boolean',
+            'default' => false
+        ));
+        
+        // AI Model Selection
+        register_setting( 'aethos_models', 'aethos_ai_model', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'gpt-4o-mini'
+        ));
+        
+        // Visibility settings
+        register_setting( 'aethos_visibility', 'aethos_global_visibility', array(
+            'type' => 'boolean',
+            'sanitize_callback' => 'rest_sanitize_boolean',
+            'default' => true
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_include_all_pages', array(
+            'type' => 'boolean',
+            'sanitize_callback' => 'rest_sanitize_boolean',
+            'default' => true
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_included_pages', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_id_array'),
+            'default' => array()
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_excluded_pages', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_id_array'),
+            'default' => array()
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_include_all_categories', array(
+            'type' => 'boolean',
+            'sanitize_callback' => 'rest_sanitize_boolean',
+            'default' => true
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_included_categories', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_id_array'),
+            'default' => array()
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_excluded_categories', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_id_array'),
+            'default' => array()
+        ));
+        
+        // WooCommerce visibility settings
+        register_setting( 'aethos_visibility', 'aethos_include_all_woo_products', array(
+            'type' => 'boolean',
+            'sanitize_callback' => 'rest_sanitize_boolean',
+            'default' => true
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_included_woo_products', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_id_array'),
+            'default' => array()
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_excluded_woo_products', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_id_array'),
+            'default' => array()
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_include_all_woo_categories', array(
+            'type' => 'boolean',
+            'sanitize_callback' => 'rest_sanitize_boolean',
+            'default' => true
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_included_woo_categories', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_id_array'),
+            'default' => array()
+        ));
+        
+        register_setting( 'aethos_visibility', 'aethos_excluded_woo_categories', array(
+            'type' => 'array',
+            'sanitize_callback' => array($this, 'sanitize_id_array'),
+            'default' => array()
+        ));
+    }
+    
+    /**
+     * Sanitize array of IDs
+     *
+     * @since    1.0.0
+     */
+    public function sanitize_id_array($value) {
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+        if (!is_array($value)) {
+            return array();
+        }
+        return array_map('absint', array_filter($value));
+    }
+
+    /**
+     * Display page methods
+     */
+    public function display_dashboard_page() {
+        include_once AETHOS_PLUGIN_DIR . 'admin/partials/dashboard-page.php';
+    }
+    
+    public function display_setup_page() {
+        include_once AETHOS_PLUGIN_DIR . 'admin/partials/setup-page.php';
+    }
+    
+    public function display_customization_page() {
+        include_once AETHOS_PLUGIN_DIR . 'admin/partials/customization-page.php';
+    }
+    
+    public function display_content_page() {
+        include_once AETHOS_PLUGIN_DIR . 'admin/partials/content-page.php';
+    }
+    
+    public function display_monitoring_page() {
+        include_once AETHOS_PLUGIN_DIR . 'admin/partials/monitoring-page.php';
+    }
+    
+    public function display_advanced_config_page() {
+        include_once AETHOS_PLUGIN_DIR . 'admin/partials/advanced-config-page.php';
+    }
+
+    /**
+     * AJAX handler for testing API connection
+     *
+     * @since    1.0.0
+     */
+    public function test_connection() {
+        // Verify nonce
+        check_ajax_referer( 'aethos_admin_nonce', 'nonce' );
+
+        // Check user permissions
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
+        $api_key = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
+        
+        if ( empty( $api_key ) ) {
+            wp_send_json_error( array( 'message' => 'API key is required' ) );
+        }
+
+        // Test the connection
+        $response = $this->api->post( '/api/chat', array(
+            'apiKey' => $api_key,
+            'message' => 'Connection test'
+        ));
+
+        if ( is_wp_error( $response ) ) {
+            update_option( 'aethos_connection_status', 'error' );
+            wp_send_json_error( array( 'message' => 'Connection failed: ' . $response->get_error_message() ) );
+        }
+
+        $response_code = wp_remote_retrieve_response_code( $response );
+        $body = wp_remote_retrieve_body( $response );
+        $data = json_decode( $body, true );
+
+        if ( $response_code === 200 ) {
+            // Save the API key if connection is successful
+            $saved_key = update_option( 'aethos_api_key', $api_key );
+            $saved_endpoint = update_option( 'aethos_api_endpoint', $this->api->get_api_endpoint() );
+            $saved_status = update_option( 'aethos_connection_status', 'connected' );
+            
+            // Update the SaaS backend to set status as 'connected'
+            $this->update_saas_connection_status( $api_key, 'connected' );
+            
+            wp_send_json_success( array( 'message' => 'Connection successful' ) );
+        } else {
+            update_option( 'aethos_connection_status', 'error' );
+            $error_msg = isset( $data['error'] ) ? $data['error'] : 'Unknown error';
+            wp_send_json_error( array( 'message' => $error_msg ) );
+        }
+    }
+
+    /**
+     * AJAX handler for disconnecting
+     *
+     * @since    1.0.0
+     */
+    public function disconnect() {
+        // Verify nonce
+        if ( ! check_ajax_referer( 'aethos_admin_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => 'Nonce verification failed' ) );
+            return;
+        }
+
+        // Check user permissions
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+            return;
+        }
+
+        // Get current settings before clearing them
+        $api_key = get_option( 'aethos_api_key' );
+
+        // Update SaaS status to 'active' if we have an API key
+        if ( ! empty( $api_key ) ) {
+            // We don't check the result here because we want to disconnect locally regardless
+            $this->update_saas_connection_status( $api_key, 'active' );
+        }
+
+        // Clear connection settings
+        update_option( 'aethos_api_key', '' );
+        update_option( 'aethos_connection_status', '' );
+        
+        wp_send_json_success( array( 'message' => 'Disconnected successfully' ) );
+    }
+
+    /**
+     * Update connection status on SaaS backend
+     *
+     * @since    1.0.0
+     */
+    private function update_saas_connection_status( $api_key, $status ) {
+        $response = $this->api->post( '/api/sites/update-connection-status', array(
+            'apiKey' => $api_key,
+            'status' => $status
+        ), array(
+            'timeout' => 5, // Short timeout so we don't block the UI
+            'blocking' => true, // We want to wait a bit, but not too long
+        ));
+
+        if ( is_wp_error( $response ) ) {
+            error_log( 'Aethos: Failed to update SaaS connection status - ' . $response->get_error_message() );
+            return false;
+        }
+
+        $response_code = wp_remote_retrieve_response_code( $response );
+        return $response_code === 200;
+    }
+
+}
