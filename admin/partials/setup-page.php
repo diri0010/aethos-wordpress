@@ -64,6 +64,9 @@ include_once AETHOS_PLUGIN_DIR . 'admin/partials/admin-header.php';
 
 <script>
 jQuery(document).ready(function($) {
+    // Storage key for this page
+    const STORAGE_KEY = 'aethos_active_tab_setup';
+
     // Tab switching
     $('.aethos-tab-btn').on('click', function() {
         var tabId = $(this).data('tab');
@@ -72,16 +75,30 @@ jQuery(document).ready(function($) {
         $('.aethos-tab-btn').css({
             'color': '#6b7280',
             'border-bottom': 'none'
-        });
+        }).removeClass('active');
+        
         $(this).css({
             'color': '#4f46e5',
             'border-bottom': '2px solid #4f46e5'
-        });
+        }).addClass('active');
         
         // Show/hide content
         $('.aethos-tab-content').hide();
         $('#' + tabId).show();
+
+        // Save to localStorage
+        localStorage.setItem(STORAGE_KEY, tabId);
     });
+
+    // Restore active tab on load
+    const savedTab = localStorage.getItem(STORAGE_KEY);
+    if (savedTab) {
+        // Check if the tab exists
+        const $tabBtn = $('.aethos-tab-btn[data-tab="' + savedTab + '"]');
+        if ($tabBtn.length) {
+            $tabBtn.trigger('click');
+        }
+    }
 });
 </script>
 

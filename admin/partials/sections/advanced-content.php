@@ -41,6 +41,16 @@
                 <option value="0" <?php selected( $data_retention, 0 ); ?>>Never Delete</option>
             </select>
         </div>
+
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #f3f4f6;">
+            <label style="display: flex; align-items: start; gap: 12px; cursor: pointer;">
+                <input type="checkbox" name="aethos_delete_on_uninstall" value="1" <?php checked( $delete_on_uninstall, true ); ?> style="margin-top: 4px; width: 18px; height: 18px;">
+                <div>
+                    <div style="font-weight: 500; margin-bottom: 4px; color: #ef4444;">Delete Data on Uninstall</div>
+                    <div style="color: #6b7280; font-size: 14px;">Permanently delete all plugin data (tables and settings) when the plugin is uninstalled. <strong>This action cannot be undone.</strong></div>
+                </div>
+            </label>
+        </div>
     </div>
     
     <!-- Performance Optimization -->
@@ -61,7 +71,7 @@
         <div>
             <label style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px;">Rate Limit (requests per minute)</label>
             <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 13px;">Maximum number of requests a user can make per minute. Helps prevent abuse.</p>
-            <input type="number" name="aethos_rate_limit" value="<?php echo esc_attr( $rate_limit ); ?>" min="10" max="300" class="small-text">
+            <input type="number" name="aethos_rate_limit" value="<?php echo esc_attr( $rate_limit ); ?>" class="small-text">
             <span style="color: #6b7280; font-size: 13px; margin-left: 8px;">requests/minute</span>
         </div>
     </div>
@@ -73,7 +83,7 @@
         
         <div style="display: flex; gap: 12px;">
             <button type="button" id="aethos-clear-cache" class="button">
-                <span class="dashicons dashicons-trash" style="vertical-align: middle;"></span> Clear Cache
+                <span class="dashicons dashicons-trash" style="vertical-align: middle;"></span> Clear Vectors
             </button>
             <button type="button" id="aethos-delete-conversations" class="button" style="color: #ef4444; border-color: #ef4444;">
                 <span class="dashicons dashicons-warning" style="vertical-align: middle;"></span> Delete All Conversations

@@ -1,0 +1,715 @@
+<?php
+/**
+ * Knowledge Base Content Sources Component - Refactored
+ * Matches Chatbot Visibility UI/UX pattern
+ */
+
+// Get current KB settings - using new "include_all" pattern
+$kb_include_all_pages = (bool) get_option('aethos_kb_include_all_pages', true);
+$kb_included_pages = get_option('aethos_kb_included_pages', array());
+if (!is_array($kb_included_pages)) {
+    $kb_included_pages = array();
+}
+$kb_excluded_pages = get_option('aethos_kb_excluded_pages', array());
+if (!is_array($kb_excluded_pages)) {
+    $kb_excluded_pages = array();
+}
+$kb_pages_auto_sync = (bool) get_option('aethos_kb_pages_auto_sync', true);
+
+$kb_include_all_posts = (bool) get_option('aethos_kb_include_all_posts', true);
+$kb_included_posts = get_option('aethos_kb_included_posts', array());
+if (!is_array($kb_included_posts)) {
+    $kb_included_posts = array();
+}
+$kb_excluded_posts = get_option('aethos_kb_excluded_posts', array());
+if (!is_array($kb_excluded_posts)) {
+    $kb_excluded_posts = array();
+}
+$kb_posts_auto_sync = (bool) get_option('aethos_kb_posts_auto_sync', true);
+
+// Fetch all pages
+$all_pages = get_posts(array(
+    'post_type' => 'page',
+    'posts_per_page' => -1,
+    'post_status' => 'publish',
+    'orderby' => 'title',
+    'order' => 'ASC'
+));
+if (!is_array($all_pages)) {
+    $all_pages = array();
+}
+
+// Fetch all posts
+$all_posts = get_posts(array(
+    'post_type' => 'post',
+    'posts_per_page' => -1,
+    'post_status' => 'publish',
+    'orderby' => 'title',
+    'order' => 'ASC'
+));
+if (!is_array($all_posts)) {
+    $all_posts = array();
+}
+
+// Get custom post types
+$args = array(
+    'public' => true,
+    '_builtin' => false
+);
+$custom_post_types = get_post_types($args, 'objects');
+?>
+
+<style>
+/* KB Sources Container - matches Visibility layout */
+.aethos-kb-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.aethos-kb-main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Card Styling - matches Visibility */
+.aethos-kb-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.aethos-kb-card h2 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.aethos-kb-card p {
+    margin: 0 0 20px 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Tab Buttons - matches Visibility */
+.aethos-kb-tab-buttons {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+.aethos-kb-tab-button {
+    padding: 12px 24px;
+    border: none;
+    background: none;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.aethos-kb-tab-button:hover {
+    color: #374151;
+}
+
+.aethos-kb-tab-button.active {
+    color: #4f46e5;
+    border-bottom-color: #4f46e5;
+}
+
+/* Tab Content */
+.aethos-kb-tab {
+    display: none !important;
+}
+
+.aethos-kb-tab.active {
+    display: block !important;
+}
+
+/* Include All Option - matches Visibility */
+.aethos-kb-all-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.aethos-kb-all-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.aethos-kb-all-option label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e40af;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Auto-sync Option */
+.aethos-kb-auto-sync-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.aethos-kb-auto-sync-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.aethos-kb-auto-sync-option label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #166534;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Modern Select Dropdown - matches Visibility */
+.aethos-kb-select-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.aethos-kb-select-wrapper[data-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.aethos-kb-select-box {
+    position: relative;
+}
+
+.aethos-kb-select-dropdown {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    font-size: 14px;
+    color: #374151;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.aethos-kb-select-dropdown:hover {
+    border-color: #cbd5e1;
+}
+
+.aethos-kb-select-dropdown:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.aethos-kb-select-dropdown:disabled {
+    background: #f9fafb;
+    cursor: not-allowed;
+}
+
+.aethos-kb-select-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    pointer-events: none;
+    font-size: 18px;
+}
+
+/* Selected Items - matches Visibility */
+.aethos-kb-selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 60px;
+    padding: 12px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.aethos-kb-selected-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #374151;
+    transition: all 0.2s;
+}
+
+.aethos-kb-selected-tag:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.aethos-kb-selected-tag .remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.2s;
+}
+
+.aethos-kb-selected-tag .remove:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.aethos-kb-empty-state {
+    width: 100%;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+    padding: 20px;
+}
+
+/* Summary Panel - matches Visibility */
+.aethos-kb-summary {
+    position: sticky;
+    top: 32px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.aethos-kb-summary h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.aethos-kb-summary-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.aethos-kb-summary-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.aethos-kb-summary-icon.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.aethos-kb-summary-icon.info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.aethos-kb-summary-text {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.aethos-kb-summary-list {
+    margin: 8px 0 0 0;
+    padding-left: 16px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.aethos-kb-summary-list li {
+    margin-bottom: 4px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .aethos-kb-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .aethos-kb-summary {
+        position: static;
+        max-height: none;
+    }
+}
+</style>
+
+<div class="aethos-kb-container">
+    <div class="aethos-kb-main">
+        <!-- Pages Content Source -->
+        <div class="aethos-kb-card" data-kb-type="pages">
+            <h2>Pages</h2>
+            <p>Control which pages are included in your chatbot's knowledge base.</p>
+            
+            <div class="aethos-kb-tab-buttons">
+                <button type="button" class="aethos-kb-tab-button active" data-tab="pages-include">Include</button>
+                <button type="button" class="aethos-kb-tab-button" data-tab="pages-exclude">Exclude</button>
+            </div>
+            
+            <!-- Include Tab -->
+            <div id="pages-include" class="aethos-kb-tab active" data-tab-type="include" data-content-type="pages">
+                <div class="aethos-kb-all-option">
+                    <input type="checkbox" id="kb_include_all_pages" name="aethos_kb_include_all_pages" value="1" <?php checked($kb_include_all_pages, true); ?>>
+                    <label for="kb_include_all_pages">Include all pages in knowledge base</label>
+                </div>
+                
+                <div class="aethos-kb-select-wrapper" data-disabled="<?php echo $kb_include_all_pages ? 'true' : 'false'; ?>">
+                    <div class="aethos-kb-select-box">
+                        <select class="aethos-kb-select-dropdown" data-target="kb_included_pages" <?php echo $kb_include_all_pages ? 'disabled' : ''; ?>>
+                            <option value="">Select pages to include...</option>
+                            <?php foreach ($all_pages as $page): ?>
+                                <option value="<?php echo $page->ID; ?>">
+                                    <?php echo esc_html($page->post_title); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="dashicons dashicons-arrow-down-alt2 aethos-kb-select-icon"></span>
+                    </div>
+                    
+                    <div class="aethos-kb-selected-items" data-for="kb_included_pages">
+                        <?php if (!empty($kb_included_pages)): ?>
+                            <?php foreach ($kb_included_pages as $page_id): 
+                                $page = get_post($page_id);
+                                if ($page):
+                            ?>
+                            <span class="aethos-kb-selected-tag" data-id="<?php echo $page_id; ?>">
+                                <?php echo esc_html($page->post_title); ?>
+                                <span class="remove" title="Remove">×</span>
+                            </span>
+                            <?php endif; endforeach; ?>
+                        <?php else: ?>
+                            <div class="aethos-kb-empty-state">No pages selected</div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <input type="hidden" name="aethos_kb_included_pages" class="aethos-kb-hidden-input" value="<?php echo esc_attr(implode(',', $kb_included_pages)); ?>">
+                </div>
+                
+                <div class="aethos-kb-auto-sync-option">
+                    <input type="checkbox" id="kb_pages_auto_sync" name="aethos_kb_pages_auto_sync" value="1" <?php checked($kb_pages_auto_sync, true); ?>>
+                    <label for="kb_pages_auto_sync">Automatically add new pages to knowledge base</label>
+                </div>
+            </div>
+            
+            <!-- Exclude Tab -->
+            <div id="pages-exclude" class="aethos-kb-tab" data-tab-type="exclude" data-content-type="pages">
+                <div class="aethos-kb-select-wrapper">
+                    <div class="aethos-kb-select-box">
+                        <select class="aethos-kb-select-dropdown" data-target="kb_excluded_pages">
+                            <option value="">Select pages to exclude...</option>
+                            <?php foreach ($all_pages as $page): ?>
+                                <option value="<?php echo $page->ID; ?>">
+                                    <?php echo esc_html($page->post_title); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="dashicons dashicons-arrow-down-alt2 aethos-kb-select-icon"></span>
+                    </div>
+                    
+                    <div class="aethos-kb-selected-items" data-for="kb_excluded_pages">
+                        <?php if (!empty($kb_excluded_pages)): ?>
+                            <?php foreach ($kb_excluded_pages as $page_id): 
+                                $page = get_post($page_id);
+                                if ($page):
+                            ?>
+                            <span class="aethos-kb-selected-tag" data-id="<?php echo $page_id; ?>">
+                                <?php echo esc_html($page->post_title); ?>
+                                <span class="remove" title="Remove">×</span>
+                            </span>
+                            <?php endif; endforeach; ?>
+                        <?php else: ?>
+                            <div class="aethos-kb-empty-state">No pages excluded</div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <input type="hidden" name="aethos_kb_excluded_pages" class="aethos-kb-hidden-input" value="<?php echo esc_attr(implode(',', $kb_excluded_pages)); ?>">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Posts Content Source -->
+        <div class="aethos-kb-card" data-kb-type="posts">
+            <h2>Posts</h2>
+            <p>Control which blog posts are included in your chatbot's knowledge base.</p>
+            
+            <div class="aethos-kb-tab-buttons">
+                <button type="button" class="aethos-kb-tab-button active" data-tab="posts-include">Include</button>
+                <button type="button" class="aethos-kb-tab-button" data-tab="posts-exclude">Exclude</button>
+            </div>
+            
+            <!-- Include Tab -->
+            <div id="posts-include" class="aethos-kb-tab active" data-tab-type="include" data-content-type="posts">
+                <div class="aethos-kb-all-option">
+                    <input type="checkbox" id="kb_include_all_posts" name="aethos_kb_include_all_posts" value="1" <?php checked($kb_include_all_posts, true); ?>>
+                    <label for="kb_include_all_posts">Include all posts in knowledge base</label>
+                </div>
+                
+                <div class="aethos-kb-select-wrapper" data-disabled="<?php echo $kb_include_all_posts ? 'true' : 'false'; ?>">
+                    <div class="aethos-kb-select-box">
+                        <select class="aethos-kb-select-dropdown" data-target="kb_included_posts" <?php echo $kb_include_all_posts ? 'disabled' : ''; ?>>
+                            <option value="">Select posts to include...</option>
+                            <?php foreach ($all_posts as $post): ?>
+                                <option value="<?php echo $post->ID; ?>">
+                                    <?php echo esc_html($post->post_title); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="dashicons dashicons-arrow-down-alt2 aethos-kb-select-icon"></span>
+                    </div>
+                    
+                    <div class="aethos-kb-selected-items" data-for="kb_included_posts">
+                        <?php if (!empty($kb_included_posts)): ?>
+                            <?php foreach ($kb_included_posts as $post_id): 
+                                $post = get_post($post_id);
+                                if ($post):
+                            ?>
+                            <span class="aethos-kb-selected-tag" data-id="<?php echo $post_id; ?>">
+                                <?php echo esc_html($post->post_title); ?>
+                                <span class="remove" title="Remove">×</span>
+                            </span>
+                            <?php endif; endforeach; ?>
+                        <?php else: ?>
+                            <div class="aethos-kb-empty-state">No posts selected</div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <input type="hidden" name="aethos_kb_included_posts" class="aethos-kb-hidden-input" value="<?php echo esc_attr(implode(',', $kb_included_posts)); ?>">
+                </div>
+                
+                <div class="aethos-kb-auto-sync-option">
+                    <input type="checkbox" id="kb_posts_auto_sync" name="aethos_kb_posts_auto_sync" value="1" <?php checked($kb_posts_auto_sync, true); ?>>
+                    <label for="kb_posts_auto_sync">Automatically add new posts to knowledge base</label>
+                </div>
+            </div>
+            
+            <!-- Exclude Tab -->
+            <div id="posts-exclude" class="aethos-kb-tab" data-tab-type="exclude" data-content-type="posts">
+                <div class="aethos-kb-select-wrapper">
+                    <div class="aethos-kb-select-box">
+                        <select class="aethos-kb-select-dropdown" data-target="kb_excluded_posts">
+                            <option value="">Select posts to exclude...</option>
+                            <?php foreach ($all_posts as $post): ?>
+                                <option value="<?php echo $post->ID; ?>">
+                                    <?php echo esc_html($post->post_title); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="dashicons dashicons-arrow-down-alt2 aethos-kb-select-icon"></span>
+                    </div>
+                    
+                    <div class="aethos-kb-selected-items" data-for="kb_excluded_posts">
+                        <?php if (!empty($kb_excluded_posts)): ?>
+                            <?php foreach ($kb_excluded_posts as $post_id): 
+                                $post = get_post($post_id);
+                                if ($post):
+                            ?>
+                            <span class="aethos-kb-selected-tag" data-id="<?php echo $post_id; ?>">
+                                <?php echo esc_html($post->post_title); ?>
+                                <span class="remove" title="Remove">×</span>
+                            </span>
+                            <?php endif; endforeach; ?>
+                        <?php else: ?>
+                            <div class="aethos-kb-empty-state">No posts excluded</div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <input type="hidden" name="aethos_kb_excluded_posts" class="aethos-kb-hidden-input" value="<?php echo esc_attr(implode(',', $kb_excluded_posts)); ?>">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Panel -->
+    <div class="aethos-kb-summary">
+        <h3>
+            <span class="dashicons dashicons-book-alt"></span>
+            Knowledge Base Summary
+        </h3>
+        
+        <div class="aethos-kb-summary-item">
+            <div class="aethos-kb-summary-icon success">
+                <span class="dashicons dashicons-admin-page"></span>
+            </div>
+            <div class="aethos-kb-summary-text">
+                <strong>Pages</strong><br>
+                <?php if ($kb_include_all_pages): ?>
+                    All pages included
+                <?php elseif (!empty($kb_included_pages)): ?>
+                    <?php echo count($kb_included_pages); ?> specific page(s) included
+                <?php else: ?>
+                    No pages included
+                <?php endif; ?>
+                <?php if (!empty($kb_excluded_pages)): ?>
+                    <br><?php echo count($kb_excluded_pages); ?> page(s) excluded
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <div class="aethos-kb-summary-item">
+            <div class="aethos-kb-summary-icon info">
+                <span class="dashicons dashicons-admin-post"></span>
+            </div>
+            <div class="aethos-kb-summary-text">
+                <strong>Posts</strong><br>
+                <?php if ($kb_include_all_posts): ?>
+                    All posts included
+                <?php elseif (!empty($kb_included_posts)): ?>
+                    <?php echo count($kb_included_posts); ?> specific post(s) included
+                <?php else: ?>
+                    No posts included
+                <?php endif; ?>
+                <?php if (!empty($kb_excluded_posts)): ?>
+                    <br><?php echo count($kb_excluded_posts); ?> post(s) excluded
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+jQuery(document).ready(function($) {
+    // Tab switching
+    $('.aethos-kb-tab-button').on('click', function() {
+        const tabId = $(this).data('tab');
+        const $card = $(this).closest('.aethos-kb-card');
+        
+        // Update button states
+        $card.find('.aethos-kb-tab-button').removeClass('active');
+        $(this).addClass('active');
+        
+        // Show/hide tabs
+        $card.find('.aethos-kb-tab').removeClass('active');
+        $card.find('#' + tabId).addClass('active');
+    });
+    
+    // Include All checkbox toggle
+    $('input[name="aethos_kb_include_all_pages"], input[name="aethos_kb_include_all_posts"]').on('change', function() {
+        const $card = $(this).closest('.aethos-kb-card');
+        const isChecked = $(this).is(':checked');
+        const $wrapper = $card.find('.aethos-kb-select-wrapper').first();
+        
+        if (isChecked) {
+            $wrapper.attr('data-disabled', 'true');
+            $wrapper.find('select').prop('disabled', true);
+        } else {
+            $wrapper.attr('data-disabled', 'false');
+            $wrapper.find('select').prop('disabled', false);
+        }
+    });
+    
+    // Multi-select dropdown handling
+    $('.aethos-kb-select-dropdown').on('change', function() {
+        const selectedId = $(this).val();
+        if (!selectedId) return;
+        
+        const target = $(this).data('target');
+        const $selectedContainer = $(`.aethos-kb-selected-items[data-for="${target}"]`);
+        const $hiddenInput = $(`input[name="aethos_${target}"]`);
+        const selectedText = $(this).find('option:selected').text();
+        
+        // Check if already selected
+        if ($selectedContainer.find(`[data-id="${selectedId}"]`).length > 0) {
+            $(this).val('');
+            return;
+        }
+        
+        // Remove empty state
+        $selectedContainer.find('.aethos-kb-empty-state').remove();
+        
+        // Add tag
+        const $tag = $(`
+            <span class="aethos-kb-selected-tag" data-id="${selectedId}">
+                ${selectedText}
+                <span class="remove" title="Remove">×</span>
+            </span>
+        `);
+        $selectedContainer.append($tag);
+        
+        // Update hidden input
+        updateHiddenInput(target);
+        
+        // Reset dropdown
+        $(this).val('');
+    });
+    
+    // Remove tag
+    $(document).on('click', '.aethos-kb-selected-tag .remove', function() {
+        const $tag = $(this).closest('.aethos-kb-selected-tag');
+        const $container = $tag.closest('.aethos-kb-selected-items');
+        const target = $container.data('for');
+        
+        $tag.remove();
+        
+        // Add empty state if no tags left
+        if ($container.find('.aethos-kb-selected-tag').length === 0) {
+            $container.append('<div class="aethos-kb-empty-state">No items selected</div>');
+        }
+        
+        // Update hidden input
+        updateHiddenInput(target);
+    });
+    
+    // Update hidden input helper
+    function updateHiddenInput(target) {
+        const $container = $(`.aethos-kb-selected-items[data-for="${target}"]`);
+        const $hiddenInput = $(`input[name="aethos_${target}"]`);
+        const ids = [];
+        
+        $container.find('.aethos-kb-selected-tag').each(function() {
+            ids.push($(this).data('id'));
+        });
+        
+        $hiddenInput.val(ids.join(','));
+    }
+});
+</script>

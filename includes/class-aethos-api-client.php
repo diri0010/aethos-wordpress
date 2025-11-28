@@ -39,9 +39,19 @@ class Aethos_API_Client {
      * @since    1.0.0
      */
     public function __construct() {
-        $this->api_endpoint = get_option( 'aethos_api_endpoint', 'https://api.aethos.chat' );
+        $api = new Aethos_API();
+        $this->api_endpoint = $api->get_api_endpoint();
         $this->api_key = get_option( 'aethos_api_key', '' );
         $this->debug_mode = get_option( 'aethos_debug_mode', false );
+    }
+
+    /**
+     * Get API endpoint base URL
+     *
+     * @return string API endpoint
+     */
+    public function get_api_endpoint() {
+        return $this->api_endpoint;
     }
 
     /**
@@ -187,7 +197,7 @@ class Aethos_API_Client {
      * @param array  $args Additional wp_remote_post arguments
      * @return array|WP_Error Response data or error
      */
-    private function make_request( $endpoint, $body, $args = array() ) {
+    public function make_request( $endpoint, $body, $args = array() ) {
         $default_args = array(
             'headers' => array(
                 'Content-Type' => 'application/json',
@@ -196,6 +206,11 @@ class Aethos_API_Client {
             'timeout' => 15,
             'sslverify' => true
         );
+
+        // Add API key to headers if available
+        if ( ! empty( $this->api_key ) ) {
+            $default_args['headers']['x-api-key'] = $this->api_key;
+        }
 
         $args = wp_parse_args( $args, $default_args );
 
@@ -228,6 +243,11 @@ class Aethos_API_Client {
      * @return bool True if request is allowed, false if rate limited
      */
     private function check_rate_limit() {
+        // Skip rate limiting for admin users
+        if ( current_user_can( 'manage_options' ) ) {
+            return true;
+        }
+
         $rate_limit = get_option( 'aethos_rate_limit', 60 );
         $user_id = get_current_user_id();
         $ip_address = $this->get_client_ip();

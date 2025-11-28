@@ -8,6 +8,8 @@
  * Author URI:        https://aethos.chat
  * License:           GPL-2.0+
  * Text Domain:       aethos-chat
+ * Requires at least: 6.0
+ * Requires PHP:      7.4
  */
 
 // If this file is called directly, abort.

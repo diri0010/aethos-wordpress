@@ -9,6 +9,7 @@ $header_title = get_option('aethos_header_title', 'Aethos AI Assistant');
 $chat_subtitle = get_option('aethos_chat_subtitle', 'Typically replies instantly');
 $primary_color = get_option('aethos_primary_color', '#0052CC');
 $user_text_color = get_option('aethos_user_text_color', '#FFFFFF');
+$input_bg_color = get_option('aethos_input_bg_color', '#FFFFFF');
 $ai_bubble_color = get_option('aethos_ai_bubble_color', '#F3F4F6');
 $header_title_color = get_option('aethos_header_title_color', '#FFFFFF');
 $header_subtitle_color = get_option('aethos_header_subtitle_color', '#FFFFFF');
@@ -16,9 +17,11 @@ $font_family = get_option('aethos_font_family', 'Roboto');
 $font_size = get_option('aethos_font_size', 16);
 $widget_position = get_option('aethos_widget_position', 'bottom-right');
 $widget_size = get_option('aethos_widget_size', 'medium');
-$greeting_message = get_option('aethos_greeting_message', 'Welcome! How can I help you today?');
 $button_text = get_option('aethos_button_text', 'Send');
 $placeholder_text = get_option('aethos_placeholder_text', 'Type your message...');
+
+// Get greeting message from Behavior settings for preview
+$greeting_message = get_option('aethos_greeting_message', 'Welcome! How can I help you today?');
 
 // Popular Google Fonts
 $google_fonts = array(
@@ -109,13 +112,6 @@ $google_fonts = array(
                         <label for="aethos_chat_subtitle" style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px; color: #374151;">Chat Subtitle</label>
                         <input type="text" name="aethos_chat_subtitle" id="aethos_chat_subtitle" value="<?php echo esc_attr( $chat_subtitle ); ?>" class="regular-text aethos-preview-trigger" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
                     </div>
-                    
-                    <!-- Welcome Message -->
-                    <div>
-                        <label for="aethos_greeting_message" style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px; color: #374151;">Welcome Message</label>
-                        <textarea name="aethos_greeting_message" id="aethos_greeting_message" rows="3" class="regular-text aethos-preview-trigger" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;"><?php echo esc_textarea( $greeting_message ); ?></textarea>
-                        <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 12px;">The first message visitors see when opening the chat</p>
-                    </div>
                 </div>
             </div>
             
@@ -141,6 +137,11 @@ $google_fonts = array(
                             <label for="aethos_ai_bubble_color" style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px; color: #374151;">AI Bubble Color</label>
                             <input type="text" name="aethos_ai_bubble_color" id="aethos_ai_bubble_color" value="<?php echo esc_attr( $ai_bubble_color ); ?>" class="aethos-color-picker">
                             <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 12px;">Background for AI messages</p>
+                        </div>
+                        <div>
+                            <label for="aethos_input_bg_color" style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px; color: #374151;">Input Background Color</label>
+                            <input type="text" name="aethos_input_bg_color" id="aethos_input_bg_color" value="<?php echo esc_attr( $input_bg_color ); ?>" class="aethos-color-picker aethos-preview-trigger">
+                            <p style="margin: 6px 0 0 0; color: #6b7280; font-size: 12px;">Background for input field</p>
                         </div>
                         <div>
                             <label for="aethos_header_title_color" style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px; color: #374151;">Header Title Color</label>
@@ -248,7 +249,7 @@ $google_fonts = array(
             <div id="aethos-preview-container" style="background: #dcdcde; border-radius: 12px; padding: 60px 24px 24px 24px; min-height: 560px; position: relative; overflow: hidden;">
                 
                 <!-- Chat Widget Preview -->
-                <div id="aethos-preview-widget" class="aethos-widget-bottom-right aethos-widget-medium" style="position: absolute; width: 380px; background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1); overflow: hidden; transition: all 0.3s ease; display: none; opacity: 0; transform: scale(0.9);">
+                <div id="aethos-preview-widget" class="aethos-widget-bottom-right aethos-widget-medium" style="position: absolute; bottom: 100px; margin-right: 130px; right: 0; width: 380px; background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1); overflow: hidden; transition: all 0.3s ease; display: block; opacity: 1; transform: scale(1);">
                     <!-- Header -->
                     <div id="aethos-preview-header" style="padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(0,0,0,0.05);">
                         <img id="aethos-preview-icon" src="<?php echo esc_url($chat_icon); ?>" alt="Chat Icon" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.9); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -256,7 +257,7 @@ $google_fonts = array(
                             <div id="aethos-preview-title" style="font-weight: 600; font-size: 15px; line-height: 1.3; margin-bottom: 2px; color: <?php echo esc_attr($header_title_color); ?>;"><?php echo esc_html($header_title); ?></div>
                             <div id="aethos-preview-subtitle" style="font-size: 12px; color: <?php echo esc_attr($header_subtitle_color); ?>; opacity: 0.9;"><?php echo esc_html($chat_subtitle); ?></div>
                         </div>
-                        <button style="width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <button type="button" id="aethos-preview-close" style="width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; justify-content: center;">
                             <span class="dashicons dashicons-no-alt" style="font-size: 16px; width: 16px; height: 16px; color: #FFFFFF;"></span>
                         </button>
                     </div>
@@ -288,16 +289,16 @@ $google_fonts = array(
                     </div>
                     
                     <!-- Input Area -->
-                    <div style="padding: 16px 20px; border-top: 1px solid #e5e7eb; background: white;">
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="text" id="aethos-preview-input" readonly style="flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 14px; background: #f9fafb;">
-                            <button id="aethos-preview-button" style="padding: 10px 20px; border: none; border-radius: 20px; font-weight: 500; cursor: pointer; font-size: 14px; white-space: nowrap; transition: all 0.2s;"></button>
-                        </div>
+                    <div style="padding: 16px; border-top: 1px solid #e5e7eb; display: flex; gap: 8px; align-items: center; background: white;">
+                        <input type="text" id="aethos-preview-input" placeholder="<?php echo esc_attr($placeholder_text); ?>" style="flex: 1; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 20px; font-size: 14px; outline: none; background: <?php echo esc_attr($input_bg_color); ?>;">
+                        <button type="button" id="aethos-preview-send" style="padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s; background: <?php echo esc_attr($primary_color); ?>; color: <?php echo esc_attr($user_text_color); ?>;">
+                            <span id="aethos-preview-button"><?php echo esc_html($button_text); ?></span>
+                        </button>
                     </div>
                 </div>
                 
                 <!-- Chat Bubble Button -->
-                <div id="aethos-preview-bubble" class="aethos-bubble-bottom-right" style="position: absolute; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                <div id="aethos-preview-bubble" class="aethos-bubble-bottom-right" style="position: absolute; bottom: 24px; margin-right: 70px; right: 0; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
                     <img src="<?php echo esc_url($chat_icon); ?>" alt="Chat" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                 </div>
             </div>
@@ -317,7 +318,7 @@ $google_fonts = array(
 /* Widget positioning classes */
 .aethos-widget-bottom-right { bottom: 80px; right: 24px; }
 .aethos-widget-bottom-left { bottom: 80px; left: 24px; }
-.aethos-widget-floating-right { top: 50%; right: 24px; transform: translateY(-50%); }
+.aethos-widget-floating-right { margin-right: 130px; right: 0; }
 
 /* Bubble positioning classes */
 .aethos-bubble-bottom-right { bottom: 20px; right: 24px; }
@@ -471,6 +472,7 @@ jQuery(document).ready(function($) {
         const primaryColor = $('#aethos_primary_color').val();
         const userTextColor = $('#aethos_user_text_color').val();
         const aiBubbleColor = $('#aethos_ai_bubble_color').val();
+        const inputBgColor = $('#aethos_input_bg_color').val();
         const headerTitleColor = $('#aethos_header_title_color').val();
         const headerSubtitleColor = $('#aethos_header_subtitle_color').val();
         const fontSize = $('#aethos_font_size').val();
@@ -491,10 +493,11 @@ jQuery(document).ready(function($) {
         $('#aethos-preview-header').css('background', primaryColor);
         $('#aethos-preview-title').css('color', headerTitleColor);
         $('#aethos-preview-subtitle').css('color', headerSubtitleColor);
-        $('#aethos-preview-button').css({
+        $('#aethos-preview-send').css({
             'background': primaryColor,
             'color': userTextColor
         });
+        $('#aethos-preview-button').css('color', userTextColor);
         $('#aethos-preview-user-bubble').css({
             'background': primaryColor,
             'color': userTextColor
@@ -503,6 +506,7 @@ jQuery(document).ready(function($) {
             'background': aiBubbleColor,
             'color': '#1f2937'
         });
+        $('#aethos-preview-input').css('background', inputBgColor);
         
         // Update typography
         const fontValue = "'" + fontFamily + "', sans-serif";
@@ -524,24 +528,24 @@ jQuery(document).ready(function($) {
         $widget.addClass('aethos-widget-' + size);
     }
     
-    // Chat bubble click animation
-    let chatOpen = false;
+    // Chat bubble click - toggle widget
+    let chatOpen = true; // Start as open since widget is visible by default
     $('#aethos-preview-bubble').on('click', function() {
         const $widget = $('#aethos-preview-widget');
         
         if (chatOpen) {
-            // Close chat
+            // Close the widget
             $widget.css({
                 'opacity': '0',
                 'transform': 'scale(0.9)'
             });
             setTimeout(function() {
-                $widget.css('display', 'none');
+                $widget.hide();
             }, 300);
             chatOpen = false;
         } else {
-            // Open chat
-            $widget.css('display', 'block');
+            // Open the widget
+            $widget.show();
             setTimeout(function() {
                 $widget.css({
                     'opacity': '1',
@@ -550,6 +554,101 @@ jQuery(document).ready(function($) {
             }, 10);
             chatOpen = true;
         }
+    });
+    
+    // Live Preview - Send message functionality
+    function sendPreviewMessage() {
+        const $input = $('#aethos-preview-input');
+        const message = $input.val().trim();
+        
+        if (!message) return;
+        
+        const $messagesContainer = $('#aethos-preview-messages');
+        const primaryColor = $('#aethos_primary_color').val();
+        const userTextColor = $('#aethos_user_text_color').val();
+        const aiBubbleColor = $('#aethos_ai_bubble_color').val();
+        const chatIcon = $('#aethos_chat_icon').val() || '<?php echo esc_url($chat_icon); ?>';
+        
+        // Add user message
+        const userMessageHtml = `
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+                <div style="padding: 10px 14px; border-radius: 12px 12px 4px 12px; max-width: 75%; line-height: 1.5; background: ${primaryColor}; color: ${userTextColor};">
+                    ${escapeHtml(message)}
+                </div>
+            </div>
+        `;
+        $messagesContainer.append(userMessageHtml);
+        
+        // Clear input
+        $input.val('');
+        
+        // Scroll to bottom
+        $messagesContainer.scrollTop($messagesContainer[0].scrollHeight);
+        
+        // Simulate AI response after a short delay
+        setTimeout(function() {
+            const aiResponses = [
+                "I understand. How can I help you with that?",
+                "That's a great question! Let me assist you.",
+                "I'm here to help. What else would you like to know?",
+                "Thank you for your message. I'm happy to assist!",
+                "I can help you with that. What specific information do you need?"
+            ];
+            const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+            
+            const aiMessageHtml = `
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                    <img src="${chatIcon}" alt="" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                    <div style="padding: 10px 14px; border-radius: 12px 12px 12px 4px; max-width: 75%; line-height: 1.5; background: ${aiBubbleColor}; color: #1f2937;">
+                        ${randomResponse}
+                    </div>
+                </div>
+            `;
+            $messagesContainer.append(aiMessageHtml);
+            
+            // Scroll to bottom
+            $messagesContainer.scrollTop($messagesContainer[0].scrollHeight);
+        }, 800);
+    }
+    
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Send button click
+    $('#aethos-preview-send').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        sendPreviewMessage();
+    });
+    
+    // Enter key in input
+    $('#aethos-preview-input').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            sendPreviewMessage();
+        }
+    });
+    
+    // Close button in preview
+    $('#aethos-preview-close').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const $widget = $('#aethos-preview-widget');
+        $widget.css({
+            'opacity': '0',
+            'transform': 'scale(0.9)'
+        });
+        
+        setTimeout(function() {
+            $widget.hide();
+        }, 300);
+        
+        chatOpen = false;
     });
     
     // Reset to defaults button

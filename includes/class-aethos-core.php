@@ -100,6 +100,15 @@ class Aethos_Core {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-public.php';
 
         /**
+         * Enhanced Admin Functionality
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-api-client.php';
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-vector-storage.php';
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-content-scanner.php';
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-scan-orchestrator.php';
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-admin-enhanced.php';
+
+        /**
          * The class responsible for API client functionality.
          */
         if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-api-client.php' ) ) {
@@ -151,12 +160,47 @@ class Aethos_Core {
             require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-feedback.php';
         }
 
+        /**
+         * The Vector Storage class.
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-vector-storage.php';
+
+        /**
+         * The Content Scanner class.
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-content-scanner.php';
+
+        /**
+         * The Embeddings API class.
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-embeddings.php';
+
 		/**
 		 * Create an instance of the loader which will be used to register the hooks
 		 * with WordPress.
 		 */
 		$this->loader = new Aethos_Loader();
 
+		// Register custom cron schedules
+		add_filter( 'cron_schedules', array( $this, 'add_custom_cron_schedules' ) );
+
+	}
+
+	/**
+	 * Add custom cron schedules
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_custom_cron_schedules( $schedules ) {
+		$schedules['weekly'] = array(
+			'interval' => 604800, // 7 days in seconds
+			'display'  => __( 'Once Weekly' )
+		);
+		$schedules['monthly'] = array(
+			'interval' => 2635200, // 30.5 days in seconds
+			'display'  => __( 'Once Monthly' )
+		);
+		return $schedules;
 	}
 
 	/**
@@ -185,12 +229,30 @@ class Aethos_Core {
         $this->loader->add_action( 'wp_ajax_aethos_reset_appearance', $plugin_admin, 'reset_appearance_settings' );
         $this->loader->add_action( 'wp_ajax_aethos_reset_behavior', $plugin_admin, 'reset_behavior_settings' );
         $this->loader->add_action( 'wp_ajax_aethos_search_content', $plugin_admin, 'search_content' );
+
+        // Danger Zone AJAX handlers
+        $this->loader->add_action( 'wp_ajax_aethos_clear_cache', $plugin_admin, 'clear_cache' );
+        $this->loader->add_action( 'wp_ajax_aethos_delete_all_conversations', $plugin_admin, 'delete_all_conversations' );
+        $this->loader->add_action( 'wp_ajax_aethos_reset_settings', $plugin_admin, 'reset_all_settings' );
         
         // Q&A Management AJAX handlers
         $this->loader->add_action( 'wp_ajax_aethos_load_qna', $plugin_admin, 'ajax_load_qna' );
         $this->loader->add_action( 'wp_ajax_aethos_save_qna', $plugin_admin, 'ajax_save_qna' );
         $this->loader->add_action( 'wp_ajax_aethos_delete_qna', $plugin_admin, 'ajax_delete_qna' );
         $this->loader->add_action( 'wp_ajax_aethos_bulk_action_qna', $plugin_admin, 'ajax_bulk_action_qna' );
+
+        // Discovered Content AJAX handlers
+        $this->loader->add_action( 'wp_ajax_aethos_scan_now', $plugin_admin, 'scan_now' );
+        $this->loader->add_action( 'wp_ajax_aethos_scan_single', $plugin_admin, 'scan_single' );
+        $this->loader->add_action( 'wp_ajax_aethos_toggle_exclude', $plugin_admin, 'toggle_exclude' );
+        $this->loader->add_action( 'wp_ajax_aethos_exclude_post_from_kb', $plugin_admin, 'exclude_post_from_kb' );
+        $this->loader->add_action( 'wp_ajax_aethos_include_post_to_kb', $plugin_admin, 'include_post_to_kb' );
+        $this->loader->add_action( 'wp_ajax_aethos_save_scan_schedule', $plugin_admin, 'save_scan_schedule' );
+        $this->loader->add_action( 'wp_ajax_aethos_delete_vectors', $plugin_admin, 'delete_vectors' );
+        $this->loader->add_action( 'wp_ajax_aethos_remove_all_vectors', $plugin_admin, 'remove_all_vectors' );
+
+        // Automated scan cron hook
+        $this->loader->add_action( 'aethos_automated_scan', $plugin_admin, 'run_automated_scan' );
 
 	}
 

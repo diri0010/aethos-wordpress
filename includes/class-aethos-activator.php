@@ -55,24 +55,55 @@ class Aethos_Activator {
         
         dbDelta( $sql_qna );
 
-        $sql = "CREATE TABLE $table_name (
+        // Enhanced vector storage table
+        $sql_vectors = "CREATE TABLE IF NOT EXISTS $table_name (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             post_id bigint(20) unsigned NOT NULL,
+            post_type varchar(50) NOT NULL,
+            post_url varchar(255) DEFAULT NULL,
+            chunk_index int NOT NULL DEFAULT 0,
             chunk_text longtext NOT NULL,
             embedding longtext NOT NULL,
+            token_count int DEFAULT NULL,
             metadata longtext DEFAULT NULL,
+            hash varchar(64) DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY  (id),
-            KEY post_id (post_id)
+            KEY post_id (post_id),
+            KEY post_type (post_type),
+            KEY post_url (post_url),
+            KEY hash (hash),
+            UNIQUE KEY unique_chunk (post_id, chunk_index)
         ) $charset_collate;";
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-	        dbDelta( $sql );
+	    dbDelta( $sql_vectors );
 
-	        // Create analytics table
-	        require_once plugin_dir_path( __FILE__ ) . 'class-aethos-analytics.php';
-	        $analytics = new Aethos_Analytics();
-	        $analytics->create_tables();
+        // Create sync log table
+        $sync_log_table = $wpdb->prefix . 'aethos_sync_log';
+        $sql_sync_log = "CREATE TABLE IF NOT EXISTS $sync_log_table (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            sync_type enum('full','incremental','single') NOT NULL,
+            status enum('pending','processing','completed','failed') NOT NULL,
+            posts_scanned int DEFAULT 0,
+            vectors_created int DEFAULT 0,
+            vectors_updated int DEFAULT 0,
+            vectors_deleted int DEFAULT 0,
+            error_message text DEFAULT NULL,
+            started_at datetime DEFAULT CURRENT_TIMESTAMP,
+            completed_at datetime DEFAULT NULL,
+            PRIMARY KEY  (id),
+            KEY status (status),
+            KEY started_at (started_at)
+        ) $charset_collate;";
+        
+        dbDelta( $sql_sync_log );
+
+	    // Create analytics table
+	    require_once plugin_dir_path( __FILE__ ) . 'class-aethos-analytics.php';
+	    $analytics = new Aethos_Analytics();
+	    $analytics->create_tables();
 	}
 
 }

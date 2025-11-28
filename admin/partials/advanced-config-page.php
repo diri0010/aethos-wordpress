@@ -11,6 +11,14 @@ if ( ! defined( 'WPINC' ) ) {
 
 // Include header
 include_once AETHOS_PLUGIN_DIR . 'admin/partials/admin-header.php';
+
+// Retrieve options
+$log_conversations = get_option( 'aethos_log_conversations', true );
+$log_ip = get_option( 'aethos_log_ip', true );
+$data_retention = get_option( 'aethos_data_retention', 30 );
+$cache_enabled = get_option( 'aethos_cache_enabled', true );
+$rate_limit = get_option( 'aethos_rate_limit', 60 );
+$delete_on_uninstall = get_option( 'aethos_delete_on_uninstall', false );
 ?>
 
 <div class="aethos-page-header" style="margin-bottom: 32px;">

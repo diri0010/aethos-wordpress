@@ -64,7 +64,8 @@ class Aethos_Public {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/widget.js', array(), $this->version, true );
         
         // Get all widget configuration
-        $api_endpoint = get_option( 'aethos_api_endpoint', 'https://api.aethos.chat' );
+        $api = new Aethos_API();
+        $api_endpoint = $api->get_api_endpoint();
         
         wp_localize_script( $this->plugin_name, 'aethosData', array(
             'apiKey' => get_option('aethos_api_key', ''),

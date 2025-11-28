@@ -267,6 +267,12 @@ class Aethos_Admin {
             'default' => '#F3F4F6'
         ));
 
+        register_setting( 'aethos_appearance', 'aethos_input_bg_color', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_hex_color',
+            'default' => '#FFFFFF'
+        ));
+
         register_setting( 'aethos_appearance', 'aethos_font_family', array(
             'type' => 'string',
             'sanitize_callback' => 'sanitize_text_field',
@@ -316,39 +322,41 @@ class Aethos_Admin {
         ));
         
         // Advanced settings
-        register_setting( 'aethos_behavior', 'aethos_log_conversations', array(
+        register_setting( 'aethos_options', 'aethos_log_conversations', array(
             'type' => 'boolean',
             'default' => true
         ));
         
         register_setting( 'aethos_options', 'aethos_log_ip', array(
             'type' => 'boolean',
-            'default' => false
+            'default' => true
         ));
         
-        // New Phase 1 settings
-        register_setting( 'aethos_options', 'aethos_header_title', array(
+        // Header title for appearance
+        register_setting( 'aethos_appearance', 'aethos_header_title', array(
             'type' => 'string',
             'sanitize_callback' => 'sanitize_text_field',
             'default' => 'Aethos AI Assistant'
         ));
         
-        register_setting( 'aethos_options', 'aethos_chatbot_persona', array(
+        // Chatbot persona for behavior
+        register_setting( 'aethos_behavior', 'aethos_chatbot_persona', array(
             'type' => 'string',
             'sanitize_callback' => 'sanitize_text_field',
             'default' => 'friendly'
         ));
         
-        register_setting( 'aethos_options', 'aethos_fallback_response', array(
+        // Fallback response for behavior
+        register_setting( 'aethos_behavior', 'aethos_fallback_response', array(
             'type' => 'string',
             'sanitize_callback' => 'sanitize_textarea_field',
-            'default' => 'I\'m sorry, I couldn\'t find an answer to that. Please try rephrasing your question.'
+            'default' => 'I apologize, but I don\'t have enough information to answer that question accurately. Could you try rephrasing it or asking something else?'
         ));
         
-        register_setting( 'aethos_options', 'aethos_log_retention_days', array(
+        register_setting( 'aethos_options', 'aethos_data_retention', array(
             'type' => 'integer',
             'sanitize_callback' => 'absint',
-            'default' => 30
+            'default' => 0
         ));
         
         register_setting( 'aethos_options', 'aethos_disable_ip_logging', array(
@@ -626,6 +634,242 @@ class Aethos_Admin {
 
         $response_code = wp_remote_retrieve_response_code( $response );
         return $response_code === 200;
+    }
+
+    /**
+     * AJAX handler for full site scan (batch-aware)
+     *
+     * @since    1.0.0
+     */
+    public function scan_now() {
+        check_ajax_referer( 'aethos_scan_now', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
+        // Get batch parameters
+        $offset = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+        $limit = isset( $_POST['limit'] ) ? absint( $_POST['limit'] ) : 5;
+
+        require_once AETHOS_PLUGIN_DIR . 'includes/class-aethos-scan-orchestrator.php';
+        $orchestrator = new Aethos_Scan_Orchestrator();
+
+        $result = $orchestrator->start_full_scan($offset, $limit);
+
+        if ( $result['success'] ) {
+            wp_send_json_success( array(
+                'message' => 'Batch processed successfully',
+                'total_posts' => $result['total_posts'],
+                'processed_count' => $result['processed_count'],
+                'offset' => $result['offset'],
+                'items_found' => $result['items_found'],
+                'has_more' => $result['has_more']
+            ));
+        } else {
+            wp_send_json_error( array( 'message' => $result['error'] ) );
+        }
+    }
+
+    /**
+     * AJAX handler for single post scan
+     *
+     * @since    1.0.0
+     */
+    public function scan_single() {
+        check_ajax_referer( 'aethos_scan_single', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
+        $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+
+        if ( ! $post_id ) {
+            wp_send_json_error( array( 'message' => 'Invalid post ID' ) );
+        }
+
+        require_once AETHOS_PLUGIN_DIR . 'includes/class-aethos-scan-orchestrator.php';
+        $orchestrator = new Aethos_Scan_Orchestrator();
+
+        $result = $orchestrator->scan_single_post( $post_id );
+
+        if ( $result['success'] ) {
+            wp_send_json_success( array(
+                'message' => 'Post scanned successfully',
+                'vectors_created' => $result['vectors_created'],
+                'vectors_updated' => $result['vectors_updated']
+            ));
+        } else {
+            wp_send_json_error( array( 'message' => $result['error'] ) );
+        }
+    }
+
+    /**
+     * AJAX handler for toggling post exclusion
+     *
+     * @since    1.0.0
+     */
+    public function toggle_exclude() {
+        check_ajax_referer( 'aethos_toggle_exclude', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
+        $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+        $exclude = isset( $_POST['exclude'] ) ? rest_sanitize_boolean( $_POST['exclude'] ) : false;
+
+        if ( ! $post_id ) {
+            wp_send_json_error( array( 'message' => 'Invalid post ID' ) );
+        }
+
+        $excluded_posts = get_option( 'aethos_excluded_posts', array() );
+
+        if ( $exclude ) {
+            if ( ! in_array( $post_id, $excluded_posts ) ) {
+                $excluded_posts[] = $post_id;
+            }
+        } else {
+            $excluded_posts = array_diff( $excluded_posts, array( $post_id ) );
+        }
+
+        update_option( 'aethos_excluded_posts', $excluded_posts );
+
+        wp_send_json_success( array(
+            'message' => $exclude ? 'Post excluded' : 'Post included',
+            'excluded' => $exclude
+        ));
+    }
+
+    /**
+     * AJAX handler for saving scan schedule
+     *
+     * @since    1.0.0
+     */
+    public function save_scan_schedule() {
+        check_ajax_referer( 'aethos_save_scan_schedule', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
+        $schedule = isset( $_POST['schedule'] ) ? sanitize_text_field( $_POST['schedule'] ) : 'daily';
+
+        if ( ! in_array( $schedule, array( 'daily', 'weekly', 'monthly' ) ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid schedule' ) );
+        }
+
+        update_option( 'aethos_scan_schedule', $schedule );
+        
+        // Reschedule cron job
+        $this->schedule_automated_scan( $schedule );
+
+        wp_send_json_success( array(
+            'message' => 'Schedule saved',
+            'schedule' => $schedule
+        ));
+    }
+
+    /**
+     * AJAX handler for deleting vectors
+     *
+     * @since    1.0.0
+     */
+    public function delete_vectors() {
+        check_ajax_referer( 'aethos_delete_vectors', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
+        $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+
+        if ( ! $post_id ) {
+            wp_send_json_error( array( 'message' => 'Invalid post ID' ) );
+        }
+
+        require_once AETHOS_PLUGIN_DIR . 'includes/class-aethos-vector-storage.php';
+        $storage = new Aethos_Vector_Storage();
+
+        $result = $storage->delete_post_vectors( $post_id );
+
+        if ( $result !== false ) {
+            wp_send_json_success( array(
+                'message' => 'Vectors deleted successfully',
+                'deleted_count' => $result
+            ));
+        } else {
+            wp_send_json_error( array( 'message' => 'Failed to delete vectors' ) );
+        }
+    }
+
+    /**
+     * Schedule automated scan based on user preference
+     *
+     * @since    1.0.0
+     */
+    private function schedule_automated_scan( $schedule ) {
+        // Clear existing scheduled event
+        $timestamp = wp_next_scheduled( 'aethos_automated_scan' );
+        if ( $timestamp ) {
+            wp_unschedule_event( $timestamp, 'aethos_automated_scan' );
+        }
+
+        // Schedule new event based on preference
+        $interval = 'daily'; // Default
+        switch ( $schedule ) {
+            case 'weekly':
+                $interval = 'weekly';
+                break;
+            case 'monthly':
+                $interval = 'monthly';
+                break;
+        }
+
+        wp_schedule_event( time(), $interval, 'aethos_automated_scan' );
+    }
+
+    /**
+     * Handle automated scan cron job
+     *
+     * @since    1.0.0
+     */
+    public function run_automated_scan() {
+        require_once AETHOS_PLUGIN_DIR . 'includes/class-aethos-scan-orchestrator.php';
+        $orchestrator = new Aethos_Scan_Orchestrator();
+        $orchestrator->start_full_scan();
+    }
+
+    /**
+     * AJAX handler for removing all vectors
+     *
+     * @since    1.0.0
+     */
+    public function remove_all_vectors() {
+        check_ajax_referer( 'aethos_remove_all_vectors', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
+        require_once AETHOS_PLUGIN_DIR . 'includes/class-aethos-vector-storage.php';
+        $storage = new Aethos_Vector_Storage();
+
+        global $wpdb;
+        $vectors_table = $wpdb->prefix . 'aethos_vectors';
+        
+        $count = $wpdb->get_var( "SELECT COUNT(*) FROM $vectors_table" );
+        $result = $wpdb->query( "TRUNCATE TABLE $vectors_table" );
+
+        if ( $result !== false ) {
+            wp_send_json_success( array(
+                'message' => 'All vectors removed successfully',
+                'deleted_count' => $count
+            ));
+        } else {
+            wp_send_json_error( array( 'message' => 'Failed to remove vectors' ) );
+        }
     }
 
 }

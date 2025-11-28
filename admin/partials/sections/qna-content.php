@@ -9,21 +9,6 @@
  * - Prepared for chatbot integration
  * - Improved data management
  */
-
-// Get saved options
-$kb_pages = get_option('aethos_kb_pages', true);
-$kb_posts = get_option('aethos_kb_posts', true);
-$selected_cpts = get_option('aethos_kb_custom_post_types', array());
-if (!is_array($selected_cpts)) {
-    $selected_cpts = array();
-}
-
-// Get custom post types
-$args = array(
-    'public' => true,
-    '_builtin' => false
-);
-$custom_post_types = get_post_types($args, 'objects');
 ?>
 
 <style>
@@ -56,184 +41,6 @@ $custom_post_types = get_post_types($args, 'objects');
     color: #6b7280;
     font-size: 14px;
     line-height: 1.6;
-}
-
-/* Knowledge Base Sources */
-.aethos-kb-sources {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.aethos-kb-source-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #ffffff;
-    transition: all 0.2s;
-}
-
-.aethos-kb-source-item:hover {
-    border-color: #cbd5e1;
-    background: #f9fafb;
-}
-
-.aethos-kb-source-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    margin: 0;
-}
-
-.aethos-kb-source-item .source-icon {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0f9ff;
-    border-radius: 6px;
-    color: #0284c7;
-    font-size: 18px;
-}
-
-.aethos-kb-source-item .source-info {
-    flex: 1;
-}
-
-.aethos-kb-source-item .source-title {
-    font-weight: 500;
-    font-size: 15px;
-    color: #111827;
-    margin: 0 0 2px 0;
-}
-
-.aethos-kb-source-item .source-count {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0;
-}
-
-.aethos-kb-source-item.checked {
-    border-color: #4f46e5;
-    background: #f5f3ff;
-}
-
-/* Custom Post Types Nested */
-.aethos-kb-cpt-container {
-    padding: 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    background: #f9fafb;
-}
-
-.aethos-kb-cpt-title {
-    font-weight: 500;
-    font-size: 15px;
-    color: #111827;
-    margin: 0 0 12px 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.aethos-kb-cpt-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-left: 8px;
-}
-
-.aethos-kb-cpt-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    cursor: pointer;
-}
-
-.aethos-kb-cpt-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.aethos-kb-cpt-item label {
-    font-size: 14px;
-    color: #374151;
-    cursor: pointer;
-    margin: 0;
-}
-
-/* Sync Button */
-.aethos-sync-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: #4f46e5;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.aethos-sync-button:hover {
-    background: #4338ca;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
-}
-
-.aethos-sync-button:active {
-    transform: translateY(0);
-}
-
-.aethos-sync-button:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.aethos-sync-button .dashicons {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-}
-
-/* Stats Grid */
-.aethos-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.aethos-stat-card {
-    padding: 16px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-}
-
-.aethos-stat-value {
-    font-size: 28px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 4px 0;
-}
-
-.aethos-stat-label {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0;
 }
 
 /* Q&A Management Section */
@@ -646,39 +453,24 @@ $custom_post_types = get_post_types($args, 'objects');
 </style>
 
 <div class="aethos-content-container">
-    <!-- Knowledge Base Sources (New Granular Control) -->
-    <!-- DEBUG: About to include KB component -->
-    <?php 
-    $kb_component_path = plugin_dir_path(__FILE__) . 'kb-sources-component.php';
-    if (file_exists($kb_component_path)) {
-        include $kb_component_path;
-    } else {
-        echo '<div style="padding: 20px; background: #fee; border: 2px solid #f00; margin: 20px 0;">ERROR: KB component file not found at: ' . esc_html($kb_component_path) . '</div>';
-    }
-    ?>
-    <!-- DEBUG: KB component include complete -->
     
-    <!-- Statistics -->
+    <!-- Q&A Statistics -->
     <div class="aethos-content-card">
-        <h3>Knowledge Base Statistics</h3>
-        <p class="description">Overview of your chatbot's knowledge base and Q&A content.</p>
+        <h3>Q&A Statistics</h3>
+        <p class="description">Overview of your chatbot's Q&A knowledge base.</p>
         
-        <div class="aethos-stats-grid">
-            <div class="aethos-stat-card">
-                <div class="aethos-stat-value" id="aethos-stat-qna">0</div>
-                <div class="aethos-stat-label">Q&A Pairs</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div style="padding: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <div style="font-size: 28px; font-weight: 600; color: #111827; margin: 0 0 4px 0;" id="aethos-stat-qna">0</div>
+                <div style="font-size: 13px; color: #6b7280; margin: 0;">Q&A Pairs</div>
             </div>
-            <div class="aethos-stat-card">
-                <div class="aethos-stat-value" id="aethos-stat-published">0</div>
-                <div class="aethos-stat-label">Published</div>
+            <div style="padding: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <div style="font-size: 28px; font-weight: 600; color: #111827; margin: 0 0 4px 0;" id="aethos-stat-published">0</div>
+                <div style="font-size: 13px; color: #6b7280; margin: 0;">Published</div>
             </div>
-            <div class="aethos-stat-card">
-                <div class="aethos-stat-value" id="aethos-stat-draft">0</div>
-                <div class="aethos-stat-label">Drafts</div>
-            </div>
-            <div class="aethos-stat-card">
-                <div class="aethos-stat-value" id="aethos-stat-sources">0</div>
-                <div class="aethos-stat-label">Content Sources</div>
+            <div style="padding: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <div style="font-size: 28px; font-weight: 600; color: #111827; margin: 0 0 4px 0;" id="aethos-stat-draft">0</div>
+                <div style="font-size: 13px; color: #6b7280; margin: 0;">Drafts</div>
             </div>
         </div>
     </div>
