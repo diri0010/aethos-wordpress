@@ -41,6 +41,14 @@ include_once AETHOS_PLUGIN_DIR . 'admin/partials/admin-header.php';
         <?php include AETHOS_PLUGIN_DIR . 'admin/partials/sections/kb-sources-component.php'; ?>
         <?php submit_button( 'Save Changes', 'primary', 'submit', true, array( 'style' => 'margin-top: 24px;' ) ); ?>
     </form>
+    
+    <!-- Reset Button -->
+    <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+        <button type="button" id="aethos-reset-knowledge-base" class="button" style="color: #6b7280;">
+            <span class="dashicons dashicons-image-rotate" style="vertical-align: middle;"></span> Reset to Defaults
+        </button>
+        <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 12px;">This will restore all Knowledge Base settings to their default values.</p>
+    </div>
 </div>
 
 <!-- Q&A Management Tab -->

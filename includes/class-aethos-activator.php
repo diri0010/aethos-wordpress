@@ -100,6 +100,25 @@ class Aethos_Activator {
         
         dbDelta( $sql_sync_log );
 
+        // Create background processing table
+        $bg_table = $wpdb->prefix . 'aethos_background_processing';
+        $sql_bg = "CREATE TABLE IF NOT EXISTS $bg_table (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            post_id bigint(20) unsigned NOT NULL,
+            action varchar(20) NOT NULL DEFAULT 'update',
+            status varchar(20) NOT NULL DEFAULT 'pending',
+            priority int(11) NOT NULL DEFAULT 10,
+            attempts int(11) NOT NULL DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY status (status),
+            KEY post_id (post_id),
+            KEY priority (priority)
+        ) $charset_collate;";
+        
+        dbDelta( $sql_bg );
+
 	    // Create analytics table
 	    require_once plugin_dir_path( __FILE__ ) . 'class-aethos-analytics.php';
 	    $analytics = new Aethos_Analytics();

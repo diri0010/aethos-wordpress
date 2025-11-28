@@ -124,10 +124,10 @@ foreach ($custom_post_types as $cpt) {
     $cpt_data[] = array(
         'name' => $cpt->name,
         'label' => $cpt->label,
-        'include_all' => (bool) get_option("aethos_kb_include_all_{$cpt->name}", false),
+        'include_all' => (bool) get_option("aethos_kb_include_all_{$cpt->name}", true),
         'included' => get_option("aethos_kb_included_{$cpt->name}", array()),
         'excluded' => get_option("aethos_kb_excluded_{$cpt->name}", array()),
-        'auto_sync' => (bool) get_option("aethos_kb_{$cpt->name}_auto_sync", false),
+        'auto_sync' => (bool) get_option("aethos_kb_{$cpt->name}_auto_sync", true),
         'items' => get_posts(array(
             'post_type' => $cpt->name,
             'posts_per_page' => -1,
@@ -1137,5 +1137,38 @@ jQuery(document).ready(function($) {
         
         $targetSummary.find('.aethos-kb-summary-text').html(summaryHtml);
     }
+    
+    // Reset to Defaults button handler
+    $('#aethos-reset-knowledge-base').on('click', function() {
+        if (!confirm('Are you sure you want to reset all Knowledge Base settings to their defaults? This will:\n\n• Set all content types to "Include All"\n• Enable auto-sync for all content types\n• Clear all manual inclusions and exclusions\n\nThis cannot be undone.')) {
+            return;
+        }
+        
+        const $button = $(this);
+        const originalText = $button.html();
+        $button.prop('disabled', true).html('<span class="dashicons dashicons-update" style="animation: spin 1s linear infinite; vertical-align: middle;"></span> Resetting...');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'aethos_reset_knowledge_base',
+                nonce: '<?php echo wp_create_nonce("aethos_reset_knowledge_base"); ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Knowledge Base settings have been reset to defaults. The page will now reload.');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (response.data || 'Failed to reset settings'));
+                    $button.prop('disabled', false).html(originalText);
+                }
+            },
+            error: function() {
+                alert('Network error. Please try again.');
+                $button.prop('disabled', false).html(originalText);
+            }
+        });
+    });
 });
 </script>

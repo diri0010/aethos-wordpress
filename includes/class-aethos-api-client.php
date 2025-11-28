@@ -243,8 +243,8 @@ class Aethos_API_Client {
      * @return bool True if request is allowed, false if rate limited
      */
     private function check_rate_limit() {
-        // Skip rate limiting for admin users
-        if ( current_user_can( 'manage_options' ) ) {
+        // Skip rate limiting for admin users and WP Cron
+        if ( current_user_can( 'manage_options' ) || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
             return true;
         }
 

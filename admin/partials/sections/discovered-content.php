@@ -417,9 +417,135 @@ $last_scan_info = !empty($recent_scans) ? $recent_scans[0] : null;
     <h3>Discovered Content</h3>
     
     <?php
-    // Get all discovered content (grouped by post_id)
+    // Get filter parameters
+    $filter_post_type = isset($_GET['filter_post_type']) ? sanitize_text_field($_GET['filter_post_type']) : 'all';
+    $filter_date_range = isset($_GET['filter_date_range']) ? sanitize_text_field($_GET['filter_date_range']) : 'all';
+    $filter_search = isset($_GET['filter_search']) ? sanitize_text_field($_GET['filter_search']) : '';
+    $current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+    $per_page = isset($_GET['per_page']) ? intval($_GET['per_page']) : 20;
+    if (!in_array($per_page, array(20, 50, 75, 100, 200))) {
+        $per_page = 20;
+    }
+    
+    // Get all post types for filter
+    $args = array('public' => true);
+    $all_post_types = get_post_types($args, 'objects');
+    $post_type_options = array();
+    foreach ($all_post_types as $pt) {
+        $post_type_options[$pt->name] = $pt->label;
+    }
+    ?>
+    
+    <!-- Filter Controls -->
+    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+            <!-- Post Type Filter -->
+            <div>
+                <label style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 13px; color: #374151;">Post Type</label>
+                <select id="filter-post-type" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white;">
+                    <option value="all" <?php selected($filter_post_type, 'all'); ?>>All Types</option>
+                    <?php foreach ($post_type_options as $value => $label): ?>
+                        <option value="<?php echo esc_attr($value); ?>" <?php selected($filter_post_type, $value); ?>><?php echo esc_html($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <!-- Date Range Filter -->
+            <div>
+                <label style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 13px; color: #374151;">Date Range</label>
+                <select id="filter-date-range" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white;">
+                    <option value="all" <?php selected($filter_date_range, 'all'); ?>>All Time</option>
+                    <option value="7days" <?php selected($filter_date_range, '7days'); ?>>Last 7 Days</option>
+                    <option value="30days" <?php selected($filter_date_range, '30days'); ?>>Last 30 Days</option>
+                    <option value="90days" <?php selected($filter_date_range, '90days'); ?>>Last 90 Days</option>
+                </select>
+            </div>
+            
+            <!-- Items Per Page -->
+            <div>
+                <label style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 13px; color: #374151;">Items Per Page</label>
+                <select id="filter-per-page" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white;">
+                    <option value="20" <?php selected($per_page, 20); ?>>20 items</option>
+                    <option value="50" <?php selected($per_page, 50); ?>>50 items</option>
+                    <option value="75" <?php selected($per_page, 75); ?>>75 items</option>
+                    <option value="100" <?php selected($per_page, 100); ?>>100 items</option>
+                    <option value="200" <?php selected($per_page, 200); ?>>200 items</option>
+                </select>
+            </div>
+            
+            <!-- Search -->
+            <div>
+                <label style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 13px; color: #374151;">Search</label>
+                <input type="text" id="filter-search" placeholder="Search by title or URL..." value="<?php echo esc_attr($filter_search); ?>" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+            </div>
+        </div>
+        
+        <div style="margin-top: 16px; display: flex; gap: 12px;">
+            <button type="button" id="apply-filters" class="button button-primary" style="padding: 8px 20px;">
+                <span class="dashicons dashicons-filter" style="vertical-align: middle; margin-right: 4px;"></span>
+                Apply Filters
+            </button>
+            <button type="button" id="clear-filters" class="button" style="padding: 8px 20px;">
+                <span class="dashicons dashicons-dismiss" style="vertical-align: middle; margin-right: 4px;"></span>
+                Clear Filters
+            </button>
+        </div>
+    </div>
+    
+    <?php
+    // Get all discovered content (grouped by post_id) with filters
     $vectors_table = $wpdb->prefix . 'aethos_vectors';
-    $discovered_content = $wpdb->get_results("
+    
+    // Build WHERE clauses
+    $where_clauses = array('1=1');
+    $query_params = array();
+    
+    // Post type filter
+    if ($filter_post_type !== 'all') {
+        $where_clauses[] = 'post_type = %s';
+        $query_params[] = $filter_post_type;
+    }
+    
+    // Date range filter
+    if ($filter_date_range !== 'all') {
+        $date_threshold = '';
+        switch ($filter_date_range) {
+            case '7days':
+                $date_threshold = date('Y-m-d H:i:s', strtotime('-7 days'));
+                break;
+            case '30days':
+                $date_threshold = date('Y-m-d H:i:s', strtotime('-30 days'));
+                break;
+            case '90days':
+                $date_threshold = date('Y-m-d H:i:s', strtotime('-90 days'));
+                break;
+        }
+        if ($date_threshold) {
+            $where_clauses[] = 'created_at >= %s';
+            $query_params[] = $date_threshold;
+        }
+    }
+    
+    // Search filter
+    if (!empty($filter_search)) {
+        $where_clauses[] = '(post_url LIKE %s OR post_id IN (SELECT ID FROM ' . $wpdb->posts . ' WHERE post_title LIKE %s))';
+        $query_params[] = '%' . $wpdb->esc_like($filter_search) . '%';
+        $query_params[] = '%' . $wpdb->esc_like($filter_search) . '%';
+    }
+    
+    $where_sql = implode(' AND ', $where_clauses);
+    
+    // Get total count for pagination
+    $count_sql = "SELECT COUNT(DISTINCT post_id) FROM $vectors_table WHERE $where_sql";
+    if (!empty($query_params)) {
+        $count_sql = $wpdb->prepare($count_sql, $query_params);
+    }
+    $total_items = $wpdb->get_var($count_sql);
+    $total_pages = ceil($total_items / $per_page);
+    
+    // Get paginated results
+    $offset = ($current_page - 1) * $per_page;
+    $content_sql = "
         SELECT 
             post_id,
             post_type,
@@ -427,11 +553,24 @@ $last_scan_info = !empty($recent_scans) ? $recent_scans[0] : null;
             MAX(created_at) as last_scanned,
             COUNT(*) as chunk_count
         FROM $vectors_table
+        WHERE $where_sql
         GROUP BY post_id
         ORDER BY last_scanned DESC
-        LIMIT 50
-    ");
+        LIMIT %d OFFSET %d
+    ";
+    
+    $final_params = array_merge($query_params, array($per_page, $offset));
+    $discovered_content = $wpdb->get_results($wpdb->prepare($content_sql, $final_params));
     ?>
+    
+    <!-- Results Count -->
+    <div style="margin-bottom: 16px; color: #6b7280; font-size: 14px;">
+        <?php if ($total_items > 0): ?>
+            Showing <?php echo (($current_page - 1) * $per_page) + 1; ?>-<?php echo min($current_page * $per_page, $total_items); ?> of <?php echo $total_items; ?> items
+        <?php else: ?>
+            No items found
+        <?php endif; ?>
+    </div>
     
     <?php if (!empty($discovered_content)): ?>
         <table class="content-table">
@@ -498,6 +637,75 @@ $last_scan_info = !empty($recent_scans) ? $recent_scans[0] : null;
                 <?php endforeach; ?>
             </tbody>
         </table>
+        
+        <!-- Pagination Controls -->
+        <?php if ($total_pages > 1): ?>
+            <div style="margin-top: 24px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <!-- Previous Button -->
+                <?php if ($current_page > 1): ?>
+                    <a href="?page=aethos-chat-content&filter_post_type=<?php echo esc_attr($filter_post_type); ?>&filter_date_range=<?php echo esc_attr($filter_date_range); ?>&per_page=<?php echo esc_attr($per_page); ?>&filter_search=<?php echo esc_attr($filter_search); ?>&paged=<?php echo $current_page - 1; ?>" 
+                       class="button" style="padding: 8px 16px;">
+                        <span class="dashicons dashicons-arrow-left-alt2" style="vertical-align: middle;"></span>
+                        Previous
+                    </a>
+                <?php else: ?>
+                    <span class="button" style="padding: 8px 16px; opacity: 0.5; cursor: not-allowed;">
+                        <span class="dashicons dashicons-arrow-left-alt2" style="vertical-align: middle;"></span>
+                        Previous
+                    </span>
+                <?php endif; ?>
+                
+                <!-- Page Numbers -->
+                <div style="display: flex; gap: 4px;">
+                    <?php
+                    $range = 2; // Show 2 pages on each side of current page
+                    $start = max(1, $current_page - $range);
+                    $end = min($total_pages, $current_page + $range);
+                    
+                    // First page
+                    if ($start > 1): ?>
+                        <a href="?page=aethos-chat-content&filter_post_type=<?php echo esc_attr($filter_post_type); ?>&filter_date_range=<?php echo esc_attr($filter_date_range); ?>&per_page=<?php echo esc_attr($per_page); ?>&filter_search=<?php echo esc_attr($filter_search); ?>&paged=1" 
+                           class="button" style="padding: 8px 12px;">1</a>
+                        <?php if ($start > 2): ?>
+                            <span style="padding: 8px 4px;">...</span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                    
+                    <!-- Page range -->
+                    <?php for ($i = $start; $i <= $end; $i++): ?>
+                        <?php if ($i == $current_page): ?>
+                            <span class="button button-primary" style="padding: 8px 12px;"><?php echo $i; ?></span>
+                        <?php else: ?>
+                            <a href="?page=aethos-chat-content&filter_post_type=<?php echo esc_attr($filter_post_type); ?>&filter_date_range=<?php echo esc_attr($filter_date_range); ?>&per_page=<?php echo esc_attr($per_page); ?>&filter_search=<?php echo esc_attr($filter_search); ?>&paged=<?php echo $i; ?>" 
+                               class="button" style="padding: 8px 12px;"><?php echo $i; ?></a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                    
+                    <!-- Last page -->
+                    <?php if ($end < $total_pages): ?>
+                        <?php if ($end < $total_pages - 1): ?>
+                            <span style="padding: 8px 4px;">...</span>
+                        <?php endif; ?>
+                        <a href="?page=aethos-chat-content&filter_post_type=<?php echo esc_attr($filter_post_type); ?>&filter_date_range=<?php echo esc_attr($filter_date_range); ?>&per_page=<?php echo esc_attr($per_page); ?>&filter_search=<?php echo esc_attr($filter_search); ?>&paged=<?php echo $total_pages; ?>" 
+                           class="button" style="padding: 8px 12px;"><?php echo $total_pages; ?></a>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Next Button -->
+                <?php if ($current_page < $total_pages): ?>
+                    <a href="?page=aethos-chat-content&filter_post_type=<?php echo esc_attr($filter_post_type); ?>&filter_date_range=<?php echo esc_attr($filter_date_range); ?>&per_page=<?php echo esc_attr($per_page); ?>&filter_search=<?php echo esc_attr($filter_search); ?>&paged=<?php echo $current_page + 1; ?>" 
+                       class="button" style="padding: 8px 16px;">
+                        Next
+                        <span class="dashicons dashicons-arrow-right-alt2" style="vertical-align: middle;"></span>
+                    </a>
+                <?php else: ?>
+                    <span class="button" style="padding: 8px 16px; opacity: 0.5; cursor: not-allowed;">
+                        Next
+                        <span class="dashicons dashicons-arrow-right-alt2" style="vertical-align: middle;"></span>
+                    </span>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     <?php else: ?>
         <div class="no-content-message">
             <div class="dashicons dashicons-search"></div>
@@ -641,6 +849,38 @@ $last_scan_info = !empty($recent_scans) ? $recent_scans[0] : null;
 
 <script>
 jQuery(document).ready(function($) {
+    // Filter Controls
+    $('#apply-filters').on('click', function() {
+        const postType = $('#filter-post-type').val();
+        const dateRange = $('#filter-date-range').val();
+        const perPage = $('#filter-per-page').val();
+        const search = $('#filter-search').val();
+        
+        // Build URL with filter parameters
+        let url = '?page=aethos-chat-content';
+        url += '&filter_post_type=' + encodeURIComponent(postType);
+        url += '&filter_date_range=' + encodeURIComponent(dateRange);
+        url += '&per_page=' + encodeURIComponent(perPage);
+        if (search) {
+            url += '&filter_search=' + encodeURIComponent(search);
+        }
+        url += '&paged=1'; // Reset to first page
+        
+        window.location.href = url;
+    });
+    
+    $('#clear-filters').on('click', function() {
+        window.location.href = '?page=aethos-chat-content';
+    });
+    
+    // Allow Enter key in search box
+    $('#filter-search').on('keypress', function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            $('#apply-filters').click();
+        }
+    });
+    
     // Scan Now button - Batch Processing
     $('#scan-now-btn').on('click', function() {
         var $btn = $(this);
@@ -929,3 +1169,4 @@ jQuery(document).ready(function($) {
     animation: spin 1s linear infinite;
 }
 </style>
+

@@ -228,6 +228,7 @@ class Aethos_Core {
 	        $this->loader->add_action( 'wp_ajax_aethos_upload_icon', $plugin_admin, 'upload_chat_icon' );
         $this->loader->add_action( 'wp_ajax_aethos_reset_appearance', $plugin_admin, 'reset_appearance_settings' );
         $this->loader->add_action( 'wp_ajax_aethos_reset_behavior', $plugin_admin, 'reset_behavior_settings' );
+        $this->loader->add_action( 'wp_ajax_aethos_reset_knowledge_base', $plugin_admin, 'reset_knowledge_base_settings' );
         $this->loader->add_action( 'wp_ajax_aethos_search_content', $plugin_admin, 'search_content' );
 
         // Danger Zone AJAX handlers
@@ -253,8 +254,64 @@ class Aethos_Core {
 
         // Automated scan cron hook
         $this->loader->add_action( 'aethos_automated_scan', $plugin_admin, 'run_automated_scan' );
+        
+        // Background Processing
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-background-processor.php';
+        $bg_processor = new Aethos_Background_Processor();
+        
+        // Hook into post save/delete
+        $this->loader->add_action( 'save_post', $this, 'handle_save_post', 10, 3 );
+        $this->loader->add_action( 'delete_post', $this, 'handle_delete_post' );
+        
+        // Register background process cron handler
+        $this->loader->add_action( 'aethos_bg_process_batch', $bg_processor, 'process_batch' );
 
 	}
+
+    /**
+     * Handle post save for background processing
+     * 
+     * @since 1.0.0
+     */
+    public function handle_save_post( $post_id, $post, $update ) {
+        // Skip revisions and auto-drafts
+        if ( wp_is_post_revision( $post_id ) || $post->post_status === 'auto-draft' ) {
+            return;
+        }
+        
+        // Check if post type is supported (basic check, more detailed check happens in scanner)
+        $supported_types = array_merge( 
+            array( 'post', 'page', 'product' ), 
+            get_post_types( array( '_builtin' => false, 'public' => true ) ) 
+        );
+        
+        if ( ! in_array( $post->post_type, $supported_types ) ) {
+            return;
+        }
+
+        $bg_processor = new Aethos_Background_Processor();
+        
+        // If post is not published (e.g. draft, trash, private, future, pending), delete vectors
+        // This handles "Move to Trash" and "Switch to Draft" scenarios
+        if ( $post->post_status !== 'publish' ) {
+            $bg_processor->push_to_queue( $post_id, 'delete' );
+        } else {
+            $bg_processor->push_to_queue( $post_id, 'update' );
+        }
+        
+        $bg_processor->dispatch();
+    }
+
+    /**
+     * Handle post delete for background processing
+     * 
+     * @since 1.0.0
+     */
+    public function handle_delete_post( $post_id ) {
+        $bg_processor = new Aethos_Background_Processor();
+        $bg_processor->push_to_queue( $post_id, 'delete' );
+        $bg_processor->dispatch();
+    }
 
 	/**
 	 * Register all of the hooks related to the public-facing functionality

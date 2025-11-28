@@ -490,6 +490,73 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
     }
     
     /**
+     * AJAX handler for resetting Knowledge Base settings to defaults.
+     *
+     * @since    1.0.0
+     */
+    public function reset_knowledge_base_settings() {
+        check_ajax_referer( 'aethos_reset_knowledge_base', 'nonce' );
+        
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Insufficient permissions' );
+        }
+        
+        // Define Knowledge Base defaults
+        $kb_defaults = array(
+            // Pages
+            'aethos_kb_include_all_pages' => true,
+            'aethos_kb_included_pages' => array(),
+            'aethos_kb_excluded_pages' => array(),
+            'aethos_kb_pages_auto_sync' => true,
+            
+            // Posts
+            'aethos_kb_include_all_posts' => true,
+            'aethos_kb_included_posts' => array(),
+            'aethos_kb_excluded_posts' => array(),
+            'aethos_kb_excluded_categories' => array(),
+            'aethos_kb_posts_auto_sync' => true,
+            
+            // WooCommerce Products
+            'aethos_kb_include_all_woo_products' => true,
+            'aethos_kb_included_woo_products' => array(),
+            'aethos_kb_excluded_woo_products' => array(),
+            'aethos_kb_woo_products_auto_sync' => true,
+            
+            // WooCommerce Categories
+            'aethos_kb_include_all_woo_categories' => true,
+            'aethos_kb_included_woo_categories' => array(),
+            'aethos_kb_excluded_woo_categories' => array(),
+            'aethos_kb_woo_categories_auto_sync' => true
+        );
+        
+        // Update each setting
+        foreach ( $kb_defaults as $key => $value ) {
+            update_option( $key, $value );
+        }
+        
+        // Reset custom post types
+        $args = array(
+            'public' => true,
+            '_builtin' => false
+        );
+        $custom_post_types = get_post_types( $args, 'objects' );
+        
+        foreach ( $custom_post_types as $cpt ) {
+            // Skip WooCommerce product post type (handled above)
+            if ( $cpt->name === 'product' ) {
+                continue;
+            }
+            
+            update_option( "aethos_kb_include_all_{$cpt->name}", true );
+            update_option( "aethos_kb_included_{$cpt->name}", array() );
+            update_option( "aethos_kb_excluded_{$cpt->name}", array() );
+            update_option( "aethos_kb_{$cpt->name}_auto_sync", true );
+        }
+        
+        wp_send_json_success( 'Knowledge Base settings reset to defaults' );
+    }
+    
+    /**
      * AJAX handler for searching content (pages, posts, categories, tags).
      *
      * @since    1.0.0
