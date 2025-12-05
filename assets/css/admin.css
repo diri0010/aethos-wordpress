@@ -1,0 +1,1176 @@
+/**
+ * Aethos Chat - Admin Styles
+ * Using Aethos brand colors and Preline UI components
+ */
+
+:root {
+    /* Aethos Brand Colors */
+    --aethos-primary: #0052CC;
+    --aethos-cyan: #33C2E3;
+    --aethos-green: #59BA47;
+    --aethos-red: #E5233D;
+    --aethos-yellow: #FFC828;
+
+    /* Semantic colors */
+    --aethos-success: var(--aethos-green);
+    --aethos-error: var(--aethos-red);
+    --aethos-warning: var(--aethos-yellow);
+    --aethos-info: var(--aethos-cyan);
+
+    /* Neutral colors */
+    --aethos-gray-50: #f9fafb;
+    --aethos-gray-100: #f3f4f6;
+    --aethos-gray-200: #e5e7eb;
+    --aethos-gray-300: #d1d5db;
+    --aethos-gray-400: #9ca3af;
+    --aethos-gray-500: #6b7280;
+    --aethos-gray-600: #4b5563;
+    --aethos-gray-700: #374151;
+    --aethos-gray-800: #1f2937;
+    --aethos-gray-900: #111827;
+}
+
+/* Admin Page Container */
+.aethos-admin-wrap {
+    max-width: 1200px;
+    margin: 20px 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Header with Logo */
+.aethos-admin-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--aethos-gray-200);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.aethos-admin-logo {
+    height: 40px;
+    width: auto;
+}
+
+.aethos-admin-header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--aethos-gray-900);
+}
+
+/* Tab Navigation */
+.aethos-tabs {
+    border-bottom: 1px solid var(--aethos-gray-200);
+    background: var(--aethos-gray-50);
+}
+
+.aethos-tab-nav {
+    display: flex;
+    gap: 0;
+    padding: 0 32px;
+    margin: 0;
+    list-style: none;
+}
+
+.aethos-tab-nav button {
+    padding: 16px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--aethos-gray-600);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.aethos-tab-nav button:hover {
+    color: var(--aethos-primary);
+    background: rgba(0, 82, 204, 0.05);
+}
+
+.aethos-tab-nav button.active {
+    color: var(--aethos-primary);
+    border-bottom-color: var(--aethos-primary);
+    background: white;
+}
+
+/* Tab Content */
+.aethos-tab-content {
+    padding: 32px;
+}
+
+.aethos-tab-pane {
+    display: none;
+}
+
+.aethos-tab-pane.active {
+    display: block;
+}
+
+/* Form Groups */
+.aethos-form-group {
+    margin-bottom: 24px;
+}
+
+.aethos-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--aethos-gray-700);
+}
+
+.aethos-form-group .description {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--aethos-gray-500);
+}
+
+/* Input Fields */
+.aethos-input {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px 14px;
+    border: 1px solid var(--aethos-gray-300);
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.aethos-input:focus {
+    outline: none;
+    border-color: var(--aethos-primary);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.aethos-input.error {
+    border-color: var(--aethos-error);
+}
+
+/* Toggle Switch */
+.aethos-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.aethos-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.aethos-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--aethos-gray-300);
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.aethos-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.aethos-toggle input:checked+.aethos-toggle-slider {
+    background-color: var(--aethos-primary);
+}
+
+.aethos-toggle input:checked+.aethos-toggle-slider:before {
+    transform: translateX(20px);
+}
+
+/* Color Picker */
+.aethos-color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.aethos-color-input {
+    width: 60px;
+    height: 40px;
+    border: 2px solid var(--aethos-gray-300);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.aethos-color-value {
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--aethos-gray-700);
+}
+
+/* Status Indicator */
+.aethos-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.aethos-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.aethos-status.success {
+    background: rgba(89, 186, 71, 0.1);
+    color: var(--aethos-green);
+}
+
+.aethos-status.success .aethos-status-dot {
+    background: var(--aethos-green);
+}
+
+.aethos-status.error {
+    background: rgba(229, 35, 61, 0.1);
+    color: var(--aethos-red);
+}
+
+.aethos-status.error .aethos-status-dot {
+    background: var(--aethos-red);
+}
+
+.aethos-status.warning {
+    background: rgba(255, 200, 40, 0.1);
+    color: #d97706;
+}
+
+.aethos-status.warning .aethos-status-dot {
+    background: var(--aethos-yellow);
+}
+
+/* Buttons */
+.aethos-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.aethos-button-primary {
+    background: var(--aethos-primary);
+    color: white;
+}
+
+.aethos-button-primary:hover {
+    background: #003d99;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+
+.aethos-button-secondary {
+    background: var(--aethos-gray-200);
+    color: var(--aethos-gray-700);
+}
+
+.aethos-button-secondary:hover {
+    background: var(--aethos-gray-300);
+}
+
+.aethos-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Alert/Notice */
+.aethos-alert {
+    padding: 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.aethos-alert-success {
+    background: rgba(89, 186, 71, 0.1);
+    border-left: 4px solid var(--aethos-green);
+    color: #166534;
+}
+
+.aethos-alert-error {
+    background: rgba(229, 35, 61, 0.1);
+    border-left: 4px solid var(--aethos-red);
+    color: #991b1b;
+}
+
+.aethos-alert-info {
+    background: rgba(51, 194, 227, 0.1);
+    border-left: 4px solid var(--aethos-cyan);
+    color: #075985;
+}
+
+/* Select Dropdown */
+.aethos-select {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px 14px;
+    border: 1px solid var(--aethos-gray-300);
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.aethos-select:focus {
+    outline: none;
+    border-color: var(--aethos-primary);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+/* Loading Spinner */
+.aethos-spinner {
+    border: 3px solid var(--aethos-gray-200);
+    border-top: 3px solid var(--aethos-primary);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: aethos-spin 0.8s linear infinite;
+}
+
+@keyframes aethos-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tooltip */
+.aethos-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.aethos-tooltip .aethos-tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: var(--aethos-gray-900);
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 12px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 13px;
+}
+
+.aethos-tooltip:hover .aethos-tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .aethos-admin-wrap {
+        margin: 0;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .aethos-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .aethos-status.success {
+        background: rgba(89, 186, 71, 0.1);
+        color: var(--aethos-green);
+    }
+
+    .aethos-status.success .aethos-status-dot {
+        background: var(--aethos-green);
+    }
+
+    .aethos-status.error {
+        background: rgba(229, 35, 61, 0.1);
+        color: var(--aethos-red);
+    }
+
+    .aethos-status.error .aethos-status-dot {
+        background: var(--aethos-red);
+    }
+
+    .aethos-status.warning {
+        background: rgba(255, 200, 40, 0.1);
+        color: #d97706;
+    }
+
+    .aethos-status.warning .aethos-status-dot {
+        background: var(--aethos-yellow);
+    }
+
+    /* Buttons */
+    .aethos-button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .aethos-button-primary {
+        background: var(--aethos-primary);
+        color: white;
+    }
+
+    .aethos-button-primary:hover {
+        background: #003d99;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+    }
+
+    .aethos-button-secondary {
+        background: var(--aethos-gray-200);
+        color: var(--aethos-gray-700);
+    }
+
+    .aethos-button-secondary:hover {
+        background: var(--aethos-gray-300);
+    }
+
+    .aethos-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Alert/Notice */
+    .aethos-alert {
+        padding: 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .aethos-alert-success {
+        background: rgba(89, 186, 71, 0.1);
+        border-left: 4px solid var(--aethos-green);
+        color: #166534;
+    }
+
+    .aethos-alert-error {
+        background: rgba(229, 35, 61, 0.1);
+        border-left: 4px solid var(--aethos-red);
+        color: #991b1b;
+    }
+
+    .aethos-alert-info {
+        background: rgba(51, 194, 227, 0.1);
+        border-left: 4px solid var(--aethos-cyan);
+        color: #075985;
+    }
+
+    /* Select Dropdown */
+    .aethos-select {
+        width: 100%;
+        max-width: 300px;
+        padding: 10px 14px;
+        border: 1px solid var(--aethos-gray-300);
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .aethos-select:focus {
+        outline: none;
+        border-color: var(--aethos-primary);
+        box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+    }
+
+    /* Loading Spinner */
+    .aethos-spinner {
+        border: 3px solid var(--aethos-gray-200);
+        border-top: 3px solid var(--aethos-primary);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: aethos-spin 0.8s linear infinite;
+    }
+
+    @keyframes aethos-spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Tooltip */
+    .aethos-tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+    }
+
+    .aethos-tooltip .aethos-tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: var(--aethos-gray-900);
+        color: white;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px 12px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 13px;
+    }
+
+    .aethos-tooltip:hover .aethos-tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .aethos-admin-wrap {
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .aethos-admin-header,
+        .aethos-tab-content {
+            padding: 16px;
+        }
+
+        .aethos-tab-nav {
+            padding: 0 16px;
+            overflow-x: auto;
+        }
+
+        .aethos-input,
+        .aethos-select {
+            max-width: 100%;
+        }
+
+        .aethos-connection-card {
+            padding: 20px;
+        }
+
+        .aethos-connection-actions {
+            flex-direction: column;
+        }
+
+        .aethos-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Connection Card Styles */
+    .aethos-subtitle {
+        color: var(--aethos-gray-600);
+        font-size: 15px;
+        margin-top: 8px;
+    }
+
+    .aethos-connection-card {
+        background: white;
+        border: 1px solid var(--aethos-gray-200);
+        border-radius: 12px;
+        padding: 32px;
+        max-width: 700px;
+    }
+
+    .aethos-connection-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .aethos-connection-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--aethos-gray-900);
+    }
+
+    .aethos-connection-description {
+        color: var(--aethos-gray-600);
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    /* Badges */
+    .aethos-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .aethos-badge-success {
+        background: rgba(89, 186, 71, 0.1);
+        color: var(--aethos-green);
+    }
+
+    .aethos-badge-error {
+        background: rgba(229, 35, 61, 0.1);
+        color: var(--aethos-red);
+    }
+
+    .aethos-badge svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    /* Connection Actions */
+    .aethos-connection-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .aethos-link {
+        color: var(--aethos-primary);
+        text-decoration: none;
+    }
+
+    .aethos-link:hover {
+        text-decoration: underline;
+    }
+
+    .aethos-input[readonly] {
+        background: var(--aethos-gray-50);
+        cursor: not-allowed;
+    }
+
+    /* Connection Messages */
+    .aethos-message {
+        display: flex;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .aethos-message svg {
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .aethos-message-content strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    .aethos-message-content p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .aethos-message-success {
+        background: rgba(89, 186, 71, 0.1);
+        border-left: 4px solid var(--aethos-green);
+        color: #166534;
+    }
+
+    .aethos-message-success svg {
+        color: var(--aethos-green);
+    }
+
+    .aethos-message-error {
+        background: rgba(229, 35, 61, 0.1);
+        border-left: 4px solid var(--aethos-red);
+        color: #991b1b;
+    }
+
+    .aethos-message-error svg {
+        color: var(--aethos-red);
+    }
+
+    /* Button Variants */
+    .aethos-button svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .aethos-button-danger-outline {
+        .aethos-tooltip .aethos-tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--aethos-gray-900);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+        }
+
+        .aethos-tooltip:hover .aethos-tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .aethos-admin-wrap {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .aethos-admin-header,
+            .aethos-tab-content {
+                padding: 16px;
+            }
+
+            .aethos-tab-nav {
+                padding: 0 16px;
+                overflow-x: auto;
+            }
+
+            .aethos-input,
+            .aethos-select {
+                max-width: 100%;
+            }
+
+            .aethos-connection-card {
+                padding: 20px;
+            }
+
+            .aethos-connection-actions {
+                flex-direction: column;
+            }
+
+            .aethos-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Connection Card Styles */
+        .aethos-subtitle {
+            color: var(--aethos-gray-600);
+            font-size: 15px;
+            margin-top: 8px;
+        }
+
+        .aethos-connection-card {
+            background: white;
+            border: 1px solid var(--aethos-gray-200);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 700px;
+        }
+
+        .aethos-connection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .aethos-connection-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--aethos-gray-900);
+        }
+
+        .aethos-connection-description {
+            color: var(--aethos-gray-600);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        /* Badges */
+        .aethos-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .aethos-badge-success {
+            background: rgba(89, 186, 71, 0.1);
+            color: var(--aethos-green);
+        }
+
+        .aethos-badge-error {
+            background: rgba(229, 35, 61, 0.1);
+            color: var(--aethos-red);
+        }
+
+        .aethos-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Connection Actions */
+        .aethos-connection-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--aethos-gray-100);
+        }
+
+        .aethos-link {
+            color: var(--aethos-primary);
+            text-decoration: none;
+        }
+
+        .aethos-link:hover {
+            text-decoration: underline;
+        }
+
+        .aethos-input[readonly] {
+            background: var(--aethos-gray-50);
+            cursor: not-allowed;
+        }
+
+        /* Connection Messages */
+        .aethos-message {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .aethos-message svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .aethos-message-content strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .aethos-message-content p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .aethos-message-success {
+            background: rgba(89, 186, 71, 0.1);
+            border-left: 4px solid var(--aethos-green);
+            color: #166534;
+        }
+
+        .aethos-message-success svg {
+            color: var(--aethos-green);
+        }
+
+        .aethos-message-error {
+            background: rgba(229, 35, 61, 0.1);
+            border-left: 4px solid var(--aethos-red);
+            color: #991b1b;
+        }
+
+        .aethos-message-error svg {
+            color: var(--aethos-red);
+        }
+
+        /* Button Variants */
+        .aethos-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .aethos-button-danger-outline {
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+        }
+
+        .aethos-tooltip:hover .aethos-tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .aethos-admin-wrap {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .aethos-admin-header,
+            .aethos-tab-content {
+                padding: 16px;
+            }
+
+            .aethos-tab-nav {
+                padding: 0 16px;
+                overflow-x: auto;
+            }
+
+            .aethos-input,
+            .aethos-select {
+                max-width: 100%;
+            }
+
+            .aethos-connection-card {
+                padding: 20px;
+            }
+
+            .aethos-connection-actions {
+                flex-direction: column;
+            }
+
+            .aethos-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Connection Card Styles */
+        .aethos-subtitle {
+            color: var(--aethos-gray-600);
+            font-size: 15px;
+            margin-top: 8px;
+        }
+
+        .aethos-connection-card {
+            background: white;
+            border: 1px solid var(--aethos-gray-200);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 700px;
+        }
+
+        .aethos-connection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .aethos-connection-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--aethos-gray-900);
+        }
+
+        .aethos-connection-description {
+            color: var(--aethos-gray-600);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        /* Badges */
+        .aethos-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .aethos-badge-success {
+            background: rgba(89, 186, 71, 0.1);
+            color: var(--aethos-green);
+        }
+
+        .aethos-badge-error {
+            background: rgba(229, 35, 61, 0.1);
+            color: var(--aethos-red);
+        }
+
+        .aethos-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Connection Actions */
+        .aethos-connection-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--aethos-gray-100);
+        }
+
+        .aethos-link {
+            color: var(--aethos-primary);
+            text-decoration: none;
+        }
+
+        .aethos-link:hover {
+            text-decoration: underline;
+        }
+
+        .aethos-input[readonly] {
+            background: var(--aethos-gray-50);
+            cursor: not-allowed;
+        }
+
+        /* Connection Messages */
+        .aethos-message {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .aethos-message svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .aethos-message-content strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .aethos-message-content p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .aethos-message-success {
+            background: rgba(89, 186, 71, 0.1);
+            border-left: 4px solid var(--aethos-green);
+            color: #166534;
+        }
+
+        .aethos-message-success svg {
+            color: var(--aethos-green);
+        }
+
+        .aethos-message-error {
+            background: rgba(229, 35, 61, 0.1);
+            border-left: 4px solid var(--aethos-red);
+            color: #991b1b;
+        }
+
+        .aethos-message-error svg {
+            color: var(--aethos-red);
+        }
+
+        /* Button Variants */
+        .aethos-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .aethos-button-danger-outline {
+            background: white;
+            color: var(--aethos-red);
+            border: 1px solid var(--aethos-red);
+        }
+
+        .aethos-button-danger-outline:hover {
+            background: rgba(229, 35, 61, 0.05);
+        }
+
+        .aethos-button-text-danger {
+            background: none;
+            border: none;
+            color: var(--aethos-red);
+            padding: 8px 12px;
+            box-shadow: none;
+        }
+
+        .aethos-button-text-danger:hover {
+            background: rgba(229, 35, 61, 0.05);
+            transform: none;
+            text-decoration: underline;
+        }
+
+        .aethos-input-masked {
+            font-family: monospace;
+            letter-spacing: 2px;
+            background-color: var(--aethos-gray-100);
+            color: var(--aethos-gray-600);
+        }

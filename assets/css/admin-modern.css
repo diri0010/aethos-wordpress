@@ -1,0 +1,1016 @@
+/**
+ * Aethos Admin Modern UI Styles
+ * Modern design system for WordPress admin interface
+ * Enhanced with Preline UI-inspired components
+ */
+
+/* ============================================
+   CSS Variables - Design System
+   ============================================ */
+:root {
+    /* Aethos Brand Colors */
+    --aethos-brand-blue: #0052CC;
+    --aethos-brand-cyan: #33C2E3;
+    --aethos-brand-green: #59BA47;
+    --aethos-brand-red: #E5233D;
+    --aethos-brand-yellow: #FFC828;
+
+    /* Colors - Primary (Using Aethos Brand Blue) */
+    --aethos-primary: #0052CC;
+    --aethos-primary-hover: #003D99;
+    --aethos-primary-light: #E6F0FF;
+    --aethos-primary-dark: #002966;
+
+    /* Colors - Semantic (Using Aethos Brand Colors) */
+    --aethos-success: #59BA47;
+    --aethos-success-light: #E8F5E5;
+    --aethos-success-dark: #3D8030;
+    --aethos-warning: #FFC828;
+    --aethos-warning-light: #FFF8E6;
+    --aethos-warning-dark: #CC9F1F;
+    --aethos-danger: #E5233D;
+    --aethos-danger-light: #FCE8EB;
+    --aethos-danger-dark: #B81C30;
+    --aethos-info: #33C2E3;
+    --aethos-info-light: #E8F7FB;
+    --aethos-info-dark: #2699B8;
+
+    /* Colors - Neutral */
+    --aethos-gray-50: #F9FAFB;
+    --aethos-gray-100: #F3F4F6;
+    --aethos-gray-200: #E5E7EB;
+    --aethos-gray-300: #D1D5DB;
+    --aethos-gray-400: #9CA3AF;
+    --aethos-gray-500: #6B7280;
+    --aethos-gray-600: #4B5563;
+    --aethos-gray-700: #374151;
+    --aethos-gray-800: #1F2937;
+    --aethos-gray-900: #111827;
+
+    /* Typography */
+    --aethos-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --aethos-font-size-xs: 0.75rem;
+    --aethos-font-size-sm: 0.875rem;
+    --aethos-font-size-base: 1rem;
+    --aethos-font-size-lg: 1.125rem;
+    --aethos-font-size-xl: 1.25rem;
+    --aethos-font-size-2xl: 1.5rem;
+    --aethos-font-size-3xl: 1.875rem;
+    --aethos-font-weight-normal: 400;
+    --aethos-font-weight-medium: 500;
+    --aethos-font-weight-semibold: 600;
+    --aethos-font-weight-bold: 700;
+
+    /* Spacing */
+    --aethos-space-1: 0.25rem;
+    --aethos-space-2: 0.5rem;
+    --aethos-space-3: 0.75rem;
+    --aethos-space-4: 1rem;
+    --aethos-space-5: 1.25rem;
+    --aethos-space-6: 1.5rem;
+    --aethos-space-8: 2rem;
+    --aethos-space-10: 2.5rem;
+    --aethos-space-12: 3rem;
+    --aethos-space-16: 4rem;
+
+    /* Border Radius */
+    --aethos-radius-sm: 0.375rem;
+    --aethos-radius-md: 0.5rem;
+    --aethos-radius-lg: 0.75rem;
+    --aethos-radius-xl: 1rem;
+    --aethos-radius-2xl: 1.5rem;
+    --aethos-radius-full: 9999px;
+
+    /* Shadows - Preline-inspired */
+    --aethos-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --aethos-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --aethos-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --aethos-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --aethos-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --aethos-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    /* Transitions */
+    --aethos-transition-fast: all 0.15s ease-in-out;
+    --aethos-transition: all 0.2s ease-in-out;
+    --aethos-transition-slow: all 0.3s ease-in-out;
+
+    /* Z-index */
+    --aethos-z-dropdown: 1000;
+    --aethos-z-sticky: 1020;
+    --aethos-z-modal: 1050;
+    --aethos-z-tooltip: 1070;
+}
+
+/* ============================================
+   Layout Structure
+   ============================================ */
+.aethos-admin-wrapper {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.aethos-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aethos-space-8);
+}
+
+.aethos-admin-header h1 {
+    font-size: var(--aethos-font-size-3xl);
+    font-weight: var(--aethos-font-weight-bold);
+    color: var(--aethos-gray-900);
+    margin: 0;
+}
+
+.aethos-admin-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: var(--aethos-space-8);
+}
+
+/* Sidebar Navigation */
+.aethos-sidebar {
+    background: white;
+    border: 1px solid var(--aethos-gray-200);
+    border-radius: var(--aethos-radius-xl);
+    padding: var(--aethos-space-4);
+    box-shadow: var(--aethos-shadow-sm);
+    height: fit-content;
+    position: sticky;
+    top: 32px;
+}
+
+.aethos-nav-item {
+    display: flex;
+    align-items: center;
+    padding: var(--aethos-space-3) var(--aethos-space-4);
+    margin-bottom: var(--aethos-space-1);
+    border-radius: var(--aethos-radius-md);
+    color: var(--aethos-gray-700);
+    text-decoration: none;
+    font-size: var(--aethos-font-size-sm);
+    font-weight: var(--aethos-font-weight-medium);
+    transition: var(--aethos-transition);
+    cursor: pointer;
+}
+
+.aethos-nav-item:hover {
+    background: var(--aethos-gray-50);
+    color: var(--aethos-primary);
+}
+
+.aethos-nav-item.active {
+    background: var(--aethos-primary-light);
+    color: var(--aethos-primary);
+    font-weight: var(--aethos-font-weight-semibold);
+}
+
+.aethos-nav-item .dashicons {
+    margin-right: var(--aethos-space-3);
+    font-size: 18px;
+}
+
+/* Main Content Area */
+.aethos-main-content {
+    min-height: 600px;
+}
+
+.aethos-content-section {
+    display: none;
+}
+
+.aethos-content-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   Card Component - Preline-inspired
+   ============================================ */
+.aethos-card {
+    background: white;
+    border: 1px solid var(--aethos-gray-200);
+    border-radius: var(--aethos-radius-xl);
+    padding: var(--aethos-space-6);
+    box-shadow: var(--aethos-shadow-sm);
+    margin-bottom: var(--aethos-space-6);
+    transition: var(--aethos-transition);
+}
+
+.aethos-card:hover {
+    box-shadow: var(--aethos-shadow-md);
+    border-color: var(--aethos-gray-300);
+}
+
+.aethos-card-header {
+    margin-bottom: var(--aethos-space-6);
+    padding-bottom: var(--aethos-space-4);
+    border-bottom: 1px solid var(--aethos-gray-100);
+}
+
+.aethos-card-title {
+    font-size: var(--aethos-font-size-xl);
+    font-weight: var(--aethos-font-weight-semibold);
+    color: var(--aethos-gray-900);
+    margin: 0 0 var(--aethos-space-2) 0;
+    line-height: 1.4;
+}
+
+.aethos-card-description {
+    font-size: var(--aethos-font-size-sm);
+    color: var(--aethos-gray-600);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Card variants */
+.aethos-card-elevated {
+    box-shadow: var(--aethos-shadow-lg);
+}
+
+.aethos-card-bordered {
+    border: 2px solid var(--aethos-gray-200);
+}
+
+.aethos-card-success {
+    border-left: 4px solid var(--aethos-success);
+}
+
+.aethos-card-warning {
+    border-left: 4px solid var(--aethos-warning);
+}
+
+.aethos-card-danger {
+    border-left: 4px solid var(--aethos-danger);
+}
+
+.aethos-card-info {
+    border-left: 4px solid var(--aethos-info);
+}
+
+/* ============================================
+   Accordion Component
+   ============================================ */
+.aethos-accordion {
+    border: 1px solid var(--aethos-gray-200);
+    border-radius: var(--aethos-radius-lg);
+    overflow: hidden;
+}
+
+.aethos-accordion-item {
+    border-bottom: 1px solid var(--aethos-gray-200);
+}
+
+.aethos-accordion-item:last-child {
+    border-bottom: none;
+}
+
+.aethos-accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--aethos-space-4) var(--aethos-space-5);
+    background: white;
+    cursor: pointer;
+    transition: var(--aethos-transition);
+    user-select: none;
+}
+
+.aethos-accordion-header:hover {
+    background: var(--aethos-gray-50);
+}
+
+.aethos-accordion-title {
+    font-size: var(--aethos-font-size-base);
+    font-weight: var(--aethos-font-weight-semibold);
+    color: var(--aethos-gray-900);
+    margin: 0;
+}
+
+.aethos-accordion-icon {
+    transition: transform 0.2s ease;
+    color: var(--aethos-gray-400);
+}
+
+.aethos-accordion-item.open .aethos-accordion-icon {
+    transform: rotate(180deg);
+}
+
+.aethos-accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.aethos-accordion-item.open .aethos-accordion-content {
+    max-height: 2000px;
+}
+
+.aethos-accordion-body {
+    padding: var(--aethos-space-5);
+    background: var(--aethos-gray-50);
+}
+
+/* ============================================
+   Form Elements - Enhanced
+   ============================================ */
+.aethos-form-group {
+    margin-bottom: var(--aethos-space-5);
+}
+
+.aethos-form-label {
+    display: block;
+    font-size: var(--aethos-font-size-sm);
+    font-weight: var(--aethos-font-weight-medium);
+    color: var(--aethos-gray-700);
+    margin-bottom: var(--aethos-space-2);
+}
+
+.aethos-form-help {
+    display: block;
+    font-size: var(--aethos-font-size-xs);
+    color: var(--aethos-gray-500);
+    margin-top: var(--aethos-space-1);
+    line-height: 1.5;
+}
+
+.aethos-form-help a {
+    color: var(--aethos-primary);
+    text-decoration: none;
+    font-weight: var(--aethos-font-weight-medium);
+}
+
+.aethos-form-help a:hover {
+    text-decoration: underline;
+}
+
+.aethos-input {
+    width: 100%;
+    padding: var(--aethos-space-3) var(--aethos-space-4);
+    border: 1px solid var(--aethos-gray-300);
+    border-radius: var(--aethos-radius-md);
+    font-size: var(--aethos-font-size-sm);
+    color: var(--aethos-gray-900);
+    background: white;
+    transition: var(--aethos-transition);
+}
+
+.aethos-input:hover {
+    border-color: var(--aethos-gray-400);
+}
+
+.aethos-input:focus {
+    outline: none;
+    border-color: var(--aethos-primary);
+    box-shadow: 0 0 0 3px var(--aethos-primary-light);
+}
+
+.aethos-input:disabled {
+    background: var(--aethos-gray-100);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.aethos-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.aethos-select {
+    width: 100%;
+    padding: var(--aethos-space-3) var(--aethos-space-4);
+    border: 1px solid var(--aethos-gray-300);
+    border-radius: var(--aethos-radius-md);
+    font-size: var(--aethos-font-size-sm);
+    color: var(--aethos-gray-900);
+    background: white;
+    cursor: pointer;
+    transition: var(--aethos-transition);
+}
+
+.aethos-select:hover {
+    border-color: var(--aethos-gray-400);
+}
+
+.aethos-select:focus {
+    outline: none;
+    border-color: var(--aethos-primary);
+    box-shadow: 0 0 0 3px var(--aethos-primary-light);
+}
+
+/* ============================================
+   Button Component - Enhanced
+   ============================================ */
+.aethos-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--aethos-space-3) var(--aethos-space-5);
+    border: none;
+    border-radius: var(--aethos-radius-md);
+    font-size: var(--aethos-font-size-sm);
+    font-weight: var(--aethos-font-weight-medium);
+    cursor: pointer;
+    transition: var(--aethos-transition);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.aethos-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--aethos-primary-light);
+}
+
+.aethos-btn:active {
+    transform: scale(0.98);
+}
+
+.aethos-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.aethos-btn-primary {
+    background: var(--aethos-primary);
+    color: white;
+}
+
+.aethos-btn-primary:hover:not(:disabled) {
+    background: var(--aethos-primary-hover);
+    box-shadow: var(--aethos-shadow-md);
+}
+
+.aethos-btn-secondary {
+    background: var(--aethos-gray-100);
+    color: var(--aethos-gray-700);
+}
+
+.aethos-btn-secondary:hover:not(:disabled) {
+    background: var(--aethos-gray-200);
+}
+
+.aethos-btn-outline {
+    background: transparent;
+    border: 1px solid var(--aethos-gray-300);
+    color: var(--aethos-gray-700);
+}
+
+.aethos-btn-outline:hover:not(:disabled) {
+    background: var(--aethos-gray-50);
+    border-color: var(--aethos-gray-400);
+}
+
+.aethos-btn-danger {
+    background: var(--aethos-danger);
+    color: white;
+}
+
+.aethos-btn-danger:hover:not(:disabled) {
+    background: var(--aethos-danger-dark);
+    box-shadow: var(--aethos-shadow-md);
+}
+
+.aethos-btn-danger-outline {
+    background: transparent;
+    border: 1px solid var(--aethos-danger);
+    color: var(--aethos-danger);
+}
+
+.aethos-btn-danger-outline:hover:not(:disabled) {
+    background: var(--aethos-danger-light);
+}
+
+.aethos-btn-sm {
+    padding: var(--aethos-space-2) var(--aethos-space-3);
+    font-size: var(--aethos-font-size-xs);
+}
+
+.aethos-btn-lg {
+    padding: var(--aethos-space-4) var(--aethos-space-6);
+    font-size: var(--aethos-font-size-base);
+}
+
+.aethos-btn .dashicons {
+    margin-right: var(--aethos-space-2);
+}
+
+/* ============================================
+   Status Badge - Enhanced
+   ============================================ */
+.aethos-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--aethos-space-1) var(--aethos-space-3);
+    border-radius: var(--aethos-radius-full);
+    font-size: var(--aethos-font-size-xs);
+    font-weight: var(--aethos-font-weight-medium);
+    line-height: 1.5;
+}
+
+.aethos-badge-success {
+    background: var(--aethos-success-light);
+    color: var(--aethos-success-dark);
+}
+
+.aethos-badge-danger {
+    background: var(--aethos-danger-light);
+    color: var(--aethos-danger-dark);
+}
+
+.aethos-badge-warning {
+    background: var(--aethos-warning-light);
+    color: var(--aethos-warning-dark);
+}
+
+.aethos-badge-info {
+    background: var(--aethos-info-light);
+    color: var(--aethos-info-dark);
+}
+
+.aethos-badge .dashicons {
+    margin-right: var(--aethos-space-1);
+    font-size: 14px;
+}
+
+/* ============================================
+   Alert Component - Enhanced
+   ============================================ */
+.aethos-alert {
+    display: flex;
+    align-items: flex-start;
+    padding: var(--aethos-space-4);
+    border-radius: var(--aethos-radius-lg);
+    margin-bottom: var(--aethos-space-4);
+    border: 1px solid;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.aethos-alert-icon {
+    flex-shrink: 0;
+    margin-right: var(--aethos-space-3);
+}
+
+.aethos-alert-content {
+    flex: 1;
+}
+
+.aethos-alert-title {
+    font-weight: var(--aethos-font-weight-semibold);
+    margin: 0 0 var(--aethos-space-1) 0;
+}
+
+.aethos-alert-message {
+    margin: 0;
+    font-size: var(--aethos-font-size-sm);
+    line-height: 1.6;
+}
+
+.aethos-alert-success {
+    background: var(--aethos-success-light);
+    color: var(--aethos-success-dark);
+    border-color: var(--aethos-success);
+}
+
+.aethos-alert-danger {
+    background: var(--aethos-danger-light);
+    color: var(--aethos-danger-dark);
+    border-color: var(--aethos-danger);
+}
+
+.aethos-alert-warning {
+    background: var(--aethos-warning-light);
+    color: var(--aethos-warning-dark);
+    border-color: var(--aethos-warning);
+}
+
+.aethos-alert-info {
+    background: var(--aethos-info-light);
+    color: var(--aethos-info-dark);
+    border-color: var(--aethos-info);
+}
+
+/* ============================================
+   Toggle Switch - Enhanced
+   ============================================ */
+.aethos-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.aethos-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.aethos-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--aethos-gray-300);
+    transition: var(--aethos-transition);
+}
+
+.aethos-toggle input:checked+.aethos-toggle-slider {
+    background-color: var(--aethos-primary);
+}
+
+.aethos-toggle input:checked+.aethos-toggle-slider:before {
+    transform: translateX(20px);
+}
+
+.aethos-toggle input:focus+.aethos-toggle-slider {
+    box-shadow: 0 0 0 3px var(--aethos-primary-light);
+}
+
+/* ============================================
+   Live Preview Panel
+   ============================================ */
+.aethos-preview-panel {
+    position: sticky;
+    top: 32px;
+    background: var(--aethos-gray-100);
+    border-radius: var(--aethos-radius-lg);
+    padding: var(--aethos-space-8);
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aethos-preview-widget {
+    width: 380px;
+    background: white;
+    border-radius: var(--aethos-radius-xl);
+    box-shadow: var(--aethos-shadow-xl);
+    overflow: hidden;
+}
+
+.aethos-preview-header {
+    background: var(--aethos-primary);
+    color: white;
+    padding: var(--aethos-space-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.aethos-preview-header-content {
+    display: flex;
+    align-items: center;
+}
+
+.aethos-preview-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    margin-right: var(--aethos-space-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.aethos-preview-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.aethos-preview-title-wrapper h3 {
+    margin: 0;
+    font-size: var(--aethos-font-size-base);
+    font-weight: var(--aethos-font-weight-semibold);
+}
+
+.aethos-preview-title-wrapper p {
+    margin: 0;
+    font-size: var(--aethos-font-size-xs);
+    opacity: 0.9;
+}
+
+.aethos-preview-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: var(--aethos-space-2);
+}
+
+.aethos-preview-messages {
+    padding: var(--aethos-space-5);
+    min-height: 400px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.aethos-preview-message {
+    margin-bottom: var(--aethos-space-4);
+    display: flex;
+}
+
+.aethos-preview-message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--aethos-gray-200);
+    margin-right: var(--aethos-space-3);
+    flex-shrink: 0;
+}
+
+.aethos-preview-message-content {
+    background: var(--aethos-gray-100);
+    padding: var(--aethos-space-3) var(--aethos-space-4);
+    border-radius: var(--aethos-radius-lg);
+    font-size: var(--aethos-font-size-sm);
+    max-width: 80%;
+}
+
+.aethos-preview-message.user {
+    flex-direction: row-reverse;
+}
+
+.aethos-preview-message.user .aethos-preview-message-avatar {
+    margin-right: 0;
+    margin-left: var(--aethos-space-3);
+}
+
+.aethos-preview-message.user .aethos-preview-message-content {
+    background: var(--aethos-primary);
+    color: white;
+}
+
+.aethos-preview-input {
+    padding: var(--aethos-space-4);
+    border-top: 1px solid var(--aethos-gray-200);
+    display: flex;
+    color: white;
+    border: none;
+    padding: var(--aethos-space-3) var(--aethos-space-4);
+    border-radius: var(--aethos-radius-md);
+    cursor: pointer;
+}
+
+.aethos-preview-bubble {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    background: var(--aethos-primary);
+    border-radius: 50%;
+    box-shadow: var(--aethos-shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--aethos-transition);
+}
+
+.aethos-preview-bubble:hover {
+    transform: scale(1.1);
+}
+
+.aethos-preview-bubble img {
+    width: 32px;
+    height: 32px;
+}
+
+/* ============================================
+   Loading States
+   ============================================ */
+.aethos-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.aethos-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--aethos-primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 1024px) {
+    .aethos-admin-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .aethos-sidebar {
+        position: static;
+        margin-bottom: var(--aethos-space-6);
+    }
+
+    .aethos-preview-panel {
+        position: static;
+        margin-top: var(--aethos-space-6);
+    }
+}
+
+@media (max-width: 768px) {
+    .aethos-admin-wrapper {
+        padding: 0 var(--aethos-space-4);
+    }
+
+    .aethos-admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--aethos-space-4);
+    }
+
+    .aethos-preview-widget {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.aethos-flex {
+    display: flex;
+}
+
+.aethos-flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.aethos-flex-center {
+    display: flex;
+    align-items: center;
+}
+
+.aethos-gap-2 {
+    gap: var(--aethos-space-2);
+}
+
+.aethos-gap-3 {
+    gap: var(--aethos-space-3);
+}
+
+.aethos-gap-4 {
+    gap: var(--aethos-space-4);
+}
+
+.aethos-mt-4 {
+    margin-top: var(--aethos-space-4);
+}
+
+.aethos-mb-4 {
+    margin-bottom: var(--aethos-space-4);
+}
+
+.aethos-hidden {}
+
+/* Brand Logo */
+.aethos-brand-logo {
+    max-width: 250px;
+    height: auto;
+    object-fit: contain;
+}
+
+@media (max-width: 768px) {
+    .aethos-brand-logo {
+        max-width: 180px;
+    }
+}
+
+/* Icon Preview */
+.aethos-icon-preview-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--aethos-radius-md);
+    border: 1px solid var(--aethos-gray-200);
+    overflow: hidden;
+    background: var(--aethos-gray-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aethos-icon-preview-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Icon Presets */
+.aethos-icon-presets {
+    display: flex;
+    gap: var(--aethos-space-3);
+}
+
+.aethos-icon-preset {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--aethos-gray-200);
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--aethos-transition);
+}
+
+.aethos-icon-preset:hover {
+    border-color: var(--aethos-primary-light);
+}
+
+.aethos-icon-preset.selected {
+    border-color: var(--aethos-primary);
+    box-shadow: 0 0 0 2px var(--aethos-primary-light);
+}
+
+.aethos-icon-preset img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.aethos-pl-4 {
+    padding-left: var(--aethos-space-4);
+}
+
+.aethos-border-l {
+    border-left: 1px solid var(--aethos-gray-200);
+}
+
+/* Color Input */
+.aethos-color-input {
+    height: 38px;
+    width: 60px;
+    padding: 0;
+    border: 1px solid var(--aethos-gray-300);
+    border-radius: var(--aethos-radius-md);
+    cursor: pointer;
+    background: none;
+}
+
+.aethos-w-auto {
+    width: auto !important;
+    min-width: 120px;
+}
+
+/* Avatar Preview in Live Panel */
+.aethos-avatar-preview {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--aethos-radius-md);
+    border: 2px solid var(--aethos-gray-200);
+    overflow: hidden;
+}
+
+.aethos-avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
