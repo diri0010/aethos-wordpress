@@ -483,6 +483,38 @@ class Aethos_Admin {
             'sanitize_callback' => array($this, 'sanitize_id_array'),
             'default' => array()
         ));
+        
+        // Custom Post Type visibility settings (dynamic)
+        $args = array(
+            'public' => true,
+            '_builtin' => false
+        );
+        $custom_post_types = get_post_types($args, 'objects');
+        
+        foreach ($custom_post_types as $cpt) {
+            // Skip WooCommerce product (handled separately above)
+            if ($cpt->name === 'product') {
+                continue;
+            }
+            
+            register_setting( 'aethos_visibility', "aethos_include_all_{$cpt->name}", array(
+                'type' => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default' => true
+            ));
+            
+            register_setting( 'aethos_visibility', "aethos_included_{$cpt->name}", array(
+                'type' => 'array',
+                'sanitize_callback' => array($this, 'sanitize_id_array'),
+                'default' => array()
+            ));
+            
+            register_setting( 'aethos_visibility', "aethos_excluded_{$cpt->name}", array(
+                'type' => 'array',
+                'sanitize_callback' => array($this, 'sanitize_id_array'),
+                'default' => array()
+            ));
+        }
     }
     
     /**

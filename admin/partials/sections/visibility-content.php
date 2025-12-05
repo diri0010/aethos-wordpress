@@ -10,47 +10,47 @@
  */
 
 // Get current visibility settings
-$global_visibility = (bool) get_option('aethos_global_visibility', false);
-$included_pages = get_option('aethos_kb_included_pages', array());
+$global_visibility = (bool) get_option('aethos_global_visibility', true);
+$included_pages = get_option('aethos_included_pages', array());
 if (!is_array($included_pages)) {
     $included_pages = array();
 }
-$excluded_pages = get_option('aethos_kb_excluded_pages', array());
+$excluded_pages = get_option('aethos_excluded_pages', array());
 if (!is_array($excluded_pages)) {
     $excluded_pages = array();
 }
-$included_categories = get_option('aethos_kb_included_categories', array());
+$included_categories = get_option('aethos_included_categories', array());
 if (!is_array($included_categories)) {
     $included_categories = array();
 }
-$excluded_categories = get_option('aethos_kb_excluded_categories', array());
+$excluded_categories = get_option('aethos_excluded_categories', array());
 if (!is_array($excluded_categories)) {
     $excluded_categories = array();
 }
-$include_all_pages = (bool) get_option('aethos_kb_include_all_pages', true);
-$include_all_categories = (bool) get_option('aethos_kb_include_all_categories', true);
+$include_all_pages = (bool) get_option('aethos_include_all_pages', true);
+$include_all_categories = (bool) get_option('aethos_include_all_categories', true);
 
 // WooCommerce settings
 $woo_active = class_exists('WooCommerce');
 if ($woo_active) {
-    $included_woo_products = get_option('aethos_kb_included_woo_products', array());
+    $included_woo_products = get_option('aethos_included_woo_products', array());
     if (!is_array($included_woo_products)) {
         $included_woo_products = array();
     }
-    $excluded_woo_products = get_option('aethos_kb_excluded_woo_products', array());
+    $excluded_woo_products = get_option('aethos_excluded_woo_products', array());
     if (!is_array($excluded_woo_products)) {
         $excluded_woo_products = array();
     }
-    $included_woo_categories = get_option('aethos_kb_included_woo_categories', array());
+    $included_woo_categories = get_option('aethos_included_woo_categories', array());
     if (!is_array($included_woo_categories)) {
         $included_woo_categories = array();
     }
-    $excluded_woo_categories = get_option('aethos_kb_excluded_woo_categories', array());
+    $excluded_woo_categories = get_option('aethos_excluded_woo_categories', array());
     if (!is_array($excluded_woo_categories)) {
         $excluded_woo_categories = array();
     }
-    $include_all_woo_products = (bool) get_option('aethos_kb_include_all_woo_products', true);
-    $include_all_woo_categories = (bool) get_option('aethos_kb_include_all_woo_categories', true);
+    $include_all_woo_products = (bool) get_option('aethos_include_all_woo_products', true);
+    $include_all_woo_categories = (bool) get_option('aethos_include_all_woo_categories', true);
 }
 
 // Fetch all pages and posts
@@ -96,8 +96,35 @@ if ($woo_active) {
         'order' => 'ASC'
     ));
     if (is_wp_error($all_woo_categories) || !is_array($all_woo_categories)) {
-        $all_woo_categories = array();
     }
+}
+
+// Get custom post types (excluding built-ins and product)
+$args = array(
+    'public' => true,
+    '_builtin' => false
+);
+$custom_post_types = get_post_types($args, 'objects');
+
+// Prepare CPT data
+$cpt_data = array();
+foreach ($custom_post_types as $cpt) {
+    if ($cpt->name === 'product') continue; // Skip WooCommerce
+    
+    $cpt_data[] = array(
+        'name' => $cpt->name,
+        'label' => $cpt->label,
+        'include_all' => (bool) get_option("aethos_include_all_{$cpt->name}", true),
+        'included' => get_option("aethos_included_{$cpt->name}", array()),
+        'excluded' => get_option("aethos_excluded_{$cpt->name}", array()),
+        'items' => get_posts(array(
+            'post_type' => $cpt->name,
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ))
+    );
 }
 ?>
 
@@ -480,6 +507,7 @@ if ($woo_active) {
             <p>Use this master switch to show or hide the chatbot across your entire website.</p>
             
             <div class="aethos-global-toggle">
+                <input type="hidden" name="aethos_global_visibility" value="0">
                 <label class="aethos-toggle-switch">
                     <input type="checkbox" id="aethos_global_visibility" name="aethos_global_visibility" value="1" <?php checked($global_visibility, true); ?>>
                     <span class="aethos-toggle-slider"></span>
@@ -501,7 +529,7 @@ if ($woo_active) {
             <!-- Include Tab -->
             <div id="page-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="pages">
                 <div class="aethos-all-option">
-                    <input type="checkbox" id="include_all_pages" name="aethos_kb_include_all_pages" value="1" <?php checked($include_all_pages, true); ?>>
+                    <input type="checkbox" id="include_all_pages" name="aethos_include_all_pages" value="1" <?php checked($include_all_pages, true); ?>>
                     <label for="include_all_pages">Include on all pages and posts</label>
                 </div>
                 
@@ -534,7 +562,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_included_pages" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_pages)); ?>">
+                    <input type="hidden" name="aethos_included_pages" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_pages)); ?>">
                 </div>
             </div>
             
@@ -569,7 +597,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_excluded_pages" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_pages)); ?>">
+                    <input type="hidden" name="aethos_excluded_pages" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_pages)); ?>">
                 </div>
             </div>
         </div>
@@ -587,7 +615,7 @@ if ($woo_active) {
             <!-- Include Tab -->
             <div id="category-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="categories">
                 <div class="aethos-all-option">
-                    <input type="checkbox" id="include_all_categories" name="aethos_kb_include_all_categories" value="1" <?php checked($include_all_categories, true); ?>>
+                    <input type="checkbox" id="include_all_categories" name="aethos_include_all_categories" value="1" <?php checked($include_all_categories, true); ?>>
                     <label for="include_all_categories">Include on all categories and tags</label>
                 </div>
                 
@@ -620,7 +648,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_included_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_categories)); ?>">
+                    <input type="hidden" name="aethos_included_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_categories)); ?>">
                 </div>
             </div>
             
@@ -655,7 +683,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_excluded_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_categories)); ?>">
+                    <input type="hidden" name="aethos_excluded_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_categories)); ?>">
                 </div>
             </div>
         </div>
@@ -674,7 +702,7 @@ if ($woo_active) {
             <!-- Include Tab -->
             <div id="woo-product-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="woo-products">
                 <div class="aethos-all-option">
-                    <input type="checkbox" id="include_all_woo_products" name="aethos_kb_include_all_woo_products" value="1" <?php checked($include_all_woo_products, true); ?>>
+                    <input type="checkbox" id="include_all_woo_products" name="aethos_include_all_woo_products" value="1" <?php checked($include_all_woo_products, true); ?>>
                     <label for="include_all_woo_products">Include on all products</label>
                 </div>
                 
@@ -707,7 +735,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_included_woo_products" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_woo_products)); ?>">
+                    <input type="hidden" name="aethos_included_woo_products" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_woo_products)); ?>">
                 </div>
             </div>
             
@@ -742,7 +770,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_excluded_woo_products" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_woo_products)); ?>">
+                    <input type="hidden" name="aethos_excluded_woo_products" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_woo_products)); ?>">
                 </div>
             </div>
         </div>
@@ -760,7 +788,7 @@ if ($woo_active) {
             <!-- Include Tab -->
             <div id="woo-category-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="woo-categories">
                 <div class="aethos-all-option">
-                    <input type="checkbox" id="include_all_woo_categories" name="aethos_kb_include_all_woo_categories" value="1" <?php checked($include_all_woo_categories, true); ?>>
+                    <input type="checkbox" id="include_all_woo_categories" name="aethos_include_all_woo_categories" value="1" <?php checked($include_all_woo_categories, true); ?>>
                     <label for="include_all_woo_categories">Include on all product categories</label>
                 </div>
                 
@@ -793,7 +821,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_included_woo_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_woo_categories)); ?>">
+                    <input type="hidden" name="aethos_included_woo_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_woo_categories)); ?>">
                 </div>
             </div>
             
@@ -828,11 +856,98 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_excluded_woo_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_woo_categories)); ?>">
+                    <input type="hidden" name="aethos_excluded_woo_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_woo_categories)); ?>">
+                </div>
+            </div>
+        <?php endif; ?>
+        
+        <?php foreach ($cpt_data as $cpt): ?>
+        <!-- <?php echo esc_html($cpt['label']); ?> Rules -->
+        <div class="aethos-visibility-card" data-rule-type="cpt-<?php echo esc_attr($cpt['name']); ?>">
+            <h2><?php echo esc_html($cpt['label']); ?> Rules</h2>
+            <p>Control chatbot visibility on specific <?php echo strtolower(esc_html($cpt['label'])); ?> pages.</p>
+            
+            <div class="aethos-tab-buttons">
+                <button type="button" class="aethos-tab-button active" data-tab="<?php echo esc_attr($cpt['name']); ?>-include">Include on</button>
+                <button type="button" class="aethos-tab-button" data-tab="<?php echo esc_attr($cpt['name']); ?>-exclude">Exclude from</button>
+            </div>
+            
+            <!-- Include Tab -->
+            <div id="<?php echo esc_attr($cpt['name']); ?>-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="cpt-<?php echo esc_attr($cpt['name']); ?>">
+                <div class="aethos-all-option">
+                    <input type="checkbox" id="include_all_<?php echo esc_attr($cpt['name']); ?>" name="aethos_include_all_<?php echo esc_attr($cpt['name']); ?>" value="1" <?php checked($cpt['include_all'], true); ?>>
+                    <label for="include_all_<?php echo esc_attr($cpt['name']); ?>">Include on all <?php echo strtolower(esc_html($cpt['label'])); ?></label>
+                </div>
+                
+                <div class="aethos-select-wrapper" data-disabled="<?php echo $cpt['include_all'] ? 'true' : 'false'; ?>">
+                    <div class="aethos-select-box">
+                        <select class="aethos-select-dropdown" data-target="included_<?php echo esc_attr($cpt['name']); ?>" <?php echo $cpt['include_all'] ? 'disabled' : ''; ?>>
+                            <option value="">Select <?php echo strtolower(esc_html($cpt['label'])); ?> to include...</option>
+                            <?php foreach ($cpt['items'] as $item): ?>
+                                <option value="<?php echo $item->ID; ?>" data-type="<?php echo esc_attr($cpt['label']); ?>">
+                                    <?php echo esc_html($item->post_title) . ' (' . esc_html($cpt['label']) . ')'; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="dashicons dashicons-arrow-down-alt2 aethos-select-icon"></span>
+                    </div>
+                    
+                    <div class="aethos-selected-items" data-for="included_<?php echo esc_attr($cpt['name']); ?>">
+                        <?php if (!empty($cpt['included'])): ?>
+                            <?php foreach ($cpt['included'] as $item_id): 
+                                $item = get_post($item_id);
+                                if ($item):
+                            ?>
+                            <span class="aethos-selected-tag" data-id="<?php echo $item_id; ?>">
+                                <?php echo esc_html($item->post_title) . ' (' . esc_html($cpt['label']) . ')'; ?>
+                                <span class="remove" title="Remove">×</span>
+                            </span>
+                            <?php endif; endforeach; ?>
+                        <?php else: ?>
+                            <div class="aethos-empty-state">No <?php echo strtolower(esc_html($cpt['label'])); ?> selected</div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <input type="hidden" name="aethos_included_<?php echo esc_attr($cpt['name']); ?>" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $cpt['included'])); ?>">
+                </div>
+            </div>
+            
+            <!-- Exclude Tab -->
+            <div id="<?php echo esc_attr($cpt['name']); ?>-exclude" class="aethos-visibility-tab" data-tab-type="exclude" data-content-type="cpt-<?php echo esc_attr($cpt['name']); ?>">
+                <div class="aethos-select-wrapper">
+                    <div class="aethos-select-box">
+                        <select class="aethos-select-dropdown" data-target="excluded_<?php echo esc_attr($cpt['name']); ?>">
+                            <option value="">Select <?php echo strtolower(esc_html($cpt['label'])); ?> to exclude...</option>
+                            <?php foreach ($cpt['items'] as $item): ?>
+                                <option value="<?php echo $item->ID; ?>" data-type="<?php echo esc_attr($cpt['label']); ?>">
+                                    <?php echo esc_html($item->post_title) . ' (' . esc_html($cpt['label']) . ')'; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="dashicons dashicons-arrow-down-alt2 aethos-select-icon"></span>
+                    </div>
+                    
+                    <div class="aethos-selected-items" data-for="excluded_<?php echo esc_attr($cpt['name']); ?>">
+                        <?php if (!empty($cpt['excluded'])): ?>
+                            <?php foreach ($cpt['excluded'] as $item_id): 
+                                $item = get_post($item_id);
+                                if ($item):
+                            ?>
+                            <span class="aethos-selected-tag" data-id="<?php echo $item_id; ?>">
+                                <?php echo esc_html($item->post_title) . ' (' . esc_html($cpt['label']) . ')'; ?>
+                                <span class="remove" title="Remove">×</span>
+                            </span>
+                            <?php endif; endforeach; ?>
+                        <?php else: ?>
+                            <div class="aethos-empty-state">No <?php echo strtolower(esc_html($cpt['label'])); ?> excluded</div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <input type="hidden" name="aethos_excluded_<?php echo esc_attr($cpt['name']); ?>" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $cpt['excluded'])); ?>">
                 </div>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endforeach; ?>
     </div>
     
     <!-- Summary Panel -->
@@ -1180,6 +1295,46 @@ jQuery(document).ready(function($) {
         html += '</div>';
         html += '</div>';
         <?php endif; ?>
+        
+        <?php
+        // Add CPT summary generation for each registered CPT
+        foreach ($cpt_data as $cpt):
+        ?>
+        // <?php echo esc_js($cpt['label']); ?> Rules
+        var includeAll<?php echo esc_js(ucfirst($cpt['name'])); ?> = $('#include_all_<?php echo esc_attr($cpt['name']); ?>').is(':checked');
+        var included<?php echo esc_js(ucfirst($cpt['name'])); ?> = getSelectedItems('included_<?php echo esc_attr($cpt['name']); ?>');
+        var excluded<?php echo esc_js(ucfirst($cpt['name'])); ?> = getSelectedItems('excluded_<?php echo esc_attr($cpt['name']); ?>');
+        
+        html += '<div class="aethos-summary-item">';
+        html += '<div class="aethos-summary-icon info">';
+        html += '<span class="dashicons dashicons-admin-post"></span>';
+        html += '</div>';
+        html += '<div class="aethos-summary-text">';
+        if (includeAll<?php echo esc_js(ucfirst($cpt['name'])); ?>) {
+            html += '<strong>Included on all <?php echo strtolower(esc_js($cpt['label'])); ?></strong>.';
+        } else if (included<?php echo esc_js(ucfirst($cpt['name'])); ?>.length > 0) {
+            html += '<strong>Included on ' + included<?php echo esc_js(ucfirst($cpt['name'])); ?>.length + ' <?php echo strtolower(esc_js($cpt['label'])); ?>:</strong>';
+            html += '<ul class="aethos-summary-list">';
+            included<?php echo esc_js(ucfirst($cpt['name'])); ?>.forEach(function(item) {
+                html += '<li>' + item + '</li>';
+            });
+            html += '</ul>';
+        } else {
+            html += 'Not included on any specific <?php echo strtolower(esc_js($cpt['label'])); ?>.';
+        }
+        
+        if (excluded<?php echo esc_js(ucfirst($cpt['name'])); ?>.length > 0) {
+            html += '<br><strong>Excluded from ' + excluded<?php echo esc_js(ucfirst($cpt['name'])); ?>.length + ' <?php echo strtolower(esc_js($cpt['label'])); ?>:</strong>';
+            html += '<ul class="aethos-summary-list">';
+            excluded<?php echo esc_js(ucfirst($cpt['name'])); ?>.forEach(function(item) {
+                html += '<li>' + item + '</li>';
+            });
+            html += '</ul>';
+        }
+        html += '</div>';
+        html += '</div>';
+        
+        <?php endforeach; ?>
         
         $summary.html(html);
     }

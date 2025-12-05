@@ -29,6 +29,12 @@ class Aethos_Activator {
             add_option( 'aethos_api_key', '' );
         }
 
+        // Generate shared secret if it doesn't exist
+        if ( false === get_option( 'aethos_shared_secret' ) ) {
+            $shared_secret = bin2hex( random_bytes( 32 ) ); // 64-character hex string
+            add_option( 'aethos_shared_secret', $shared_secret );
+        }
+
         // Create vector storage table
         $table_name = $wpdb->prefix . 'aethos_vectors';
         $charset_collate = $wpdb->get_charset_collate();

@@ -175,6 +175,16 @@ class Aethos_Core {
          */
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-embeddings.php';
 
+        /**
+         * The Token Generator class.
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-token-generator.php';
+
+        /**
+         * The REST Controller class.
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-rest-controller.php';
+
 		/**
 		 * Create an instance of the loader which will be used to register the hooks
 		 * with WordPress.
@@ -327,6 +337,10 @@ class Aethos_Core {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
         $this->loader->add_action( 'wp_footer', $plugin_public, 'render_widget' );
+
+        // Register REST API routes
+        $rest_controller = new Aethos_REST_Controller();
+        $this->loader->add_action( 'rest_api_init', $rest_controller, 'register_routes' );
 
 	}
 
