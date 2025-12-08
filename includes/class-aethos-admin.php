@@ -140,7 +140,8 @@ class Aethos_Admin {
             array($this, 'display_setup_page')
         );
         
-        // Look & Feel
+        /*
+        // Look & Feel - Removed as it is now handled by SaaS
         add_submenu_page(
             'aethos-chat',
             'Look & Feel',
@@ -149,6 +150,7 @@ class Aethos_Admin {
             'aethos-chat-customization',
             array($this, 'display_customization_page')
         );
+        */
         
         // Content Management
         add_submenu_page(

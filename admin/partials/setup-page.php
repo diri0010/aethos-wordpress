@@ -29,10 +29,7 @@ include_once AETHOS_PLUGIN_DIR . 'admin/partials/admin-header.php';
         <span class="dashicons dashicons-admin-links" style="margin-right: 6px;"></span>
         Connection
     </button>
-    <button class="aethos-tab-btn" data-tab="models-tab" style="padding: 12px 24px; border: none; background: none; color: #6b7280; cursor: pointer; font-size: 15px; font-weight: 500;">
-        <span class="dashicons dashicons-admin-home" style="margin-right: 6px;"></span>
-        Model Selection
-    </button>
+
     <button class="aethos-tab-btn" data-tab="visibility-tab" style="padding: 12px 24px; border: none; background: none; color: #6b7280; cursor: pointer; font-size: 15px; font-weight: 500;">
         <span class="dashicons dashicons-visibility" style="margin-right: 6px;"></span>
         Chatbot Visibility
@@ -42,15 +39,6 @@ include_once AETHOS_PLUGIN_DIR . 'admin/partials/admin-header.php';
 <!-- Connection Tab Form -->
 <div id="connection-tab" class="aethos-tab-content" style="display: block;">
     <?php include AETHOS_PLUGIN_DIR . 'admin/partials/sections/connection-content.php'; ?>
-</div>
-
-<!-- Models Tab Form -->
-<div id="models-tab" class="aethos-tab-content" style="display: none;">
-    <form method="post" action="options.php">
-        <?php settings_fields( 'aethos_models' ); ?>
-        <?php include AETHOS_PLUGIN_DIR . 'admin/partials/sections/models-content.php'; ?>
-        <?php submit_button( 'Save Changes', 'primary', 'submit', true, array( 'style' => 'margin-top: 24px;' ) ); ?>
-    </form>
 </div>
 
 <!-- Visibility Tab Form -->

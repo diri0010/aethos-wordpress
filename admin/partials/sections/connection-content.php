@@ -26,6 +26,24 @@ $connection_status = !empty($api_key) ? 'connected' : 'disconnected';
                 Disconnect
             </button>
         </div>
+        
+        <?php
+        // Get API endpoint for dashboard link
+        $api_endpoint = get_option('aethos_api_endpoint', 'http://localhost:3000');
+        $dashboard_url = rtrim($api_endpoint, '/');
+        // If endpoint has /api, remove it to get dashboard base (assuming standard structure)
+        if (substr($dashboard_url, -4) === '/api') {
+            $dashboard_url = substr($dashboard_url, 0, -4);
+        }
+        $widget_settings_url = $dashboard_url . '/dashboard/sites/' . $api_key . '/widget';
+        ?>
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 16px; margin-top: 16px;">
+            <a href="<?php echo esc_url($widget_settings_url); ?>" target="_blank" class="button button-primary" style="padding: 8px 16px; font-size: 14px; text-decoration: none; height: auto; display: inline-flex; align-items: center; line-height: 1.4;">
+                <span class="dashicons dashicons-admin-appearance" style="margin-right: 8px;"></span>
+                Customize Widget Appearance
+            </a>
+            <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px;">Manage colors, behavior, and AI settings in your SaaS dashboard.</p>
+        </div>
     </div>
 <?php else: ?>
     <!-- Not Connected State -->

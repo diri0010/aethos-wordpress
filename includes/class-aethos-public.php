@@ -130,21 +130,6 @@ class Aethos_Public {
 		// Generate a secure init token
 		$token_generator = new Aethos_Token_Generator();
 		$init_token = $token_generator->generate_init_token();
-
-		// Get appearance settings from WordPress
-		$primary_color = get_option( 'aethos_primary_color', '#0052CC' );
-		$accent_color = get_option( 'aethos_accent_color', '#33C2E3' );
-		$success_color = get_option( 'aethos_success_color', '#59BA47' );
-		$error_color = get_option( 'aethos_error_color', '#E5233D' );
-		$position = get_option( 'aethos_widget_position', 'bottom-right' );
-		$header_title = get_option( 'aethos_header_title', 'Aethos AI Assistant' );
-		$chat_subtitle = get_option( 'aethos_chat_subtitle', 'Typically replies instantly' );
-		$user_text_color = get_option( 'aethos_user_text_color', '#FFFFFF' );
-		$ai_bubble_color = get_option( 'aethos_ai_bubble_color', '#F3F4F6' );
-		$input_bg_color = get_option( 'aethos_input_bg_color', '#FFFFFF' );
-		$font_family = get_option( 'aethos_font_family', 'Roboto' );
-		$font_size = get_option( 'aethos_font_size', 16 );
-		$chat_icon = get_option( 'aethos_chat_icon', '' );
 		
 		// Output the widget script tag that loads from SaaS
 		?>
@@ -156,21 +141,6 @@ class Aethos_Public {
 			data-config-endpoint="<?php echo esc_url(rest_url('aethos/v1/config')); ?>"
 			data-conversation-endpoint="<?php echo esc_url(rest_url('aethos/v1/conversations')); ?>"
 			data-rag-endpoint="<?php echo esc_url(rest_url('aethos/v1/context')); ?>"
-			data-primary-color="<?php echo esc_attr($primary_color); ?>"
-			data-accent-color="<?php echo esc_attr($accent_color); ?>"
-			data-success-color="<?php echo esc_attr($success_color); ?>"
-			data-error-color="<?php echo esc_attr($error_color); ?>"
-			data-position="<?php echo esc_attr($position); ?>"
-			data-header-title="<?php echo esc_attr($header_title); ?>"
-			data-chat-subtitle="<?php echo esc_attr($chat_subtitle); ?>"
-			data-user-text-color="<?php echo esc_attr($user_text_color); ?>"
-			data-ai-bubble-color="<?php echo esc_attr($ai_bubble_color); ?>"
-			data-input-bg-color="<?php echo esc_attr($input_bg_color); ?>"
-			data-font-family="<?php echo esc_attr($font_family); ?>"
-			data-font-size="<?php echo esc_attr($font_size); ?>"
-			<?php if (!empty($chat_icon)): ?>
-			data-chat-icon="<?php echo esc_url($chat_icon); ?>"
-			<?php endif; ?>
 			defer>
 		</script>
 		<?php
