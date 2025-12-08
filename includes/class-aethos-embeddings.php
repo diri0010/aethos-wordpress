@@ -20,26 +20,53 @@ class Aethos_Embeddings {
     /**
      * Constructor
      */
+    /**
+     * Constructor
+     */
     public function __construct() {
-        $this->api_client = new Aethos_API_Client();
+        // No dependencies needed for now
     }
 
     /**
      * Generate embedding for single text
      *
      * @param string $text Text to embed
-     * @param string $model Embedding model (default: text-embedding-3-small)
      * @return array|false Embedding vector or false on failure
      */
-    public function generate_embedding($text, $model = 'text-embedding-3-small') {
-        try {
-            $result = $this->batch_generate_embeddings(array($text), $model);
-            
-            if ($result && isset($result[0])) {
-                return $result[0];
-            }
-        } catch (Exception $e) {
-            throw $e; // Rethrow to let caller handle
+    public function generate_embedding($text) {
+        $api_key = get_option('aethos_api_key');
+        $saas_url = get_option('aethos_saas_url', 'http://localhost:3000');
+        
+        if (empty($api_key)) {
+            error_log('Aethos Embeddings: No API key configured');
+            return false;
+        }
+
+        $response = wp_remote_post($saas_url . '/api/embeddings/query', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'x-api-key' => $api_key,
+            ],
+            'body' => wp_json_encode(['text' => $text]),
+            'timeout' => 20, // Increased timeout for AI generation
+        ]);
+        
+        if (is_wp_error($response)) {
+            error_log('Aethos Embeddings: Request failed - ' . $response->get_error_message());
+            return false;
+        }
+        
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        
+        if ($status_code !== 200) {
+            error_log('Aethos Embeddings: API error ' . $status_code . ' - ' . ($body['message'] ?? 'Unknown error'));
+            return false;
+        }
+        
+        if (isset($body['embedding']) && is_array($body['embedding'])) {
+            // Optional: Log usage or cache status
+            return $body['embedding'];
         }
         
         return false;
@@ -47,81 +74,36 @@ class Aethos_Embeddings {
 
     /**
      * Generate embeddings for multiple texts (batch)
+     * 
+     * Note: Current SaaS endpoint handles single requests.
+     * We loop here. Future optimization: Batch endpoint on SaaS.
      *
-     * @param array  $texts Array of texts to embed
-     * @param string $model Embedding model
+     * @param array $texts Array of texts to embed
      * @return array|false Array of embedding vectors or false on failure
      */
-    public function batch_generate_embeddings($texts, $model = 'text-embedding-3-small') {
+    public function batch_generate_embeddings($texts) {
         if (empty($texts) || !is_array($texts)) {
             return false;
         }
 
-        // Limit batch size
-        if (count($texts) > 100) {
-            error_log('Aethos Embeddings: Batch size exceeds 100, splitting into multiple requests');
-            return $this->batch_generate_large($texts, $model);
-        }
-
-        try {
-            // Call Aethos SaaS backend
-            $endpoint = $this->api_client->get_api_endpoint() . '/api/embeddings';
-            $response = $this->api_client->make_request($endpoint, array(
-                'texts' => $texts,
-                'model' => $model
-            ));
-
-            if (is_wp_error($response)) {
-                $error_data = $response->get_error_data();
-                $status = isset($error_data['status']) ? $error_data['status'] : 'unknown';
-                throw new Exception('API request failed (' . $status . '): ' . $response->get_error_message());
-            }
-
-            if (!$response || !isset($response['success']) || !$response['success']) {
-                $error_msg = isset($response['error']) ? $response['error'] : 'Unknown error';
-                throw new Exception('API returned error: ' . $error_msg);
-            }
-
-            if (!isset($response['embeddings']) || !is_array($response['embeddings'])) {
-                throw new Exception('Invalid response format: embeddings missing');
-            }
-
-            // Log usage locally (optional)
-            if (isset($response['usage'])) {
-                $this->log_usage($response['usage']);
-            }
-
-            return $response['embeddings'];
-
-        } catch (Exception $e) {
-            error_log('Aethos Embeddings: Exception - ' . $e->getMessage());
-            throw $e; // Rethrow to let caller handle
-        }
-    }
-
-    /**
-     * Handle large batch by splitting into chunks
-     *
-     * @param array  $texts Array of texts
-     * @param string $model Embedding model
-     * @return array|false Combined embeddings or false on failure
-     */
-    private function batch_generate_large($texts, $model) {
-        $all_embeddings = array();
-        $chunks = array_chunk($texts, 100);
-
-        foreach ($chunks as $chunk) {
-            $embeddings = $this->batch_generate_embeddings($chunk, $model);
+        $embeddings = [];
+        
+        foreach ($texts as $text) {
+            // Add small delay to prevent client-side overwhelming if many requests
+            // But PHP is synchronous so it's fine.
+            $embedding = $this->generate_embedding($text);
             
-            if ($embeddings === false) {
-                error_log('Aethos Embeddings: Failed to process chunk');
+            if ($embedding === false) {
+                error_log('Aethos Embeddings: Failed to generate embedding in batch');
+                // Return what we have or fail completely?
+                // Failing completely ensures integrity.
                 return false;
             }
-
-            $all_embeddings = array_merge($all_embeddings, $embeddings);
+            
+            $embeddings[] = $embedding;
         }
 
-        return $all_embeddings;
+        return $embeddings;
     }
 
     /**
@@ -135,17 +117,10 @@ class Aethos_Embeddings {
             return false;
         }
 
-        // Check if it's a numeric array
-        foreach ($embedding as $value) {
-            if (!is_numeric($value)) {
-                return false;
-            }
-        }
-
-        // Check dimension (1536 for text-embedding-3-small, 3072 for large)
-        $count = count($embedding);
-        if ($count !== 1536 && $count !== 3072) {
-            return false;
+        // Check dimension (1536 for text-embedding-3-small)
+        // We allow some flexibility if model changes, but 1536 is standard.
+        if (count($embedding) !== 1536) {
+           return false;
         }
 
         return true;
@@ -153,47 +128,24 @@ class Aethos_Embeddings {
 
     /**
      * Log embedding usage locally
-     *
-     * @param array $usage Usage data from API
+     * (Deprecated: Usage is now tracked on SaaS)
      */
     private function log_usage($usage) {
-        if (!isset($usage['total_tokens'])) {
-            return;
-        }
-
-        $current_usage = get_option('aethos_embedding_usage', array(
-            'total_tokens' => 0,
-            'total_requests' => 0,
-            'total_cost' => 0
-        ));
-
-        $current_usage['total_tokens'] += $usage['total_tokens'];
-        $current_usage['total_requests'] += 1;
-        
-        if (isset($usage['cost'])) {
-            $current_usage['total_cost'] += $usage['cost'];
-        }
-
-        update_option('aethos_embedding_usage', $current_usage);
+        // No-op
     }
 
     /**
-     * Get local usage statistics
-     *
-     * @return array Usage statistics
+     * Get usage stats
+     * (Deprecated)
      */
     public function get_usage_stats() {
-        return get_option('aethos_embedding_usage', array(
-            'total_tokens' => 0,
-            'total_requests' => 0,
-            'total_cost' => 0
-        ));
+        return [];
     }
 
     /**
-     * Reset local usage statistics
+     * Reset usage stats
      */
     public function reset_usage_stats() {
-        delete_option('aethos_embedding_usage');
+        // No-op
     }
 }

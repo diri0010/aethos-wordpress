@@ -161,6 +161,11 @@ class Aethos_Core {
         }
 
         /**
+         * The Vector Search Service class.
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-vector-search.php';
+
+        /**
          * The Vector Storage class.
          */
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-vector-storage.php';

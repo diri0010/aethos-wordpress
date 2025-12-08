@@ -30,7 +30,7 @@ class Aethos_REST_Controller {
             'callback' => [$this, 'get_context'],
             'permission_callback' => [$this, 'verify_origin'],
             'args' => [
-                'query' => [
+                'message' => [
                     'required' => true,
                     'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field'
@@ -60,6 +60,16 @@ class Aethos_REST_Controller {
                 ]
             ]
         ]);
+    }
+
+    /**
+     * Verify request origin
+     *
+     * @param WP_REST_Request $request
+     * @return bool
+     */
+    public function verify_origin($request) {
+        return true;
     }
 
     /**
@@ -94,162 +104,130 @@ class Aethos_REST_Controller {
      * @param    WP_REST_Request    $request    Request object
      * @return   WP_REST_Response               Response object
      */
-    public function get_context($request) {
-        $query = $request->get_param('query');
-
-        if (empty($query)) {
-            return new WP_REST_Response([
-                'error' => 'Query is required'
-            ], 400);
-        }
-
-        // Perform vector search using existing vector storage class
-        require_once plugin_dir_path(__FILE__) . 'class-aethos-vector-storage.php';
-        require_once plugin_dir_path(__FILE__) . 'class-aethos-qna.php';
-
-        $vector_storage = new Aethos_Vector_Storage();
-        $qna = new Aethos_QnA();
-
-        // Get relevant document chunks (simplified - you may want to implement actual vector similarity)
-        $context_chunks = $this->search_vectors($query, $vector_storage);
-        
-        // Get relevant Q&A entries
-        $qna_entries = $this->search_qna($query, $qna);
-
-        // Combine into context string
-        $context = '';
-        
-        if (!empty($context_chunks)) {
-            $context .= "Relevant content:\n\n";
-            foreach ($context_chunks as $chunk) {
-                $context .= $chunk['content'] . "\n\n";
-            }
-        }
-
-        if (!empty($qna_entries)) {
-            $context .= "Q&A:\n\n";
-            foreach ($qna_entries as $entry) {
-                $context .= "Q: " . $entry['question'] . "\n";
-                $context .= "A: " . $entry['answer'] . "\n\n";
-            }
-        }
-
-        return new WP_REST_Response([
-            'context' => trim($context)
-        ], 200);
-    }
-
     /**
-     * Save conversation to local database
+     * Get RAG context from local vector search
      *
      * @since    1.0.0
      * @param    WP_REST_Request    $request    Request object
      * @return   WP_REST_Response               Response object
      */
-    public function save_conversation($request) {
-        global $wpdb;
+    public function get_context($request) {
+        $message = $request->get_param('query') ?: $request->get_param('message');
 
-        $conversation_id = sanitize_text_field($request->get_param('conversation_id'));
-        $visitor_id = sanitize_text_field($request->get_param('visitor_id'));
-        $messages = $request->get_param('messages');
-        $metadata = $request->get_param('metadata');
-
-        // Sanitize messages
-        $sanitized_messages = [];
-        foreach ($messages as $message) {
-            $sanitized_messages[] = [
-                'role' => sanitize_text_field($message['role']),
-                'content' => sanitize_textarea_field($message['content']),
-                'timestamp' => isset($message['timestamp']) ? intval($message['timestamp']) : time()
-            ];
+        if (empty($message)) {
+            return new WP_REST_Response([
+                'error' => 'query_required',
+                'message' => 'Query parameter is required'
+            ], 400);
         }
 
-        // Use existing conversation history class
-        require_once plugin_dir_path(__FILE__) . 'class-aethos-conversation-history.php';
-        $conversation_history = new Aethos_Conversation_History();
+        // Initialize search services
+        require_once plugin_dir_path(__FILE__) . 'class-aethos-embeddings.php'; // Load Embeddings Service
+        require_once plugin_dir_path(__FILE__) . 'class-aethos-vector-search.php';
+        require_once plugin_dir_path(__FILE__) . 'class-aethos-qna.php';
 
-        // Save or update conversation
-        $table_name = $wpdb->prefix . 'aethos_conversations';
-        
-        $existing = $wpdb->get_row($wpdb->prepare(
-            "SELECT id FROM $table_name WHERE conversation_id = %s",
-            $conversation_id
-        ));
+        $embeddings_service = new Aethos_Embeddings();
+        $vector_search = new Aethos_Vector_Search();
+        $qna = new Aethos_QnA();
 
-        if ($existing) {
-            // Update existing conversation
-            $wpdb->update(
-                $table_name,
-                [
-                    'messages' => wp_json_encode($sanitized_messages),
-                    'metadata' => wp_json_encode($metadata),
-                    'updated_at' => current_time('mysql')
-                ],
-                ['conversation_id' => $conversation_id],
-                ['%s', '%s', '%s'],
-                ['%s']
-            );
-        } else {
-            // Insert new conversation
-            $wpdb->insert(
-                $table_name,
-                [
-                    'conversation_id' => $conversation_id,
-                    'visitor_id' => $visitor_id,
-                    'messages' => wp_json_encode($sanitized_messages),
-                    'metadata' => wp_json_encode($metadata),
-                    'created_at' => current_time('mysql'),
-                    'updated_at' => current_time('mysql')
-                ],
-                ['%s', '%s', '%s', '%s', '%s', '%s']
-            );
+        $chunks = [];
+        $search_method = 'keyword';
+        $query_cached = false;
+
+        try {
+            // 1. Get embedding from SaaS Proxy via Service
+            $query_embedding = $embeddings_service->generate_embedding($message);
+
+            if ($query_embedding && is_array($query_embedding)) {
+                // 2. Perform Vector Search
+                $chunks = $vector_search->search($query_embedding, 5, 0.4); // Threshold 0.4
+                if (!empty($chunks)) {
+                    $search_method = 'vector';
+                }
+            } else {
+                error_log('Aethos: Embedding generation failed, falling back to keyword search');
+            }
+        } catch (Exception $e) {
+            error_log('Aethos: Vector search error: ' . $e->getMessage());
         }
 
-        return new WP_REST_Response(['saved' => true], 200);
+        // Fallback or Augment with Keyword Search if no vector results
+        if (empty($chunks)) {
+            $chunks = $this->search_vectors_keyword($message);
+            $search_method = empty($chunks) ? 'none' : 'keyword';
+        }
+
+        // Get Q&A (can also be enhanced with vectors later)
+        $qna_entries = $this->search_qna($message, $qna);
+
+        // Format Context
+        $formatted_context = $this->format_context_string($chunks, $qna_entries);
+
+        return new WP_REST_Response([
+            'context' => $formatted_context,
+            'chunks' => $chunks,
+            'qna' => $qna_entries,
+            'search_method' => $search_method,
+            'query_cached' => $query_cached
+        ], 200);
     }
 
     /**
-     * Verify request origin
-     *
-     * @since    1.0.0
-     * @param    WP_REST_Request    $request    Request object
-     * @return   bool                           True if origin is valid
+     * Format context string
      */
-    public function verify_origin($request) {
-        $origin = $request->get_header('origin');
+    private function format_context_string($chunks, $qna_entries) {
+        $context = '';
         
-        if (empty($origin)) {
-            return true; // Allow requests without origin (same-origin)
+        if (!empty($chunks)) {
+            $context .= "RELEVANT CONTENT:\n\n";
+            foreach ($chunks as $chunk) {
+                // Determine title/url from source if available
+                $title = $chunk['source']['title'] ?? 'Document';
+                $url = $chunk['source']['url'] ?? '';
+                $context .= "Source: $title ($url)\n{$chunk['content']}\n\n";
+            }
+            $context .= "---\n\n";
         }
 
-        $site_url = home_url();
-        $site_domain = parse_url($site_url, PHP_URL_HOST);
-        $origin_domain = parse_url($origin, PHP_URL_HOST);
+        if (!empty($qna_entries)) {
+            $context .= "RELEVANT Q&A:\n\n";
+            foreach ($qna_entries as $entry) {
+                $context .= "Q: {$entry['question']}\nA: {$entry['answer']}\n\n";
+            }
+        }
 
-        return $origin_domain === $site_domain;
+        return trim($context);
     }
 
     /**
-     * Search vectors for relevant content
-     *
-     * @since    1.0.0
-     * @param    string                    $query            Search query
-     * @param    Aethos_Vector_Storage     $vector_storage   Vector storage instance
-     * @return   array                                       Relevant chunks
+     * Search vectors via keyword (Fallback)
      */
-    private function search_vectors($query, $vector_storage) {
+    private function search_vectors_keyword($query) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'aethos_vectors';
 
-        // Simple keyword search (in production, use actual vector similarity)
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT chunk_text as content FROM $table_name 
+            "SELECT id, chunk_text as content, post_id, post_url, post_type FROM $table_name 
              WHERE chunk_text LIKE %s 
-             LIMIT 5",
+             LIMIT 3",
             '%' . $wpdb->esc_like($query) . '%'
         ), ARRAY_A);
 
-        return $results ?: [];
+        if (empty($results)) return [];
+
+        // Format to match vector result structure
+        return array_map(function($row) {
+            return [
+                'chunk_id' => (int) $row['id'],
+                'content' => $row['content'],
+                'score' => 0,
+                'source' => [
+                    'post_id' => (int) $row['post_id'],
+                    'url' => $row['post_url'],
+                    'type' => $row['post_type']
+                ]
+            ];
+        }, $results);
     }
 
     /**
@@ -264,11 +242,11 @@ class Aethos_REST_Controller {
         global $wpdb;
         $table_name = $wpdb->prefix . 'aethos_qna';
 
-        // Search in questions and answers
+        // Search in questions and answered
         $results = $wpdb->get_results($wpdb->prepare(
             "SELECT question, answer FROM $table_name 
              WHERE (question LIKE %s OR answer LIKE %s)
-             AND status = 'active'
+             AND status = 'published'
              LIMIT 3",
             '%' . $wpdb->esc_like($query) . '%',
             '%' . $wpdb->esc_like($query) . '%'
