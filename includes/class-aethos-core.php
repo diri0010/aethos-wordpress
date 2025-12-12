@@ -100,15 +100,6 @@ class Aethos_Core {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-public.php';
 
         /**
-         * Enhanced Admin Functionality
-         */
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-api-client.php';
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-vector-storage.php';
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-content-scanner.php';
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-scan-orchestrator.php';
-        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-admin-enhanced.php';
-
-        /**
          * The class responsible for API client functionality.
          */
         if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-api-client.php' ) ) {
@@ -122,12 +113,12 @@ class Aethos_Core {
             require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-security.php';
         }
 
-	        /**
-	         * The class responsible for caching.
-	         */
-	        if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-cache.php' ) ) {
-	            require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-cache.php';
-	        }
+	    /**
+	     * The class responsible for caching.
+	     */
+	    if ( file_exists( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-cache.php' ) ) {
+	        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-cache.php';
+	    }
 
         /**
          * The class responsible for analytics.
@@ -164,6 +155,11 @@ class Aethos_Core {
          * The Vector Search Service class.
          */
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-vector-search.php';
+
+        /**
+         * The Scan Orchestrator class.
+         */
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-scan-orchestrator.php';
 
         /**
          * The Vector Storage class.
