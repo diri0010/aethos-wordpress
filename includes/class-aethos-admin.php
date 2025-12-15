@@ -649,6 +649,7 @@ class Aethos_Admin {
 
     /**
      * Update connection status on SaaS backend
+     * Also saves sharedSecret if returned (for JWT token signing)
      *
      * @since    1.0.0
      */
@@ -667,6 +668,17 @@ class Aethos_Admin {
         }
 
         $response_code = wp_remote_retrieve_response_code( $response );
+        
+        // Parse response body to check for sharedSecret
+        $body = wp_remote_retrieve_body( $response );
+        $data = json_decode( $body, true );
+        
+        // Save sharedSecret if returned (used for JWT token signing)
+        if ( $response_code === 200 && isset( $data['sharedSecret'] ) && ! empty( $data['sharedSecret'] ) ) {
+            update_option( 'aethos_shared_secret', $data['sharedSecret'] );
+            error_log( 'Aethos: Shared secret received and saved for secure widget authentication' );
+        }
+        
         return $response_code === 200;
     }
 
