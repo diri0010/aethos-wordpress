@@ -49,9 +49,8 @@ class Aethos_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/widget.css', array(), $this->version, 'all' );
-
+		// Widget styling is now bundled in the React widget from SaaS
+		// No need to load local CSS anymore
 	}
 
 	/**
@@ -131,18 +130,26 @@ class Aethos_Public {
 		$token_generator = new Aethos_Token_Generator();
 		$init_token = $token_generator->generate_init_token();
 		
-		// Output the widget script tag that loads from SaaS
+		// Output the widget configuration and load React bundle from SaaS
 		?>
-		<script 
-			src="<?php echo esc_url($api_endpoint . '/widget.js'); ?>"
-			data-site="<?php echo esc_attr($site_id); ?>"
-			data-token="<?php echo esc_attr($init_token); ?>"
-			data-saas-url="<?php echo esc_url($api_endpoint); ?>"
-			data-config-endpoint="<?php echo esc_url(rest_url('aethos/v1/config')); ?>"
-			data-conversation-endpoint="<?php echo esc_url(rest_url('aethos/v1/conversations')); ?>"
-			data-rag-endpoint="<?php echo esc_url(rest_url('aethos/v1/context')); ?>"
-			defer>
+		<div id="aethos-widget-root"></div>
+		<!-- Load widget CSS from SaaS (includes Tailwind + Reachat styles) -->
+		<link rel="stylesheet" href="<?php echo esc_url($api_endpoint . '/widget-bundle.css'); ?>" />
+		<script>
+			window.__AETHOS_WIDGET_CONFIG__ = {
+				siteId: <?php echo json_encode($site_id); ?>,
+				initToken: <?php echo json_encode($init_token); ?>,
+				origin: <?php echo json_encode(home_url()); ?>,
+				saasUrl: <?php echo json_encode($api_endpoint); ?>,
+				wpContextUrl: <?php echo json_encode(rest_url('aethos/v1/context')); ?>,
+				containerId: 'aethos-widget-root',
+				config: {
+					// These will be fetched from SaaS during init
+					// But we can pass initial values if available
+				}
+			};
 		</script>
+		<script src="<?php echo esc_url($api_endpoint . '/widget-bundle.js'); ?>" defer></script>
 		<?php
 	}
 
