@@ -30,8 +30,13 @@ class Aethos_REST_Controller {
             'callback' => [$this, 'get_context'],
             'permission_callback' => [$this, 'verify_origin'],
             'args' => [
+                'query' => [
+                    'required' => false,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field'
+                ],
                 'message' => [
-                    'required' => true,
+                    'required' => false,
                     'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field'
                 ]
