@@ -57,6 +57,17 @@ class Aethos_Vector_Storage {
         // Get post URL (works for posts, pages, custom post types, WooCommerce products)
         $post_url = get_permalink($post_id);
 
+        // Calculate magnitude for pre-computed cosine similarity optimization
+        $embedding_array = is_array($embedding) ? $embedding : json_decode($embedding, true);
+        $magnitude = null;
+        if (is_array($embedding_array) && !empty($embedding_array)) {
+            $sum_of_squares = 0;
+            foreach ($embedding_array as $val) {
+                $sum_of_squares += $val * $val;
+            }
+            $magnitude = sqrt($sum_of_squares);
+        }
+
         // Prepare data
         $data = array(
             'post_id' => $post_id,
@@ -65,6 +76,7 @@ class Aethos_Vector_Storage {
             'chunk_index' => $chunk_index,
             'chunk_text' => $chunk_text,
             'embedding' => is_array($embedding) ? json_encode($embedding) : $embedding,
+            'magnitude' => $magnitude,
             'token_count' => $token_count,
             'metadata' => json_encode($metadata),
             'hash' => $hash
@@ -83,7 +95,7 @@ class Aethos_Vector_Storage {
                 $table_name,
                 $data,
                 array('id' => $existing->id),
-                array('%d', '%s', '%s', '%d', '%s', '%s', '%d', '%s', '%s'),
+                array('%d', '%s', '%s', '%d', '%s', '%s', '%f', '%d', '%s', '%s'),
                 array('%d')
             );
             return $result !== false ? $existing->id : false;
@@ -92,7 +104,7 @@ class Aethos_Vector_Storage {
             $result = $wpdb->insert(
                 $table_name,
                 $data,
-                array('%d', '%s', '%s', '%d', '%s', '%s', '%d', '%s', '%s')
+                array('%d', '%s', '%s', '%d', '%s', '%s', '%f', '%d', '%s', '%s')
             );
             return $result !== false ? $wpdb->insert_id : false;
         }

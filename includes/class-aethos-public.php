@@ -69,17 +69,24 @@ class Aethos_Public {
 	 * @since    1.0.0
 	 */
 	public function render_widget() {
-		// Check global visibility setting
-		$global_visibility = get_option('aethos_global_visibility', true);
+		// Check global visibility setting (default false = widget hidden until enabled)
+		$global_visibility = get_option('aethos_global_visibility', false);
 		if (!$global_visibility) {
 			return;
 		}
 
 		// Check page/post specific visibility
 		$object_id = get_queried_object_id();
-		$include_all_pages = get_option('aethos_include_all_pages', true);
+		
+		// Handle empty string values as true (include all by default)
+		$include_all_pages_raw = get_option('aethos_include_all_pages', true);
+		$include_all_pages = ($include_all_pages_raw === '' || $include_all_pages_raw === null) ? true : (bool) $include_all_pages_raw;
+		
 		$included_pages = get_option('aethos_included_pages', array());
+		if (!is_array($included_pages)) $included_pages = array();
+		
 		$excluded_pages = get_option('aethos_excluded_pages', array());
+		if (!is_array($excluded_pages)) $excluded_pages = array();
 
 		// If specific inclusion is required and current page is not included
 		if (!$include_all_pages && !in_array($object_id, $included_pages)) {

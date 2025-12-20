@@ -11,46 +11,46 @@
 
 // Get current visibility settings
 $global_visibility = (bool) get_option('aethos_global_visibility', false);
-$included_pages = get_option('aethos_kb_included_pages', array());
+$included_pages = get_option('aethos_included_pages', array());
 if (!is_array($included_pages)) {
     $included_pages = array();
 }
-$excluded_pages = get_option('aethos_kb_excluded_pages', array());
+$excluded_pages = get_option('aethos_excluded_pages', array());
 if (!is_array($excluded_pages)) {
     $excluded_pages = array();
 }
-$included_categories = get_option('aethos_kb_included_categories', array());
+$included_categories = get_option('aethos_included_categories', array());
 if (!is_array($included_categories)) {
     $included_categories = array();
 }
-$excluded_categories = get_option('aethos_kb_excluded_categories', array());
+$excluded_categories = get_option('aethos_excluded_categories', array());
 if (!is_array($excluded_categories)) {
     $excluded_categories = array();
 }
-$include_all_pages = (bool) get_option('aethos_kb_include_all_pages', true);
-$include_all_categories = (bool) get_option('aethos_kb_include_all_categories', true);
+$include_all_pages = (bool) get_option('aethos_include_all_pages', true);
+$include_all_categories = (bool) get_option('aethos_include_all_categories', true);
 
 // WooCommerce settings
 $woo_active = class_exists('WooCommerce');
 if ($woo_active) {
-    $included_woo_products = get_option('aethos_kb_included_woo_products', array());
+    $included_woo_products = get_option('aethos_included_woo_products', array());
     if (!is_array($included_woo_products)) {
         $included_woo_products = array();
     }
-    $excluded_woo_products = get_option('aethos_kb_excluded_woo_products', array());
+    $excluded_woo_products = get_option('aethos_excluded_woo_products', array());
     if (!is_array($excluded_woo_products)) {
         $excluded_woo_products = array();
     }
-    $included_woo_categories = get_option('aethos_kb_included_woo_categories', array());
+    $included_woo_categories = get_option('aethos_included_woo_categories', array());
     if (!is_array($included_woo_categories)) {
         $included_woo_categories = array();
     }
-    $excluded_woo_categories = get_option('aethos_kb_excluded_woo_categories', array());
+    $excluded_woo_categories = get_option('aethos_excluded_woo_categories', array());
     if (!is_array($excluded_woo_categories)) {
         $excluded_woo_categories = array();
     }
-    $include_all_woo_products = (bool) get_option('aethos_kb_include_all_woo_products', true);
-    $include_all_woo_categories = (bool) get_option('aethos_kb_include_all_woo_categories', true);
+    $include_all_woo_products = (bool) get_option('aethos_include_all_woo_products', true);
+    $include_all_woo_categories = (bool) get_option('aethos_include_all_woo_categories', true);
 }
 
 // Fetch all pages and posts
@@ -161,6 +161,7 @@ if ($woo_active) {
     opacity: 0;
     width: 0;
     height: 0;
+    position: absolute;
 }
 
 .aethos-toggle-slider {
@@ -171,7 +172,8 @@ if ($woo_active) {
     right: 0;
     bottom: 0;
     background-color: #cbd5e1;
-    transition: 0.3s;
+    -webkit-transition: .3s;
+    transition: .3s;
     border-radius: 28px;
 }
 
@@ -183,16 +185,24 @@ if ($woo_active) {
     left: 4px;
     bottom: 4px;
     background-color: white;
-    transition: 0.3s;
+    -webkit-transition: .3s;
+    transition: .3s;
     border-radius: 50%;
+    -webkit-transform: translateX(0);
+    -ms-transform: translateX(0);
+    transform: translateX(0);
 }
 
-.aethos-toggle-switch input:checked + .aethos-toggle-slider {
-    background-color: #4f46e5;
+.aethos-toggle-switch input:checked + .aethos-toggle-slider,
+.aethos-toggle-slider.active {
+    background-color: #4f46e5 !important;
 }
 
-.aethos-toggle-switch input:checked + .aethos-toggle-slider:before {
-    transform: translateX(24px);
+.aethos-toggle-switch input:checked + .aethos-toggle-slider:before,
+.aethos-toggle-slider.active:before {
+    -webkit-transform: translateX(24px) !important;
+    -ms-transform: translateX(24px) !important;
+    transform: translateX(24px) !important;
 }
 
 .aethos-toggle-label {
@@ -501,7 +511,7 @@ if ($woo_active) {
             <!-- Include Tab -->
             <div id="page-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="pages">
                 <div class="aethos-all-option">
-                    <input type="checkbox" id="include_all_pages" name="aethos_kb_include_all_pages" value="1" <?php checked($include_all_pages, true); ?>>
+                    <input type="checkbox" id="include_all_pages" name="aethos_include_all_pages" value="1" <?php checked($include_all_pages, true); ?>>
                     <label for="include_all_pages">Include on all pages and posts</label>
                 </div>
                 
@@ -534,7 +544,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_included_pages" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_pages)); ?>">
+                    <input type="hidden" name="aethos_included_pages" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_pages)); ?>">
                 </div>
             </div>
             
@@ -569,7 +579,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_excluded_pages" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_pages)); ?>">
+                    <input type="hidden" name="aethos_excluded_pages" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_pages)); ?>">
                 </div>
             </div>
         </div>
@@ -587,7 +597,7 @@ if ($woo_active) {
             <!-- Include Tab -->
             <div id="category-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="categories">
                 <div class="aethos-all-option">
-                    <input type="checkbox" id="include_all_categories" name="aethos_kb_include_all_categories" value="1" <?php checked($include_all_categories, true); ?>>
+                    <input type="checkbox" id="include_all_categories" name="aethos_include_all_categories" value="1" <?php checked($include_all_categories, true); ?>>
                     <label for="include_all_categories">Include on all categories and tags</label>
                 </div>
                 
@@ -620,7 +630,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_included_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_categories)); ?>">
+                    <input type="hidden" name="aethos_included_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_categories)); ?>">
                 </div>
             </div>
             
@@ -655,7 +665,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_excluded_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_categories)); ?>">
+                    <input type="hidden" name="aethos_excluded_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_categories)); ?>">
                 </div>
             </div>
         </div>
@@ -674,7 +684,7 @@ if ($woo_active) {
             <!-- Include Tab -->
             <div id="woo-product-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="woo-products">
                 <div class="aethos-all-option">
-                    <input type="checkbox" id="include_all_woo_products" name="aethos_kb_include_all_woo_products" value="1" <?php checked($include_all_woo_products, true); ?>>
+                    <input type="checkbox" id="include_all_woo_products" name="aethos_include_all_woo_products" value="1" <?php checked($include_all_woo_products, true); ?>>
                     <label for="include_all_woo_products">Include on all products</label>
                 </div>
                 
@@ -707,7 +717,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_included_woo_products" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_woo_products)); ?>">
+                    <input type="hidden" name="aethos_included_woo_products" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_woo_products)); ?>">
                 </div>
             </div>
             
@@ -742,7 +752,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_excluded_woo_products" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_woo_products)); ?>">
+                    <input type="hidden" name="aethos_excluded_woo_products" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_woo_products)); ?>">
                 </div>
             </div>
         </div>
@@ -760,7 +770,7 @@ if ($woo_active) {
             <!-- Include Tab -->
             <div id="woo-category-include" class="aethos-visibility-tab active" data-tab-type="include" data-content-type="woo-categories">
                 <div class="aethos-all-option">
-                    <input type="checkbox" id="include_all_woo_categories" name="aethos_kb_include_all_woo_categories" value="1" <?php checked($include_all_woo_categories, true); ?>>
+                    <input type="checkbox" id="include_all_woo_categories" name="aethos_include_all_woo_categories" value="1" <?php checked($include_all_woo_categories, true); ?>>
                     <label for="include_all_woo_categories">Include on all product categories</label>
                 </div>
                 
@@ -793,7 +803,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_included_woo_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_woo_categories)); ?>">
+                    <input type="hidden" name="aethos_included_woo_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $included_woo_categories)); ?>">
                 </div>
             </div>
             
@@ -828,7 +838,7 @@ if ($woo_active) {
                         <?php endif; ?>
                     </div>
                     
-                    <input type="hidden" name="aethos_kb_excluded_woo_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_woo_categories)); ?>">
+                    <input type="hidden" name="aethos_excluded_woo_categories" class="aethos-hidden-input" value="<?php echo esc_attr(implode(',', $excluded_woo_categories)); ?>">
                 </div>
             </div>
         </div>
@@ -890,7 +900,20 @@ jQuery(document).ready(function($) {
      * Setup global visibility toggle
      */
     function setupGlobalToggle() {
-        $('#aethos_global_visibility').on('change', function() {
+        var $checkbox = $('#aethos_global_visibility');
+        var $slider = $checkbox.siblings('.aethos-toggle-slider');
+        
+        // Set initial state
+        if ($checkbox.is(':checked')) {
+            $slider.addClass('active');
+        }
+        
+        $checkbox.on('change', function() {
+            if ($(this).is(':checked')) {
+                $slider.addClass('active');
+            } else {
+                $slider.removeClass('active');
+            }
             updateSummary();
         });
     }
