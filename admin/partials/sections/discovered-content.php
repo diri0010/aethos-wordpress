@@ -514,32 +514,7 @@ $last_scan_info = !empty($recent_scans) ? $recent_scans[0] : null;
     <?php endif; ?>
 </div>
 
-<!-- Exclude Confirmation Modal -->
-<div id="exclude-confirmation-modal" class="aethos-modal" style="display: none;">
-    <div class="aethos-modal-overlay"></div>
-    <div class="aethos-modal-content">
-        <div class="modal-header">
-            <span class="dashicons dashicons-warning" style="color: #dc2626; font-size: 24px; width: 24px; height: 24px;"></span>
-            <h3>Exclude Content from Knowledge Base?</h3>
-        </div>
-        <div class="modal-body">
-            <p class="modal-message">This will remove <strong id="exclude-post-title"></strong> from your AI's knowledge base.</p>
-            <ul class="modal-list">
-                <li>Delete all vectors from the database</li>
-                <li>Add to exclusion list to prevent re-scanning</li>
-            </ul>
-            <div class="modal-warning">
-                <strong>Warning:</strong> This cannot be undone automatically. You'll need to manually re-include and re-scan.
-            </div>
-        </div>
-        <div class="modal-actions">
-            <button id="cancel-exclude" class="button">Cancel</button>
-            <button id="confirm-exclude" class="button button-primary button-danger">
-                Yes, Exclude Content
-            </button>
-        </div>
-    </div>
-</div>
+<!-- Modal removed - exclusion now happens directly without confirmation -->
 
 <style>
 .aethos-modal {
@@ -735,90 +710,38 @@ jQuery(document).ready(function($) {
         });
     });
     
-    // Exclude button - Show confirmation modal
-    var pendingExcludePostId = null;
-    
+    // Exclude button - Direct toggle (no confirmation modal needed)
     $('.exclude-btn').on('click', function() {
         var $btn = $(this);
         var postId = $btn.data('post-id');
         var $row = $btn.closest('tr');
-        var postTitle = $row.find('strong').first().text();
         var isExcluded = $btn.text().trim() === 'Include';
         
-        // If already excluded, just toggle back to included (no modal needed)
-        if (isExcluded) {
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'aethos_include_post_to_kb',
-                    post_id: postId,
-                    nonce: '<?php echo wp_create_nonce('aethos_toggle_exclude'); ?>'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + response.data.message);
-                    }
-                }
-            });
-            return;
-        }
+        $btn.prop('disabled', true);
         
-        // Get chunk count from the row (we'll need to fetch this via AJAX or from data attribute)
-        // For now, we'll get it from the discovered content query
-        var chunkCount = $row.find('td').eq(3).text(); // Assuming chunk count is visible or we add it
-        
-        // Show modal with post details
-        $('#exclude-post-title').text(postTitle);
-        $('#exclude-chunk-count').text('all vectors'); // We'll update this after getting actual count
-        $('#exclude-confirmation-modal').fadeIn(200);
-        pendingExcludePostId = postId;
-    });
-    
-    // Cancel exclude
-    $('#cancel-exclude, .aethos-modal-overlay').on('click', function() {
-        $('#exclude-confirmation-modal').fadeOut(200);
-        pendingExcludePostId = null;
-    });
-    
-    // Confirm exclude
-    $('#confirm-exclude').on('click', function() {
-        if (!pendingExcludePostId) return;
-        
-        var $btn = $(this);
-        var originalHtml = $btn.html();
-        $btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Excluding...');
+        // Toggle between exclude and include
+        var action = isExcluded ? 'aethos_include_post_to_kb' : 'aethos_exclude_post_from_kb';
+        var nonce = isExcluded ? '<?php echo wp_create_nonce('aethos_toggle_exclude'); ?>' : '<?php echo wp_create_nonce('aethos_exclude_post'); ?>';
         
         $.ajax({
             url: ajaxurl,
             type: 'POST',
             data: {
-                action: 'aethos_exclude_post_from_kb',
-                post_id: pendingExcludePostId,
-                nonce: '<?php echo wp_create_nonce('aethos_exclude_post'); ?>'
+                action: action,
+                post_id: postId,
+                nonce: nonce
             },
             success: function(response) {
                 if (response.success) {
-                    // Show success message
-                    var message = 'Successfully excluded "' + response.data.post_title + '"\n';
-                    message += 'Deleted ' + response.data.vectors_deleted + ' vector(s)\n';
-                    if (response.data.exclusion_added) {
-                        message += 'Added to ' + response.data.exclusion_list + ' exclusion list';
-                    }
-                    alert(message);
-                    
-                    // Reload page to update table
                     location.reload();
                 } else {
                     alert('Error: ' + response.data.message);
-                    $btn.prop('disabled', false).html(originalHtml);
+                    $btn.prop('disabled', false);
                 }
             },
             error: function() {
                 alert('Error: Failed to connect to server');
-                $btn.prop('disabled', false).html(originalHtml);
+                $btn.prop('disabled', false);
             }
         });
     });

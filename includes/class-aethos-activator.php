@@ -70,6 +70,7 @@ class Aethos_Activator {
             chunk_index int NOT NULL DEFAULT 0,
             chunk_text longtext NOT NULL,
             embedding longtext NOT NULL,
+            magnitude float DEFAULT NULL,
             token_count int DEFAULT NULL,
             metadata longtext DEFAULT NULL,
             hash varchar(64) DEFAULT NULL,

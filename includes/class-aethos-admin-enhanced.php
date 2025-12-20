@@ -1002,8 +1002,8 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
     }
 
     /**
-     * AJAX handler for excluding post from knowledge base (robust version)
-     * Deletes vectors and adds to appropriate KB exclusion list
+     * AJAX handler for excluding post from knowledge base
+     * Marks as excluded (vectors filtered at search time, not deleted)
      *
      * @since    1.0.0
      */
@@ -1025,19 +1025,12 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
             wp_send_json_error( array( 'message' => 'Post not found' ) );
         }
 
-        // Delete vectors from database
-        $storage = new Aethos_Vector_Storage();
-        $deleted_count = $storage->delete_post_vectors( $post_id );
-
-        if ( $deleted_count === false ) {
-            wp_send_json_error( array( 'message' => 'Failed to delete vectors' ) );
-        }
+        // Note: Vectors are NOT deleted - they're filtered at search time
+        // This allows easy re-inclusion without needing to re-scan
 
         // Add to appropriate KB exclusion list based on post type
     $exclusion_added = false;
     $exclusion_list_name = '';
-
-    error_log("Aethos: Excluding post ID $post_id, type: {$post->post_type}");
 
     switch ( $post->post_type ) {
         case 'page':
@@ -1106,7 +1099,6 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
         'message' => 'Content excluded from knowledge base',
         'post_title' => $post->post_title,
         'post_type' => $post->post_type,
-        'vectors_deleted' => $deleted_count,
         'exclusion_added' => $exclusion_added,
         'exclusion_list' => $exclusion_list_name
     ));

@@ -399,18 +399,11 @@ class Aethos_Admin {
             'default' => false
         ));
         
-        // AI Model Selection
-        register_setting( 'aethos_models', 'aethos_ai_model', array(
-            'type' => 'string',
-            'sanitize_callback' => 'sanitize_text_field',
-            'default' => 'gpt-4o-mini'
-        ));
-        
         // Visibility settings
         register_setting( 'aethos_visibility', 'aethos_global_visibility', array(
             'type' => 'boolean',
-            'sanitize_callback' => 'rest_sanitize_boolean',
-            'default' => true
+            'sanitize_callback' => 'absint',
+            'default' => false
         ));
         
         register_setting( 'aethos_visibility', 'aethos_include_all_pages', array(
