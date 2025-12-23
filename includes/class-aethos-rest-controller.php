@@ -62,6 +62,41 @@ class Aethos_REST_Controller {
                 'messages' => [
                     'required' => true,
                     'type' => 'array'
+                ],
+                'duration' => [
+                    'required' => false,
+                    'type' => 'integer',
+                    'default' => 0
+                ]
+            ]
+        ]);
+
+        // Feedback endpoint - Handles upvote/downvote/copy from widget
+        register_rest_route('aethos/v1', '/feedback', [
+            'methods'  => 'POST',
+            'callback' => [$this, 'handle_feedback'],
+            'permission_callback' => [$this, 'verify_origin'],
+            'args' => [
+                'action' => [
+                    'required' => true,
+                    'type' => 'string',
+                    'enum' => ['upvote', 'downvote', 'copy'],
+                    'sanitize_callback' => 'sanitize_text_field'
+                ],
+                'visitor_id' => [
+                    'required' => true,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field'
+                ],
+                'conversation_id' => [
+                    'required' => false,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field'
+                ],
+                'message_id' => [
+                    'required' => false,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field'
                 ]
             ]
         ]);
@@ -259,4 +294,194 @@ class Aethos_REST_Controller {
 
         return $results ?: [];
     }
+
+    /**
+     * Save conversation to local database
+     *
+     * @since    1.0.0
+     * @param    WP_REST_Request    $request    Request object
+     * @return   WP_REST_Response               Response object
+     */
+    public function save_conversation($request) {
+        $conversation_id = $request->get_param('conversation_id');
+        $visitor_id = $request->get_param('visitor_id');
+        $messages = $request->get_param('messages');
+        $duration = $request->get_param('duration') ?: 0;
+        $is_new_conversation = $request->get_param('is_new_conversation');
+
+        if (empty($messages) || !is_array($messages)) {
+            return new WP_REST_Response([
+                'error' => 'invalid_messages',
+                'message' => 'Messages array is required'
+            ], 400);
+        }
+
+        // Check if conversation logging is enabled (default: enabled)
+        $log_option = get_option('aethos_log_conversations', 'not_set');
+        $log_enabled = ($log_option === 'not_set') ? true : (bool)$log_option;
+        if (!$log_enabled) {
+            return new WP_REST_Response([
+                'success' => true,
+                'message' => 'Logging disabled'
+            ], 200);
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aethos_conversations';
+
+        // Extract first user message for snippet
+        $first_message = '';
+        foreach ($messages as $msg) {
+            if (isset($msg['role']) && $msg['role'] === 'user' && empty($first_message)) {
+                $first_message = isset($msg['content']) ? sanitize_text_field($msg['content']) : '';
+            }
+        }
+
+        // Check if a conversation with this session_id already exists
+        // This ensures all messages in the same session are grouped together
+        $session_id = sanitize_text_field($conversation_id);
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT id FROM $table_name WHERE session_id = %s LIMIT 1",
+            $session_id
+        ));
+
+        if ($existing) {
+            // UPDATE existing session's conversation
+            $wpdb->update(
+                $table_name,
+                [
+                    'messages' => maybe_serialize($messages),
+                    'message_count' => count($messages),
+                    'duration' => intval($duration),
+                    'first_message' => $first_message,
+                    'updated_at' => current_time('mysql')
+                ],
+                ['id' => $existing->id],
+                ['%s', '%d', '%d', '%s', '%s'],
+                ['%d']
+            );
+            $log_id = $existing->id;
+        } else {
+            // INSERT new session conversation
+            $wpdb->insert(
+                $table_name,
+                [
+                    'user_id' => sanitize_text_field($visitor_id),
+                    'session_id' => $session_id,
+                    'user_ip' => sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? ''),
+                    'messages' => maybe_serialize($messages),
+                    'message_count' => count($messages),
+                    'duration' => intval($duration),
+                    'first_message' => $first_message,
+                    'topics' => '',
+                    'feedback_score' => null,
+                    'created_at' => current_time('mysql'),
+                    'updated_at' => current_time('mysql')
+                ],
+                ['%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s']
+            );
+            $log_id = $wpdb->insert_id;
+        }
+
+        if ($log_id) {
+            return new WP_REST_Response([
+                'success' => true,
+                'conversation_id' => $log_id
+            ], 200);
+        }
+
+        return new WP_REST_Response([
+            'error' => 'save_failed',
+            'message' => 'Failed to save conversation'
+        ], 500);
+    }
+
+    /**
+     * Handle feedback from widget (upvote/downvote/copy)
+     *
+     * @since    1.0.0
+     * @param    WP_REST_Request    $request    Request object
+     * @return   WP_REST_Response               Response object
+     */
+    public function handle_feedback($request) {
+        $action = $request->get_param('action');
+        $conversation_id = $request->get_param('conversation_id');
+        $message_id = $request->get_param('message_id');
+        $visitor_id = $request->get_param('visitor_id');
+
+        if (empty($action) || empty($visitor_id)) {
+            return new WP_REST_Response([
+                'error' => 'missing_params',
+                'message' => 'Action and visitor_id are required'
+            ], 400);
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aethos_conversations';
+
+        // Map action to feedback score
+        $feedback_score = null;
+        switch ($action) {
+            case 'upvote':
+                $feedback_score = 5;
+                break;
+            case 'downvote':
+                $feedback_score = 1;
+                break;
+            case 'copy':
+                // Just log the event, no score change
+                return new WP_REST_Response([
+                    'success' => true,
+                    'action' => 'copy_logged'
+                ], 200);
+        }
+
+        if ($feedback_score !== null) {
+            // Find conversation by session_id (conversation_id from widget)
+            $conversation = $wpdb->get_row($wpdb->prepare(
+                "SELECT id, messages FROM $table_name WHERE session_id = %s LIMIT 1",
+                sanitize_text_field($conversation_id)
+            ));
+
+            if ($conversation) {
+                // Update per-message feedback in messages array
+                $messages = maybe_unserialize($conversation->messages);
+                if (is_array($messages) && isset($messages[intval($message_id)])) {
+                    $messages[intval($message_id)]['feedback'] = $action;
+                }
+
+                $wpdb->update(
+                    $table_name,
+                    [
+                        'messages' => maybe_serialize($messages),
+                        'feedback_score' => $feedback_score,
+                        'updated_at' => current_time('mysql')
+                    ],
+                    ['id' => $conversation->id],
+                    ['%s', '%f', '%s'],
+                    ['%d']
+                );
+
+                return new WP_REST_Response([
+                    'success' => true,
+                    'feedback_score' => $feedback_score,
+                    'message_id' => $message_id
+                ], 200);
+            }
+        }
+
+        // Return 200 with error message - not 404 which confuses browser
+        return new WP_REST_Response([
+            'success' => false,
+            'error' => 'conversation_not_found',
+            'message' => 'No conversation found for this visitor'
+        ], 200);
+    }
 }
+
+// Self-register REST routes on rest_api_init
+// This is a backup in case the loader pattern doesn't work
+add_action('rest_api_init', function() {
+    $controller = new Aethos_REST_Controller();
+    $controller->register_routes();
+});

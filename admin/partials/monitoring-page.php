@@ -28,10 +28,6 @@ include_once AETHOS_PLUGIN_DIR . 'admin/partials/admin-header.php';
         <span class="dashicons dashicons-format-chat" style="margin-right: 6px;"></span>
         Conversation History
     </button>
-    <button class="aethos-tab-btn" data-tab="feedback-tab" style="padding: 12px 24px; border: none; background: none; color: #6b7280; cursor: pointer; font-size: 15px; font-weight: 500;">
-        <span class="dashicons dashicons-star-filled" style="margin-right: 6px;"></span>
-        User Feedback
-    </button>
 </div>
 
 <!-- Analytics Tab -->
@@ -42,11 +38,6 @@ include_once AETHOS_PLUGIN_DIR . 'admin/partials/admin-header.php';
 <!-- Conversations Tab -->
 <div id="conversations-tab" class="aethos-tab-content" style="display: none;">
     <?php include AETHOS_PLUGIN_DIR . 'admin/partials/sections/conversations-content.php'; ?>
-</div>
-
-<!-- Feedback Tab -->
-<div id="feedback-tab" class="aethos-tab-content" style="display: none;">
-    <?php include AETHOS_PLUGIN_DIR . 'admin/partials/sections/feedback-content.php'; ?>
 </div>
 
 <script>

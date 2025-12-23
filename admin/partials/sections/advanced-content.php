@@ -19,20 +19,13 @@
             </label>
         </div>
         
-        <div style="margin-bottom: 24px;">
-            <label style="display: flex; align-items: start; gap: 12px; cursor: pointer;">
-                <input type="checkbox" name="aethos_log_ip" value="1" <?php checked( $log_ip, true ); ?> style="margin-top: 4px; width: 18px; height: 18px;">
-                <div>
-                    <div style="font-weight: 500; margin-bottom: 4px;">Log IP Addresses</div>
-                    <div style="color: #6b7280; font-size: 14px;">Store user IP addresses with conversations. May be required for security or compliance.</div>
-                </div>
-            </label>
-        </div>
-        
         <div>
             <label style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px;">Data Retention Period</label>
             <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 13px;">Automatically delete conversation logs older than this period.</p>
             <select name="aethos_data_retention" class="regular-text" style="max-width: 300px;">
+                <option value="1" <?php selected( $data_retention, 1 ); ?>>1 Day</option>
+                <option value="7" <?php selected( $data_retention, 7 ); ?>>1 Week</option>
+                <option value="15" <?php selected( $data_retention, 15 ); ?>>15 Days</option>
                 <option value="30" <?php selected( $data_retention, 30 ); ?>>30 Days</option>
                 <option value="60" <?php selected( $data_retention, 60 ); ?>>60 Days</option>
                 <option value="90" <?php selected( $data_retention, 90 ); ?>>90 Days</option>
@@ -49,30 +42,6 @@
                     <div style="font-weight: 500; margin-bottom: 4px; color: #ef4444;">Delete Data on Uninstall</div>
                     <div style="color: #6b7280; font-size: 14px;">Permanently delete all plugin data (tables and settings) when the plugin is uninstalled. <strong>This action cannot be undone.</strong></div>
                 </div>
-            </label>
-        </div>
-    </div>
-    
-    <!-- Performance Optimization -->
-    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 20px;">
-        <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">Performance Optimization</h3>
-        <p style="margin: 0 0 24px 0; color: #6b7280; font-size: 14px;">Optimize chatbot performance and resource usage.</p>
-        
-        <div style="margin-bottom: 24px;">
-            <label style="display: flex; align-items: start; gap: 12px; cursor: pointer;">
-                <input type="checkbox" name="aethos_cache_enabled" value="1" <?php checked( $cache_enabled, true ); ?> style="margin-top: 4px; width: 18px; height: 18px;">
-                <div>
-                    <div style="font-weight: 500; margin-bottom: 4px;">Enable Response Caching</div>
-                    <div style="color: #6b7280; font-size: 14px;">Cache frequently asked questions to reduce API calls and improve response time.</div>
-                </div>
-            </label>
-        </div>
-        
-        <div>
-            <label style="display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px;">Rate Limit (requests per minute)</label>
-            <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 13px;">Maximum number of requests a user can make per minute. Helps prevent abuse.</p>
-            <input type="number" name="aethos_rate_limit" value="<?php echo esc_attr( $rate_limit ); ?>" class="small-text">
-            <span style="color: #6b7280; font-size: 13px; margin-left: 8px;">requests/minute</span>
         </div>
     </div>
     

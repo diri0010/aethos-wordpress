@@ -124,10 +124,10 @@ foreach ($custom_post_types as $cpt) {
     $cpt_data[] = array(
         'name' => $cpt->name,
         'label' => $cpt->label,
-        'include_all' => (bool) get_option("aethos_kb_include_all_{$cpt->name}", false),
+        'include_all' => (bool) get_option("aethos_kb_include_all_{$cpt->name}", true),
         'included' => get_option("aethos_kb_included_{$cpt->name}", array()),
         'excluded' => get_option("aethos_kb_excluded_{$cpt->name}", array()),
-        'auto_sync' => (bool) get_option("aethos_kb_{$cpt->name}_auto_sync", false),
+        'auto_sync' => (bool) get_option("aethos_kb_{$cpt->name}_auto_sync", true),
         'items' => get_posts(array(
             'post_type' => $cpt->name,
             'posts_per_page' => -1,

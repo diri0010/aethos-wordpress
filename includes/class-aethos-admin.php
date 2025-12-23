@@ -403,7 +403,7 @@ class Aethos_Admin {
         register_setting( 'aethos_visibility', 'aethos_global_visibility', array(
             'type' => 'boolean',
             'sanitize_callback' => 'absint',
-            'default' => false
+            'default' => true
         ));
         
         register_setting( 'aethos_visibility', 'aethos_include_all_pages', array(

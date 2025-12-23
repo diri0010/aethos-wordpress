@@ -47,13 +47,17 @@ class Aethos_Analytics {
             message_count int(11) DEFAULT 0,
             duration int(11) DEFAULT 0,
             first_message text,
+            messages longtext,
             topics text,
+            rating int(11) DEFAULT NULL,
             feedback_score decimal(2,1) DEFAULT NULL,
+            feedback_text text,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY  (id),
             KEY user_id (user_id),
-            KEY created_at (created_at)
+            KEY created_at (created_at),
+            KEY rating (rating)
         ) $charset_collate;";
         
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -203,6 +207,60 @@ class Aethos_Analytics {
             'avg_duration' => round( (float) $stats->avg_duration ),
             'avg_feedback_score' => round( (float) $stats->avg_feedback_score, 1 ),
         );
+    }
+
+    /**
+     * Get conversation statistics from SaaS API.
+     * This ensures WordPress shows the same counts as SaaS dashboard.
+     *
+     * @since    1.7.0
+     * @param    string   $period    Period: '7d', '30d', '90d', 'all'.
+     * @return   array|WP_Error      Statistics array or error.
+     */
+    public function get_statistics_from_saas( $period = '30d' ) {
+        $api_key = get_option( 'aethos_api_key' );
+        $saas_url = get_option( 'aethos_saas_url', 'https://aethos.ai' );
+        
+        if ( empty( $api_key ) ) {
+            return new WP_Error( 'no_api_key', 'Aethos API key not configured' );
+        }
+        
+        $response = wp_remote_get(
+            trailingslashit( $saas_url ) . 'api/sites/' . $api_key . '/analytics?period=' . $period,
+            array(
+                'headers' => array(
+                    'x-api-key' => $api_key,
+                    'Content-Type' => 'application/json',
+                ),
+                'timeout' => 15,
+            )
+        );
+        
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+        
+        $status_code = wp_remote_retrieve_response_code( $response );
+        $body = json_decode( wp_remote_retrieve_body( $response ), true );
+        
+        if ( $status_code !== 200 ) {
+            return new WP_Error( 
+                'saas_error', 
+                isset( $body['error'] ) ? $body['error'] : 'Failed to fetch analytics from SaaS' 
+            );
+        }
+        
+        if ( isset( $body['success'] ) && $body['success'] && isset( $body['data'] ) ) {
+            return array(
+                'total_conversations' => $body['data']['total_conversations'] ?? 0,
+                'unique_visitors' => $body['data']['unique_visitors'] ?? 0,
+                'total_messages' => $body['data']['total_messages'] ?? 0,
+                'avg_messages_per_conversation' => $body['data']['avg_messages_per_conversation'] ?? 0,
+                'source' => 'saas', // Indicate these are SaaS-sourced stats
+            );
+        }
+        
+        return new WP_Error( 'invalid_response', 'Invalid response from SaaS' );
     }
 
     /**

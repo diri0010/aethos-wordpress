@@ -228,13 +228,17 @@ class Aethos_Feedback {
      * AJAX: Get feedback statistics
      */
     public function ajax_get_feedback_stats() {
-        check_ajax_referer( 'aethos_admin_nonce', 'nonce' );
+        check_ajax_referer( 'aethos_get_feedback_stats', 'nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
         }
 
-        $days = isset( $_POST['days'] ) ? sanitize_text_field( $_POST['days'] ) : 30;
+        // Accept both 'timerange' and 'days' for compatibility
+        $days = isset( $_POST['timerange'] ) ? sanitize_text_field( $_POST['timerange'] ) : null;
+        if ( ! $days ) {
+            $days = isset( $_POST['days'] ) ? sanitize_text_field( $_POST['days'] ) : 30;
+        }
 
         $stats = $this->get_statistics( $days );
 
@@ -245,16 +249,22 @@ class Aethos_Feedback {
      * AJAX: Get feedback list
      */
     public function ajax_get_feedback_list() {
-        check_ajax_referer( 'aethos_admin_nonce', 'nonce' );
+        check_ajax_referer( 'aethos_get_feedback_list', 'nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
         }
 
+        // Accept both 'timerange' and 'days' for compatibility
+        $days = isset( $_POST['timerange'] ) ? sanitize_text_field( $_POST['timerange'] ) : null;
+        if ( ! $days ) {
+            $days = isset( $_POST['days'] ) ? sanitize_text_field( $_POST['days'] ) : 30;
+        }
+
         $args = array(
             'search' => isset( $_POST['search'] ) ? sanitize_text_field( $_POST['search'] ) : '',
             'rating' => isset( $_POST['rating'] ) ? sanitize_text_field( $_POST['rating'] ) : '',
-            'days' => isset( $_POST['days'] ) ? sanitize_text_field( $_POST['days'] ) : 30,
+            'days' => $days,
             'sort' => isset( $_POST['sort'] ) ? sanitize_text_field( $_POST['sort'] ) : 'newest',
             'page' => isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1,
             'per_page' => 10

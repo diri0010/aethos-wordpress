@@ -79,6 +79,16 @@ register_deactivation_hook( __FILE__, 'deactivate_aethos_chat' );
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-aethos-core.php';
 
 /**
+ * Ensure REST API routes are registered early.
+ * This is critical for widget endpoints to work.
+ */
+add_action( 'rest_api_init', function() {
+    require_once plugin_dir_path( __FILE__ ) . 'includes/class-aethos-rest-controller.php';
+    $controller = new Aethos_REST_Controller();
+    $controller->register_routes();
+}, 5 ); // Priority 5 to run before other plugins
+
+/**
  * Begins execution of the plugin.
  *
  * Since everything within the plugin is registered via hooks,
