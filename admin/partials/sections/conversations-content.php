@@ -1,12 +1,24 @@
 
+<style>
+@keyframes aethos-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
     <div>
         <h2 style="margin: 0 0 4px 0; font-size: 24px; font-weight: 600;">Conversation History</h2>
         <p style="margin: 0; color: #6b7280; font-size: 14px;">Browse and search past chatbot conversations.</p>
     </div>
-    <button type="button" id="aethos-export-conversations" class="button">
-        <span class="dashicons dashicons-download" style="vertical-align: middle;"></span> Export CSV
-    </button>
+    <div style="display: flex; gap: 8px;">
+        <button type="button" id="aethos-refresh-conversations" class="button">
+            <span class="dashicons dashicons-update" style="vertical-align: middle;"></span> Refresh
+        </button>
+        <button type="button" id="aethos-export-conversations" class="button">
+            <span class="dashicons dashicons-download" style="vertical-align: middle;"></span> Export CSV
+        </button>
+    </div>
 </div>
 
 <div style="display: grid; grid-template-columns: 350px 1fr; gap: 20px;">
@@ -16,12 +28,12 @@
         <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
             <input type="text" id="aethos-conv-search" placeholder="Search conversations..." class="regular-text" style="width: 100%; margin-bottom: 12px;">
             
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                <button type="button" class="button button-small aethos-filter-btn" data-filter="date">Date Range</button>
-                <button type="button" class="button button-small aethos-filter-btn" data-filter="rating">Rating</button>
-            </div>
-            
-            <button type="button" id="aethos-clear-filters" class="button button-small" style="width: 100%;">Clear Filters</button>
+            <select id="aethos-time-filter" class="regular-text" style="width: 100%;">
+                <option value="all">All Time</option>
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+            </select>
         </div>
         
         <!-- Conversations List -->
@@ -62,6 +74,7 @@ jQuery(document).ready(function($) {
     
     // Load conversations list
     function loadConversations() {
+        const timeFilter = $('#aethos-time-filter').val();
         $.ajax({
             url: ajaxurl,
             type: 'POST',
@@ -69,7 +82,8 @@ jQuery(document).ready(function($) {
                 action: 'aethos_get_conversations',
                 nonce: '<?php echo wp_create_nonce("aethos_get_conversations"); ?>',
                 page: currentPage,
-                search: $('#aethos-conv-search').val()
+                search: $('#aethos-conv-search').val(),
+                days: timeFilter !== 'all' ? timeFilter : ''
             },
             success: function(response) {
                 if (response.success && response.data.conversations.length > 0) {
@@ -90,6 +104,19 @@ jQuery(document).ready(function($) {
                     $('#aethos-conv-pagination').text('Page ' + currentPage + ' of ' + response.data.total_pages);
                     $('#aethos-conv-prev').prop('disabled', currentPage === 1);
                     $('#aethos-conv-next').prop('disabled', currentPage >= response.data.total_pages);
+                    
+                    // Auto-open latest conversation on initial page load
+                    if (!selectedConversationId && response.data.conversations.length > 0) {
+                        const firstId = response.data.conversations[0].id;
+                        loadConversationDetails(firstId);
+                        // Apply highlight to first item
+                        setTimeout(function() {
+                            $('.aethos-conv-item[data-id="' + firstId + '"]').css({
+                                'background': '#eff6ff',
+                                'border-left': '3px solid #4f46e5'
+                            });
+                        }, 50);
+                    }
                 } else {
                     $('#aethos-conversations-list').html('<div style="text-align: center; padding: 40px; color: #9ca3af;"><p>No conversations found</p></div>');
                 }
@@ -133,17 +160,28 @@ jQuery(document).ready(function($) {
                             html += '<div style="font-size: 11px; opacity: 0.8; margin-top: 4px;">' + msg.timestamp + '</div>';
                             html += '</div></div>';
                         } else {
+                            // AI response - show feedback if available
+                            let feedbackHtml = '';
+                            if (msg.feedback) {
+                                if (msg.feedback === 'upvote') {
+                                    feedbackHtml = '<span style="color: #10b981; margin-left: 8px;" title="Upvoted">👍</span>';
+                                } else if (msg.feedback === 'downvote') {
+                                    feedbackHtml = '<span style="color: #ef4444; margin-left: 8px;" title="Downvoted">👎</span>';
+                                }
+                            }
                             html += '<div style="display: flex; justify-content: flex-start;">';
                             html += '<div style="background: #f3f4f6; color: #111827; padding: 12px 16px; border-radius: 16px 16px 16px 4px; max-width: 70%;">';
                             html += '<div style="font-size: 14px;">' + msg.content + '</div>';
-                            html += '<div style="font-size: 11px; color: #6b7280; margin-top: 4px;">' + msg.timestamp + '</div>';
+                            html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">';
+                            html += '<span style="font-size: 11px; color: #6b7280;">' + msg.timestamp + '</span>';
+                            html += feedbackHtml;
+                            html += '</div>';
                             html += '</div></div>';
                         }
                     });
                     html += '</div>';
                     
                     $('#aethos-conversation-details').html(html);
-                    loadConversations(); // Refresh list to show selection
                 }
             }
         });
@@ -152,6 +190,17 @@ jQuery(document).ready(function($) {
     // Click on conversation
     $(document).on('click', '.aethos-conv-item', function() {
         const conversationId = $(this).data('id');
+        
+        // Immediately update visual selection
+        $('.aethos-conv-item').css({
+            'background': '',
+            'border-left': ''
+        });
+        $(this).css({
+            'background': '#eff6ff',
+            'border-left': '3px solid #4f46e5'
+        });
+        
         loadConversationDetails(conversationId);
     });
     
@@ -161,8 +210,16 @@ jQuery(document).ready(function($) {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(function() {
             currentPage = 1;
+            selectedConversationId = null;
             loadConversations();
         }, 500);
+    });
+    
+    // Time filter change
+    $('#aethos-time-filter').on('change', function() {
+        currentPage = 1;
+        selectedConversationId = null;
+        loadConversations();
     });
     
     // Pagination
@@ -181,6 +238,62 @@ jQuery(document).ready(function($) {
     // Export
     $('#aethos-export-conversations').on('click', function() {
         window.location.href = ajaxurl + '?action=aethos_export_conversations&nonce=<?php echo wp_create_nonce("aethos_export_conversations"); ?>';
+    });
+    
+    // Refresh button - with spinner and success feedback
+    $('#aethos-refresh-conversations').on('click', function() {
+        const $btn = $(this);
+        const originalHtml = $btn.html();
+        
+        // Show spinning icon
+        $btn.prop('disabled', true).html('<span class="dashicons dashicons-update" style="vertical-align: middle; animation: aethos-spin 1s linear infinite;"></span> Refreshing...');
+        
+        // Store selected ID before refresh
+        const currentSelectedId = selectedConversationId;
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'aethos_get_conversations',
+                nonce: '<?php echo wp_create_nonce("aethos_get_conversations"); ?>',
+                page: currentPage,
+                search: $('#aethos-conv-search').val(),
+                days: $('#aethos-time-filter').val() !== 'all' ? $('#aethos-time-filter').val() : ''
+            },
+            success: function(response) {
+                if (response.success && response.data.conversations.length > 0) {
+                    let html = '';
+                    response.data.conversations.forEach(function(conv) {
+                        const isSelected = conv.id == currentSelectedId;
+                        const selectedStyle = isSelected ? 'background: #eff6ff; border-left: 3px solid #4f46e5;' : '';
+                        html += '<div class="aethos-conv-item" data-id="' + conv.id + '" style="padding: 16px; border-bottom: 1px solid #e5e7eb; cursor: pointer; ' + selectedStyle + '">';
+                        html += '<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">';
+                        html += '<div style="font-weight: 500; font-size: 14px;">' + conv.user_id + '</div>';
+                        html += '<div style="font-size: 12px; color: #6b7280;">' + conv.time_ago + '</div>';
+                        html += '</div>';
+                        html += '<div style="font-size: 13px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + conv.snippet + '</div>';
+                        html += '</div>';
+                    });
+                    $('#aethos-conversations-list').html(html);
+                    $('#aethos-conv-pagination').text('Page ' + currentPage + ' of ' + response.data.total_pages);
+                }
+                
+                // If a conversation was selected, reload its details
+                if (currentSelectedId) {
+                    loadConversationDetails(currentSelectedId);
+                }
+                
+                // Show success feedback
+                $btn.html('<span class="dashicons dashicons-yes-alt" style="vertical-align: middle; color: #10b981;"></span> Done!');
+                setTimeout(function() {
+                    $btn.prop('disabled', false).html(originalHtml);
+                }, 1000);
+            },
+            error: function() {
+                $btn.prop('disabled', false).html(originalHtml);
+            }
+        });
     });
     
     // Load on page load

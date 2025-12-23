@@ -219,7 +219,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
      * @since    1.0.0
      */
     public function get_analytics_data() {
-        check_ajax_referer( 'aethos_admin_nonce', 'nonce' );
+        check_ajax_referer( 'aethos_get_analytics', 'nonce' );
         
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array( 'message' => 'Unauthorized' ) );
@@ -232,27 +232,105 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
         // Calculate date range
         list( $date_from, $date_to ) = $this->calculate_date_range( $date_range, $date_from, $date_to );
         
-        // Get statistics
-        $stats = $this->analytics->get_statistics( $date_from, $date_to );
+        // Convert date_range to SaaS period format
+        $saas_period = '30d';
+        switch ( $date_range ) {
+            case 'last_7_days':
+                $saas_period = '7d';
+                break;
+            case 'last_30_days':
+            case 'this_month':
+                $saas_period = '30d';
+                break;
+            case 'last_90_days':
+                $saas_period = '90d';
+                break;
+            default:
+                $saas_period = '30d';
+        }
         
-        // Get volume data
+        // Try to get stats from SaaS for consistent billing counts
+        $saas_stats = $this->analytics->get_statistics_from_saas( $saas_period );
+        
+        if ( ! is_wp_error( $saas_stats ) ) {
+            // SaaS succeeded - use SaaS conversation count, local for details
+            $local_stats = $this->analytics->get_statistics( $date_from, $date_to );
+            
+            // Merge: SaaS for conversation count, local for other details
+            $stats = array(
+                'total_conversations' => $saas_stats['total_conversations'],
+                'unique_users' => $saas_stats['unique_visitors'],
+                'avg_duration' => $local_stats['avg_duration'],
+                'avg_feedback_score' => $local_stats['avg_feedback_score'],
+                'source' => 'saas'
+            );
+        } else {
+            // SaaS failed - use local data
+            $stats = $this->analytics->get_statistics( $date_from, $date_to );
+            $stats['source'] = 'local';
+        }
+        
+        // Get volume data (always from local)
         $volume = $this->analytics->get_volume_by_day( $date_from, $date_to );
         
-        // Get top topics
+        // Get top topics (always from local)
         $topics = $this->analytics->get_top_topics( 5, $date_from, $date_to );
         
-        // Get recent conversations
+        // Get recent conversations (always from local)
         $conversations = $this->analytics->get_conversations( array(
             'limit' => 10,
             'date_from' => $date_from,
             'date_to' => $date_to
         ) );
         
+        // Format stats as metrics for UI
+        $metrics = array(
+            'total_conversations' => isset($stats['total_conversations']) ? $stats['total_conversations'] : 0,
+            'unique_users' => isset($stats['unique_users']) ? $stats['unique_users'] : 0,
+            'avg_duration' => isset($stats['avg_duration']) ? $stats['avg_duration'] : 0,
+            'feedback_score' => isset($stats['avg_feedback_score']) ? $stats['avg_feedback_score'] : 0,
+            'conversations_change' => '+0%',
+            'duration_change' => '-0%',
+            'users_change' => '+0%',
+            'feedback_change' => '+0%',
+            'source' => isset($stats['source']) ? $stats['source'] : 'local'
+        );
+        
+        // Get feedback summary (upvotes/downvotes)
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aethos_conversations';
+        
+        // Count upvotes (score=5) and downvotes (score=1)
+        $upvotes = 0;
+        $downvotes = 0;
+        
+        $feedback_query = "SELECT feedback_score, COUNT(*) as count FROM $table_name WHERE feedback_score IS NOT NULL";
+        if (!empty($date_from)) {
+            $feedback_query .= $wpdb->prepare(" AND created_at >= %s", $date_from);
+        }
+        if (!empty($date_to)) {
+            $feedback_query .= $wpdb->prepare(" AND created_at <= %s", $date_to);
+        }
+        $feedback_query .= " GROUP BY feedback_score";
+        
+        $results = $wpdb->get_results($feedback_query);
+        foreach ($results as $row) {
+            $score = intval($row->feedback_score);
+            if ($score == 5) {
+                $upvotes = intval($row->count);
+            } elseif ($score == 1) {
+                $downvotes = intval($row->count);
+            }
+        }
+        
+        $feedback_summary = array(
+            'upvotes' => $upvotes,
+            'downvotes' => $downvotes
+        );
+        
         wp_send_json_success( array(
-            'stats' => $stats,
-            'volume' => $volume,
-            'topics' => $topics,
-            'conversations' => $conversations
+            'metrics' => $metrics,
+            'feedback_summary' => $feedback_summary
         ) );
     }
 
@@ -388,6 +466,16 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
             case 'last_30_days':
                 $date_from = date( 'Y-m-d H:i:s', strtotime( '-30 days', strtotime( $now ) ) );
                 $date_to = $now;
+                break;
+            
+            case 'last_90_days':
+                $date_from = date( 'Y-m-d H:i:s', strtotime( '-90 days', strtotime( $now ) ) );
+                $date_to = $now;
+                break;
+            
+            case 'all_time':
+                $date_from = null; // No date filter - get all data
+                $date_to = null;
                 break;
             
             case 'this_month':
@@ -891,6 +979,40 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
             wp_send_json_success( array( 'message' => 'All conversations deleted successfully.' ) );
         } else {
             wp_send_json_error( array( 'message' => 'Failed to delete conversations.' ) );
+        }
+    }
+
+    /**
+     * Cron job handler for data retention cleanup.
+     * Deletes conversations older than the retention period.
+     *
+     * @since    1.0.0
+     */
+    public function run_data_retention_cleanup() {
+        $retention_days = intval( get_option( 'aethos_data_retention', 30 ) );
+        
+        // If retention is 0, don't delete anything
+        if ( $retention_days <= 0 ) {
+            return;
+        }
+        
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aethos_conversations';
+        
+        // Calculate cutoff date
+        $cutoff_date = date( 'Y-m-d H:i:s', strtotime( "-{$retention_days} days" ) );
+        
+        // Delete old conversations
+        $deleted = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM $table_name WHERE created_at < %s",
+                $cutoff_date
+            )
+        );
+        
+        // Log the cleanup if debug mode is enabled
+        if ( get_option( 'aethos_debug_mode', false ) ) {
+            error_log( "Aethos Data Retention: Deleted {$deleted} conversations older than {$retention_days} days" );
         }
     }
 

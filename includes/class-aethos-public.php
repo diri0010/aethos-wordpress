@@ -70,7 +70,7 @@ class Aethos_Public {
 	 */
 	public function render_widget() {
 		// Check global visibility setting (default false = widget hidden until enabled)
-		$global_visibility = get_option('aethos_global_visibility', false);
+		$global_visibility = get_option('aethos_global_visibility', true);
 		if (!$global_visibility) {
 			return;
 		}

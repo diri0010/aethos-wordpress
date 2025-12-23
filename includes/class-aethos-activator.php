@@ -130,6 +130,11 @@ class Aethos_Activator {
 	    require_once plugin_dir_path( __FILE__ ) . 'class-aethos-analytics.php';
 	    $analytics = new Aethos_Analytics();
 	    $analytics->create_tables();
+
+        // Schedule daily data retention cleanup
+        if ( ! wp_next_scheduled( 'aethos_data_retention_cleanup' ) ) {
+            wp_schedule_event( time(), 'daily', 'aethos_data_retention_cleanup' );
+        }
 	}
 
 }

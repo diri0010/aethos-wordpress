@@ -266,6 +266,9 @@ class Aethos_Core {
         // Automated scan cron hook
         $this->loader->add_action( 'aethos_automated_scan', $plugin_admin, 'run_automated_scan' );
         
+        // Data retention cleanup cron hook (runs daily)
+        $this->loader->add_action( 'aethos_data_retention_cleanup', $plugin_admin, 'run_data_retention_cleanup' );
+        
         // Background Processing
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-aethos-background-processor.php';
         $bg_processor = new Aethos_Background_Processor();

@@ -19,7 +19,11 @@ class Aethos_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
-        // Cleanup if necessary
+        // Clear scheduled data retention cleanup
+        $timestamp = wp_next_scheduled( 'aethos_data_retention_cleanup' );
+        if ( $timestamp ) {
+            wp_unschedule_event( $timestamp, 'aethos_data_retention_cleanup' );
+        }
 	}
 
 }
