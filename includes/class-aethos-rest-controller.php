@@ -153,6 +153,7 @@ class Aethos_REST_Controller {
      */
     public function get_context($request) {
         $message = $request->get_param('query') ?: $request->get_param('message');
+        $current_page_url = $request->get_param('currentPageUrl'); // NEW: Current page URL
 
         if (empty($message)) {
             return new WP_REST_Response([
@@ -173,6 +174,23 @@ class Aethos_REST_Controller {
         $chunks = [];
         $search_method = 'keyword';
         $query_cached = false;
+        $current_page_context = '';
+
+        // NEW: Get current page context if URL provided
+        error_log("Aethos: get_context called with currentPageUrl: " . ($current_page_url ?: '(empty)'));
+        
+        if (!empty($current_page_url)) {
+            $current_page_chunks = $vector_search->get_by_url($current_page_url, 3);
+            error_log("Aethos: Found " . count($current_page_chunks) . " chunks for URL: " . $current_page_url);
+            
+            if (!empty($current_page_chunks)) {
+                $current_page_context = "CURRENT PAGE CONTENT (User is viewing this page):\n\n";
+                foreach ($current_page_chunks as $chunk) {
+                    $current_page_context .= $chunk['chunk_text'] . "\n\n";
+                }
+                $current_page_context .= "---\n\n";
+            }
+        }
 
         try {
             // 1. Get embedding from SaaS Proxy via Service
@@ -200,15 +218,47 @@ class Aethos_REST_Controller {
         // Get Q&A (can also be enhanced with vectors later)
         $qna_entries = $this->search_qna($message, $qna);
 
-        // Format Context
-        $formatted_context = $this->format_context_string($chunks, $qna_entries);
+        // Format Context - prepend current page context
+        $formatted_context = $current_page_context . $this->format_context_string($chunks, $qna_entries);
+
+        // Build sources array for citation display - include all chunks used for context
+        $sources = [];
+        $seen_urls = []; // Track unique sources
+        
+        foreach ($chunks as $chunk) {
+            // Include sources with score >= 0.4 (matching search threshold)
+            if (isset($chunk['score']) && $chunk['score'] >= 0.4) {
+                $post_id = $chunk['source']['post_id'] ?? null;
+                $url = $chunk['source']['url'] ?? '';
+                
+                // Avoid duplicate sources
+                if (!empty($url) && in_array($url, $seen_urls)) {
+                    continue;
+                }
+                $seen_urls[] = $url;
+                
+                $sources[] = [
+                    'title' => $post_id ? get_the_title($post_id) : 'Unknown Source',
+                    'url' => $url,
+                    'score' => $chunk['score'],
+                    'type' => $chunk['source']['type'] ?? 'page'
+                ];
+            }
+        }
+        
+        // NOTE: We no longer automatically add "This Page" as a source.
+        // Current page context is still sent to AI, but sources only come from 
+        // actual RAG chunks. If the current page content was used, it will appear
+        // in the RAG results with its proper title and URL.
 
         return new WP_REST_Response([
             'context' => $formatted_context,
             'chunks' => $chunks,
             'qna' => $qna_entries,
+            'sources' => $sources,
             'search_method' => $search_method,
-            'query_cached' => $query_cached
+            'query_cached' => $query_cached,
+            'has_current_page_context' => !empty($current_page_context)
         ], 200);
     }
 
@@ -314,6 +364,13 @@ class Aethos_REST_Controller {
                 'error' => 'invalid_messages',
                 'message' => 'Messages array is required'
             ], 400);
+        }
+        
+        // Debug: Log received messages with sources
+        error_log('[Aethos save_conversation] Received ' . count($messages) . ' messages');
+        foreach ($messages as $idx => $msg) {
+            $has_sources = isset($msg['sources']) && is_array($msg['sources']) ? count($msg['sources']) : 0;
+            error_log("[Aethos save_conversation] Msg $idx: role=" . ($msg['role'] ?? 'unknown') . ", sources_count=$has_sources");
         }
 
         // Check if conversation logging is enabled (default: enabled)

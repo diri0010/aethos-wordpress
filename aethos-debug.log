@@ -1154,3 +1154,208 @@
 [23-Dec-2025 07:51:07 UTC] PHP Deprecated:  File Theme without header.php is <strong>deprecated</strong> since version 3.0.0 with no alternative available. Please include a header.php template in your theme. in C:\xampp\htdocs\advpropertyportfolio\wp-includes\functions.php on line 6131
 [23-Dec-2025 07:51:07 UTC] PHP Deprecated:  File Theme without footer.php is <strong>deprecated</strong> since version 3.0.0 with no alternative available. Please include a footer.php template in your theme. in C:\xampp\htdocs\advpropertyportfolio\wp-includes\functions.php on line 6131
 [23-Dec-2025 07:51:08 UTC] Automatic updates complete.
+[23-Dec-2025 21:36:28 UTC] Automatic updates starting...
+[23-Dec-2025 21:36:29 UTC] Automatic updates complete.
+[23-Dec-2025 21:36:29 UTC] Aethos: Batch scan - offset: 0, limit: 5, total: 0, processing: 0
+[25-Dec-2025 22:11:22 UTC] Automatic updates starting...
+[25-Dec-2025 22:11:23 UTC] Automatic updates complete.
+[25-Dec-2025 22:11:23 UTC] Aethos: Batch scan - offset: 0, limit: 5, total: 0, processing: 0
+[25-Dec-2025 22:15:11 UTC] Aethos Embeddings: Request failed - cURL error 7: Failed to connect to localhost port 3000 after 2241 ms: Couldn't connect to server
+[25-Dec-2025 22:15:11 UTC] Aethos: Embedding generation failed, falling back to keyword search
+[26-Dec-2025 07:36:47 UTC] Automatic updates starting...
+[26-Dec-2025 07:36:48 UTC] Automatic updates complete.
+[26-Dec-2025 08:31:02 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio' from 'http://localhost/advpropertyportfolio/', found 3 results
+[26-Dec-2025 08:31:44 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments' from 'http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/', found 3 results
+[26-Dec-2025 08:34:29 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio' from 'http://localhost/advpropertyportfolio/', found 3 results
+[26-Dec-2025 08:40:32 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/
+[26-Dec-2025 08:40:32 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio' from 'http://localhost/advpropertyportfolio/', found 3 results
+[26-Dec-2025 08:40:32 UTC] Aethos: Found 3 chunks for URL: http://localhost/advpropertyportfolio/
+[26-Dec-2025 08:56:25 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 08:56:25 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments' from 'http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/', found 3 results
+[26-Dec-2025 08:56:25 UTC] Aethos: Found 3 chunks for URL: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 08:56:51 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 08:56:51 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments' from 'http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/', found 3 results
+[26-Dec-2025 08:56:51 UTC] Aethos: Found 3 chunks for URL: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 08:57:52 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 08:57:52 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments' from 'http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/', found 3 results
+[26-Dec-2025 08:57:52 UTC] Aethos: Found 3 chunks for URL: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 08:59:02 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 08:59:02 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments' from 'http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/', found 3 results
+[26-Dec-2025 08:59:02 UTC] Aethos: Found 3 chunks for URL: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 09:00:13 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 09:00:13 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments' from 'http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/', found 3 results
+[26-Dec-2025 09:00:13 UTC] Aethos: Found 3 chunks for URL: http://localhost/advpropertyportfolio/nycha-closes-on-financing-for-453m-pact-renovation-of-7-harlem-developments/
+[26-Dec-2025 09:01:47 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 09:01:47 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/properties' from 'http://localhost/advpropertyportfolio/properties/', found 1 results
+[26-Dec-2025 09:01:47 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 09:01:56 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 09:01:56 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/properties' from 'http://localhost/advpropertyportfolio/properties/', found 1 results
+[26-Dec-2025 09:01:56 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:16:43 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:16:43 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/properties' from 'http://localhost/advpropertyportfolio/properties/', found 1 results
+[26-Dec-2025 17:16:43 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:17:04 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:17:04 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/properties' from 'http://localhost/advpropertyportfolio/properties/', found 1 results
+[26-Dec-2025 17:17:04 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:17:43 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:17:43 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/properties' from 'http://localhost/advpropertyportfolio/properties/', found 1 results
+[26-Dec-2025 17:17:43 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:19:01 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:19:01 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/properties' from 'http://localhost/advpropertyportfolio/properties/', found 1 results
+[26-Dec-2025 17:19:01 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/properties/
+[26-Dec-2025 17:19:35 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 17:19:35 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 17:19:35 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 19:36:07 UTC] Automatic updates starting...
+[26-Dec-2025 19:36:08 UTC] Automatic updates complete.
+[26-Dec-2025 19:50:09 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 19:50:09 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 19:50:09 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 19:51:13 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 19:51:13 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 19:51:13 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 19:53:53 UTC] PHP Warning:  foreach() argument must be of type array|object, string given in E:\OneDrive\Repos\aethos\aethos-wordpress\admin\partials\sections\kb-sources-component.php on line 673
+[26-Dec-2025 19:53:53 UTC] PHP Warning:  foreach() argument must be of type array|object, string given in E:\OneDrive\Repos\aethos\aethos-wordpress\admin\partials\sections\kb-sources-component.php on line 712
+[26-Dec-2025 19:53:57 UTC] PHP Deprecated:  Implicit conversion from float 1766778673.694 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:53:57 UTC] PHP Deprecated:  Implicit conversion from float 1766778675.854 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:54:13 UTC] PHP Deprecated:  Implicit conversion from float 1766769541.254 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:54:13 UTC] PHP Deprecated:  Implicit conversion from float 1766769543.73 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:54:13 UTC] PHP Deprecated:  Implicit conversion from float 1766769574.652 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:54:13 UTC] PHP Deprecated:  Implicit conversion from float 1766769581.894 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:54:13 UTC] PHP Deprecated:  Implicit conversion from float 1766778608.845 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:54:13 UTC] PHP Deprecated:  Implicit conversion from float 1766778613.212 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:54:17 UTC] PHP Deprecated:  Implicit conversion from float 1766778673.694 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:54:17 UTC] PHP Deprecated:  Implicit conversion from float 1766778675.854 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 19:59:57 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 19:59:57 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 19:59:57 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:07:06 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:07:06 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 20:07:06 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:07:54 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:07:54 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 20:07:54 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:13:13 UTC] PHP Deprecated:  Implicit conversion from float 1766779626.08 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 20:13:13 UTC] PHP Deprecated:  Implicit conversion from float 1766779630.662 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 20:13:13 UTC] PHP Deprecated:  Implicit conversion from float 1766779673.684 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 20:13:13 UTC] PHP Deprecated:  Implicit conversion from float 1766779677.804 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 20:24:27 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:24:27 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 20:24:27 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:38:02 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:38:02 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 20:38:02 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 20:38:03 UTC] Aethos: Batch scan - offset: 0, limit: 5, total: 0, processing: 0
+[26-Dec-2025 21:17:28 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 21:17:28 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 21:17:28 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 21:17:48 UTC] PHP Deprecated:  Implicit conversion from float 1766783848.548 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:17:48 UTC] PHP Deprecated:  Implicit conversion from float 1766783851.818 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:20:09 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 21:20:09 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 21:20:09 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 21:21:00 UTC] PHP Deprecated:  Implicit conversion from float 1766784009.046 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:21:00 UTC] PHP Deprecated:  Implicit conversion from float 1766784011.432 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:21:05 UTC] PHP Deprecated:  Implicit conversion from float 1766783848.548 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:21:05 UTC] PHP Deprecated:  Implicit conversion from float 1766783851.818 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:21:06 UTC] PHP Deprecated:  Implicit conversion from float 1766784009.046 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:21:06 UTC] PHP Deprecated:  Implicit conversion from float 1766784011.432 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:25:52 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 21:25:52 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 21:25:52 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 21:27:43 UTC] PHP Deprecated:  Implicit conversion from float 1766784351.837 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:27:43 UTC] PHP Deprecated:  Implicit conversion from float 1766784354.689 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:32:07 UTC] PHP Deprecated:  Implicit conversion from float 1766784351.837 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:32:07 UTC] PHP Deprecated:  Implicit conversion from float 1766784354.689 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:34:32 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 21:34:32 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 21:34:32 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 21:34:36 UTC] [Aethos save_conversation] Received 2 messages
+[26-Dec-2025 21:34:36 UTC] [Aethos save_conversation] Msg 0: role=user, sources_count=0
+[26-Dec-2025 21:34:36 UTC] [Aethos save_conversation] Msg 1: role=assistant, sources_count=1
+[26-Dec-2025 21:35:40 UTC] PHP Deprecated:  Implicit conversion from float 1766784872.069 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:35:40 UTC] PHP Deprecated:  Implicit conversion from float 1766784875.666 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:44:03 UTC] PHP Deprecated:  Implicit conversion from float 1766784872.069 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 21:44:03 UTC] PHP Deprecated:  Implicit conversion from float 1766784875.666 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:01:41 UTC] PHP Deprecated:  Implicit conversion from float 1766784872.069 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:01:41 UTC] PHP Deprecated:  Implicit conversion from float 1766784875.666 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:02:40 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 23:02:40 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 23:02:40 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 23:02:44 UTC] [Aethos save_conversation] Received 2 messages
+[26-Dec-2025 23:02:44 UTC] [Aethos save_conversation] Msg 0: role=user, sources_count=0
+[26-Dec-2025 23:02:44 UTC] [Aethos save_conversation] Msg 1: role=assistant, sources_count=1
+[26-Dec-2025 23:02:58 UTC] PHP Deprecated:  Implicit conversion from float 1766790159.86 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:02:58 UTC] PHP Deprecated:  Implicit conversion from float 1766790164.149 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:03:03 UTC] PHP Deprecated:  Implicit conversion from float 1766784872.069 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:03:03 UTC] PHP Deprecated:  Implicit conversion from float 1766784875.666 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:03:03 UTC] PHP Deprecated:  Implicit conversion from float 1766790159.86 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:03:03 UTC] PHP Deprecated:  Implicit conversion from float 1766790164.149 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:39:17 UTC] PHP Deprecated:  Implicit conversion from float 1766790159.86 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:39:17 UTC] PHP Deprecated:  Implicit conversion from float 1766790164.149 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:40:03 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 23:40:03 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 23:40:03 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 23:40:04 UTC] [Aethos save_conversation] Received 4 messages
+[26-Dec-2025 23:40:04 UTC] [Aethos save_conversation] Msg 0: role=user, sources_count=0
+[26-Dec-2025 23:40:04 UTC] [Aethos save_conversation] Msg 1: role=assistant, sources_count=1
+[26-Dec-2025 23:40:04 UTC] [Aethos save_conversation] Msg 2: role=user, sources_count=0
+[26-Dec-2025 23:40:04 UTC] [Aethos save_conversation] Msg 3: role=assistant, sources_count=0
+[26-Dec-2025 23:40:11 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 23:40:11 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 23:40:11 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 23:40:13 UTC] [Aethos save_conversation] Received 2 messages
+[26-Dec-2025 23:40:13 UTC] [Aethos save_conversation] Msg 0: role=user, sources_count=0
+[26-Dec-2025 23:40:13 UTC] [Aethos save_conversation] Msg 1: role=assistant, sources_count=0
+[26-Dec-2025 23:43:01 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:43:01 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:43:07 UTC] PHP Deprecated:  Implicit conversion from float 1766790159.86 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:43:07 UTC] PHP Deprecated:  Implicit conversion from float 1766790164.149 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:43:07 UTC] PHP Deprecated:  Implicit conversion from float 1766792402.852 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:43:07 UTC] PHP Deprecated:  Implicit conversion from float 1766792404.661 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:43:08 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:43:08 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:49:58 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:49:58 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:50:02 UTC] PHP Deprecated:  Implicit conversion from float 1766790159.86 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:50:02 UTC] PHP Deprecated:  Implicit conversion from float 1766790164.149 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:50:02 UTC] PHP Deprecated:  Implicit conversion from float 1766792402.852 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:50:02 UTC] PHP Deprecated:  Implicit conversion from float 1766792404.661 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:50:02 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:50:02 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:50:34 UTC] Aethos: get_context called with currentPageUrl: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 23:50:34 UTC] Aethos get_by_url: Looking for path '/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses' from 'http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/', found 1 results
+[26-Dec-2025 23:50:34 UTC] Aethos: Found 1 chunks for URL: http://localhost/advpropertyportfolio/new-mural-unveiled-at-bushwick-houses/
+[26-Dec-2025 23:50:40 UTC] [Aethos save_conversation] Received 4 messages
+[26-Dec-2025 23:50:40 UTC] [Aethos save_conversation] Msg 0: role=user, sources_count=0
+[26-Dec-2025 23:50:40 UTC] [Aethos save_conversation] Msg 1: role=assistant, sources_count=0
+[26-Dec-2025 23:50:40 UTC] [Aethos save_conversation] Msg 2: role=user, sources_count=0
+[26-Dec-2025 23:50:40 UTC] [Aethos save_conversation] Msg 3: role=assistant, sources_count=2
+[26-Dec-2025 23:51:22 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:51:22 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:51:22 UTC] PHP Deprecated:  Implicit conversion from float 1766793034.582 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[26-Dec-2025 23:51:22 UTC] PHP Deprecated:  Implicit conversion from float 1766793040.031 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:06:58 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:06:58 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:06:58 UTC] PHP Deprecated:  Implicit conversion from float 1766793034.582 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:06:58 UTC] PHP Deprecated:  Implicit conversion from float 1766793040.031 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:07:01 UTC] PHP Deprecated:  Implicit conversion from float 1766790159.86 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:07:01 UTC] PHP Deprecated:  Implicit conversion from float 1766790164.149 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:07:01 UTC] PHP Deprecated:  Implicit conversion from float 1766792402.852 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:07:01 UTC] PHP Deprecated:  Implicit conversion from float 1766792404.661 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:07:02 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:07:02 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:07:02 UTC] PHP Deprecated:  Implicit conversion from float 1766793034.582 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:07:02 UTC] PHP Deprecated:  Implicit conversion from float 1766793040.031 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:21 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:21 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:21 UTC] PHP Deprecated:  Implicit conversion from float 1766793034.582 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:21 UTC] PHP Deprecated:  Implicit conversion from float 1766793040.031 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:31 UTC] PHP Deprecated:  Implicit conversion from float 1766790159.86 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:31 UTC] PHP Deprecated:  Implicit conversion from float 1766790164.149 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:31 UTC] PHP Deprecated:  Implicit conversion from float 1766792402.852 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:31 UTC] PHP Deprecated:  Implicit conversion from float 1766792404.661 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:34 UTC] PHP Deprecated:  Implicit conversion from float 1766792411.309 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:34 UTC] PHP Deprecated:  Implicit conversion from float 1766792413.468 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:34 UTC] PHP Deprecated:  Implicit conversion from float 1766793034.582 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
+[27-Dec-2025 00:08:34 UTC] PHP Deprecated:  Implicit conversion from float 1766793040.031 to int loses precision in E:\OneDrive\Repos\aethos\aethos-wordpress\includes\class-aethos-conversation-history.php on line 282
