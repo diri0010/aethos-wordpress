@@ -280,7 +280,8 @@ class Aethos_Conversation_History {
                     'role' => isset($msg['role']) ? $msg['role'] : 'user',
                     'content' => isset($msg['content']) ? $msg['content'] : (isset($msg['message']) ? $msg['message'] : ''),
                     'timestamp' => isset($msg['timestamp']) ? date( 'g:i A', $msg['timestamp'] / 1000 ) : '',
-                    'feedback' => isset($msg['feedback']) ? $msg['feedback'] : null
+                    'feedback' => isset($msg['feedback']) ? $msg['feedback'] : null,
+                    'sources' => isset($msg['sources']) ? $msg['sources'] : []
                 );
             }
         }

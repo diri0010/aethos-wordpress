@@ -18,7 +18,7 @@ class Aethos_Vector_Search {
     /**
      * Default similarity threshold
      */
-    const DEFAULT_THRESHOLD = 0.5;
+    const DEFAULT_THRESHOLD = 0.7;
     
     /**
      * Max candidates to load for vector comparison
@@ -56,6 +56,54 @@ class Aethos_Vector_Search {
         
         return $this->php_vector_search($query_embedding, $limit, $threshold);
     }
+    
+    /**
+     * Get vectors for a specific page URL
+     * Used to provide context about the page the user is currently viewing
+     * 
+     * @param string $url The page URL to fetch vectors for
+     * @param int    $limit Max chunks to return
+     * @return array Array of chunk texts for the page
+     */
+    public function get_by_url($url, $limit = 3) {
+        global $wpdb;
+        
+        if (empty($url)) {
+            return [];
+        }
+        
+        // Extract just the path from the URL for more flexible matching
+        $parsed = parse_url($url);
+        $path = isset($parsed['path']) ? rtrim($parsed['path'], '/') : '';
+        
+        // If path is empty or just root, return empty
+        if (empty($path) || $path === '' || $path === '/') {
+            return [];
+        }
+        
+        // Also try matching with the full URL
+        $full_url = rtrim($url, '/');
+        
+        // First try exact path match, then partial match
+        $results = $wpdb->get_results($wpdb->prepare(
+            "SELECT chunk_text, post_id, post_url 
+             FROM {$this->table_name} 
+             WHERE post_url LIKE %s OR post_url LIKE %s
+             ORDER BY id ASC
+             LIMIT %d",
+            '%' . $wpdb->esc_like($path) . '%',
+            '%' . $wpdb->esc_like($full_url) . '%',
+            $limit
+        ), ARRAY_A);
+        
+        // Log for debugging
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("Aethos get_by_url: Looking for path '$path' from '$url', found " . count($results ?: []) . " results");
+        }
+        
+        return $results ?: [];
+    }
+    
     
     /**
      * Optimized PHP-based cosine similarity search

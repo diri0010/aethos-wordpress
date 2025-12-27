@@ -160,7 +160,7 @@ jQuery(document).ready(function($) {
                             html += '<div style="font-size: 11px; opacity: 0.8; margin-top: 4px;">' + msg.timestamp + '</div>';
                             html += '</div></div>';
                         } else {
-                            // AI response - show feedback if available
+                            // AI response - show feedback and sources if available
                             let feedbackHtml = '';
                             if (msg.feedback) {
                                 if (msg.feedback === 'upvote') {
@@ -169,9 +169,27 @@ jQuery(document).ready(function($) {
                                     feedbackHtml = '<span style="color: #ef4444; margin-left: 8px;" title="Downvoted">👎</span>';
                                 }
                             }
+                            
+                            // Build sources HTML if sources exist
+                            let sourcesHtml = '';
+                            if (msg.sources && msg.sources.length > 0) {
+                                sourcesHtml = '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">';
+                                sourcesHtml += '<div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">📚 Sources:</div>';
+                                msg.sources.forEach(function(source) {
+                                    if (source.url) {
+                                        sourcesHtml += '<a href="' + source.url + '" target="_blank" style="display: block; font-size: 12px; color: #4f46e5; text-decoration: none; margin-top: 2px;">';
+                                        sourcesHtml += '→ ' + (source.title || 'Link') + '</a>';
+                                    } else if (source.title) {
+                                        sourcesHtml += '<div style="font-size: 12px; color: #6b7280; margin-top: 2px;">→ ' + source.title + '</div>';
+                                    }
+                                });
+                                sourcesHtml += '</div>';
+                            }
+                            
                             html += '<div style="display: flex; justify-content: flex-start;">';
                             html += '<div style="background: #f3f4f6; color: #111827; padding: 12px 16px; border-radius: 16px 16px 16px 4px; max-width: 70%;">';
                             html += '<div style="font-size: 14px;">' + msg.content + '</div>';
+                            html += sourcesHtml;
                             html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">';
                             html += '<span style="font-size: 11px; color: #6b7280;">' + msg.timestamp + '</span>';
                             html += feedbackHtml;

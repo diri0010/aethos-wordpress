@@ -4260,7 +4260,7 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    renderConversationDetails(response.data.conversation);
+                    renderConversationDetails(response.data);
                 }
             }
         });
@@ -4403,10 +4403,11 @@ jQuery(document).ready(function($) {
         $('#aethos-conv-started').text(formatTime(conv.created_at));
         $('#aethos-conv-duration').text(formatDuration(conv.duration));
         
-        // Render messages
+        // Render messages - use messages (from AJAX) or messages_array (legacy)
         let messagesHtml = '';
-        if (conv.messages_array && conv.messages_array.length > 0) {
-            conv.messages_array.forEach(function(msg) {
+        const messagesData = conv.messages || conv.messages_array || [];
+        if (messagesData.length > 0) {
+            messagesData.forEach(function(msg) {
                 const isUser = msg.role === 'user';
                 const bgColor = isUser ? '#eff6ff' : '#f9fafb';
                 const align = isUser ? 'flex-end' : 'flex-start';
@@ -4420,7 +4421,21 @@ jQuery(document).ready(function($) {
                                 <strong style="font-size: 12px; color: #6b7280; text-transform: uppercase;">${label}</strong>
                                 ${time ? '<span style="font-size: 11px; color: #9ca3af; margin-left: 12px;">' + time + '</span>' : ''}
                             </div>
-                            <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.6;">${escapeHtml(msg.message)}</p>
+                            <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.6;">${escapeHtml(msg.content || msg.message || '')}</p>
+                            ${!isUser && msg.sources && msg.sources.length > 0 ? `
+                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                                    <div style="font-size: 11px; color: #6b7280; margin-bottom: 8px; font-weight: 500;">📄 Sources (${msg.sources.length})</div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        ${msg.sources.map(s => `
+                                            <a href="${escapeHtml(s.url || '#')}" target="_blank" rel="noopener" 
+                                               style="display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; color: #374151; text-decoration: none;">
+                                                <img src="https://www.google.com/s2/favicons?domain=${s.url ? new URL(s.url).hostname : ''}&sz=16" alt="" style="width: 14px; height: 14px;">
+                                                ${escapeHtml(s.title || 'Unknown')}
+                                            </a>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;
