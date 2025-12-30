@@ -1092,6 +1092,19 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
         
         // Also delete discovered content options
         delete_option( 'aethos_excluded_posts' );
+        
+        // Set KB include defaults explicitly (prevents empty string issue on form save)
+        update_option( 'aethos_kb_include_all_pages', '1' );
+        update_option( 'aethos_kb_include_all_posts', '1' );
+        update_option( 'aethos_kb_include_all_woo_products', '1' );
+        update_option( 'aethos_kb_include_all_woo_categories', '1' );
+        
+        // Also set for custom post types
+        foreach ( $custom_post_types as $cpt ) {
+            if ( $cpt->name === 'product' ) continue;
+            update_option( "aethos_kb_include_all_{$cpt->name}", '1' );
+        }
+        
         $orchestrator = new Aethos_Scan_Orchestrator();
 
         aethos_log('Starting full scan from AJAX');
