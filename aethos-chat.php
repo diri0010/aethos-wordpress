@@ -6,17 +6,17 @@
  * This file is read by WordPress to generate the plugin information in the plugin
  * administrative area. This file also includes all of the plugin dependencies.
  *
- * @link              https://aethos.ai
+ * @link              https://aethoslogic.com
  * @since             1.0.0
  * @package           Aethos_Chat
  *
  * @wordpress-plugin
  * Plugin Name:       Aethos AI Chatbot
- * Plugin URI:        https://aethos.ai
+ * Plugin URI:        https://aethoslogic.com
  * Description:       Aethos AI Chatbot WordPress Plugin
  * Version:           1.0.0
  * Author:            Aethos
- * Author URI:        https://aethos.ai
+ * Author URI:        https://aethoslogic.com
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       aethos-chat
@@ -28,11 +28,17 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-// Enable debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Don't break output
-ini_set('log_errors', 1);
-ini_set('error_log', dirname(__FILE__) . '/aethos-debug.log');
+/**
+ * Log a message if WP_DEBUG is enabled.
+ * Uses WordPress debug.log when WP_DEBUG_LOG is true.
+ *
+ * @param string $message The message to log.
+ */
+function aethos_log( $message ) {
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        error_log( '[Aethos] ' . $message );
+    }
+}
 
 /**
  * Currently plugin version.

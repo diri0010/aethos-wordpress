@@ -50,7 +50,7 @@ class Aethos_Vector_Search {
         $threshold = $threshold ?? self::DEFAULT_THRESHOLD;
         
         if (count($query_embedding) !== self::DIMENSIONS) {
-            error_log("Aethos: Invalid query embedding dimension: " . count($query_embedding));
+            aethos_log("Invalid query embedding dimension: " . count($query_embedding));
             return [];
         }
         
@@ -98,7 +98,7 @@ class Aethos_Vector_Search {
         
         // Log for debugging
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("Aethos get_by_url: Looking for path '$path' from '$url', found " . count($results ?: []) . " results");
+            aethos_log("get_by_url: Looking for path '$path' from '$url', found " . count($results ?: []) . " results");
         }
         
         return $results ?: [];

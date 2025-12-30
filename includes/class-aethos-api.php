@@ -69,13 +69,13 @@ class Aethos_API {
             return 'http://localhost:3000';
         }
         
-        // Staging (example)
-        if ( strpos( $host, 'staging' ) !== false ) {
-            return 'https://staging-api.aethoslogic.com';
+        // Staging/Preview (check WordPress host, not SaaS)
+        if ( strpos( $host, 'staging' ) !== false || strpos( $host, 'preprod' ) !== false || strpos( $host, 'preview' ) !== false ) {
+            return 'https://preprod.aethoslogic.com';
         }
 
         // Production default
-        return 'https://aethoslogic.com';
+        return 'https://app.aethoslogic.com';
     }
 
     /**
@@ -102,13 +102,13 @@ class Aethos_API {
 
         // Log the request for debugging
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( 'Aethos API POST: ' . $url );
+            aethos_log('API POST: ' . $url);
         }
 
         $response = wp_remote_post( $url, $request_args );
 
         if ( is_wp_error( $response ) ) {
-            error_log( 'Aethos API Error: ' . $response->get_error_message() );
+            aethos_log('API Error: ' . $response->get_error_message());
         }
 
         return $response;
@@ -137,7 +137,7 @@ class Aethos_API {
         $response = wp_remote_get( $url, $request_args );
 
         if ( is_wp_error( $response ) ) {
-            error_log( 'Aethos API Error: ' . $response->get_error_message() );
+            aethos_log('API Error: ' . $response->get_error_message());
         }
 
         return $response;

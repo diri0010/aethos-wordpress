@@ -219,7 +219,7 @@ class Aethos_Analytics {
      */
     public function get_statistics_from_saas( $period = '30d' ) {
         $api_key = get_option( 'aethos_api_key' );
-        $saas_url = get_option( 'aethos_saas_url', 'https://aethos.ai' );
+        $saas_url = get_option( 'aethos_saas_url', 'https://app.aethoslogic.com' );
         
         if ( empty( $api_key ) ) {
             return new WP_Error( 'no_api_key', 'Aethos API key not configured' );

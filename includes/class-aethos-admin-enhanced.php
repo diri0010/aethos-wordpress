@@ -1012,7 +1012,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
         
         // Log the cleanup if debug mode is enabled
         if ( get_option( 'aethos_debug_mode', false ) ) {
-            error_log( "Aethos Data Retention: Deleted {$deleted} conversations older than {$retention_days} days" );
+            aethos_log("Data Retention: Deleted {$deleted} conversations older than {$retention_days} days");
         }
     }
 
@@ -1094,9 +1094,9 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
         delete_option( 'aethos_excluded_posts' );
         $orchestrator = new Aethos_Scan_Orchestrator();
 
-        error_log('Aethos: Starting full scan from AJAX');
+        aethos_log('Starting full scan from AJAX');
         $result = $orchestrator->start_full_scan();
-        error_log('Aethos: Full scan result: ' . print_r($result, true));
+        aethos_log('Full scan result: ' . print_r($result, true));
         
         wp_send_json_success( array( 'message' => 'All settings and data have been reset to defaults.' ) );
     }
@@ -1165,7 +1165,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
                 update_option( 'aethos_kb_excluded_pages', $excluded_pages );
                 $exclusion_added = true;
                 $exclusion_list_name = 'Pages';
-                error_log("Aethos: Added page $post_id to aethos_kb_excluded_pages");
+                aethos_log("Added page $post_id to aethos_kb_excluded_pages");
             }
             break;
 
@@ -1180,7 +1180,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
                 update_option( 'aethos_kb_excluded_posts', $excluded_posts );
                 $exclusion_added = true;
                 $exclusion_list_name = 'Posts';
-                error_log("Aethos: Added post $post_id to aethos_kb_excluded_posts");
+                aethos_log("Added post $post_id to aethos_kb_excluded_posts");
             }
             break;
 
@@ -1194,7 +1194,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
                 update_option( 'aethos_kb_excluded_woo_products', $excluded_products );
                 $exclusion_added = true;
                 $exclusion_list_name = 'WooCommerce Products';
-                error_log("Aethos: Added product $post_id to aethos_kb_excluded_woo_products");
+                aethos_log("Added product $post_id to aethos_kb_excluded_woo_products");
             }
             break;
 
@@ -1210,12 +1210,12 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
                 update_option( $option_name, $excluded_items );
                 $exclusion_added = true;
                 $exclusion_list_name = ucfirst( $post->post_type );
-                error_log("Aethos: Added {$post->post_type} $post_id to $option_name");
+                aethos_log("Added {$post->post_type} $post_id to $option_name");
             }
             break;
     }
 
-    error_log("Aethos: Exclusion result - added: " . ($exclusion_added ? 'yes' : 'no') . ", list: $exclusion_list_name");
+    aethos_log("Exclusion result - added: " . ($exclusion_added ? 'yes' : 'no') . ", list: $exclusion_list_name");
 
     wp_send_json_success( array(
         'message' => 'Content excluded from knowledge base',
@@ -1254,7 +1254,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
         $inclusion_list_name = '';
         $removed_from_exclusion = false;
 
-        error_log("Aethos: Including post ID $post_id, type: {$post->post_type}");
+        aethos_log("Including post ID $post_id, type: {$post->post_type}");
 
         switch ( $post->post_type ) {
             case 'page':
@@ -1264,7 +1264,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
                     update_option( 'aethos_kb_excluded_pages', $excluded_pages );
                     $removed_from_exclusion = true;
                     $inclusion_list_name = 'Pages';
-                    error_log("Aethos: Removed page $post_id from aethos_kb_excluded_pages");
+                    aethos_log("Removed page $post_id from aethos_kb_excluded_pages");
                 }
                 break;
 
@@ -1275,7 +1275,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
                     update_option( 'aethos_kb_excluded_posts', $excluded_posts );
                     $removed_from_exclusion = true;
                     $inclusion_list_name = 'Posts';
-                    error_log("Aethos: Removed post $post_id from aethos_kb_excluded_posts");
+                    aethos_log("Removed post $post_id from aethos_kb_excluded_posts");
                 }
                 break;
 
@@ -1286,7 +1286,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
                     update_option( 'aethos_kb_excluded_woo_products', $excluded_products );
                     $removed_from_exclusion = true;
                     $inclusion_list_name = 'WooCommerce Products';
-                    error_log("Aethos: Removed product $post_id from aethos_kb_excluded_woo_products");
+                    aethos_log("Removed product $post_id from aethos_kb_excluded_woo_products");
                 }
                 break;
 
@@ -1299,7 +1299,7 @@ class Aethos_Admin_Enhanced extends Aethos_Admin {
                     update_option( $option_name, $excluded_items );
                     $removed_from_exclusion = true;
                     $inclusion_list_name = ucfirst( $post->post_type );
-                    error_log("Aethos: Removed {$post->post_type} $post_id from $option_name");
+                    aethos_log("Removed {$post->post_type} $post_id from $option_name");
                 }
                 break;
         }

@@ -327,7 +327,7 @@ class Aethos_API_Client {
             'context' => $context
         );
 
-        error_log( '[Aethos API] ' . json_encode( $log_entry ) );
+        aethos_log('API Client: ' . json_encode($log_entry));
     }
 
     /**

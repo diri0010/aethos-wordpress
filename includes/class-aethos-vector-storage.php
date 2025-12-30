@@ -263,7 +263,7 @@ class Aethos_Vector_Storage {
             $texts_to_embed = array();
             $chunks_to_process = array();
 
-            error_log("Aethos: Post $post_id has " . count($chunks) . " chunks");
+            aethos_log("Post $post_id has " . count($chunks) . " chunks");
 
             foreach ($chunks as $chunk_data) {
                 $chunk_index = $chunk_data['index'];
@@ -273,14 +273,14 @@ class Aethos_Vector_Storage {
                 if ($this->has_content_changed($post_id, $chunk_index, $chunk_text)) {
                     $texts_to_embed[] = $chunk_text;
                     $chunks_to_process[] = $chunk_data;
-                    error_log("Aethos: Post $post_id chunk $chunk_index needs processing");
+                    aethos_log("Post $post_id chunk $chunk_index needs processing");
                 } else {
                     $result['chunks_skipped']++;
-                    error_log("Aethos: Post $post_id chunk $chunk_index skipped (unchanged)");
+                    aethos_log("Post $post_id chunk $chunk_index skipped (unchanged)");
                 }
             }
 
-            error_log("Aethos: Post $post_id - " . count($texts_to_embed) . " chunks to embed, " . $result['chunks_skipped'] . " skipped");
+            aethos_log("Post $post_id - " . count($texts_to_embed) . " chunks to embed, " . $result['chunks_skipped'] . " skipped");
 
             // Generate embeddings for changed chunks (batch)
             if (!empty($texts_to_embed)) {
@@ -297,7 +297,7 @@ class Aethos_Vector_Storage {
 
                     // Validate embedding
                     if (!$embeddings->validate_embedding($embedding)) {
-                        error_log("Aethos: Invalid embedding for post $post_id, chunk {$chunk_data['index']}");
+                        aethos_log("Invalid embedding for post $post_id, chunk {$chunk_data['index']}");
                         continue;
                     }
 
@@ -329,14 +329,14 @@ class Aethos_Vector_Storage {
                     }
                 }
             } else {
-                error_log("Aethos: Post $post_id - no chunks to process (all skipped)");
+                aethos_log("Post $post_id - no chunks to process (all skipped)");
             }
 
             $result['success'] = true;
 
         } catch (Exception $e) {
             $result['error'] = $e->getMessage();
-            error_log('Aethos scan_and_store_post error: ' . $e->getMessage());
+            aethos_log('scan_and_store_post error: ' . $e->getMessage());
         }
 
         return $result;

@@ -164,7 +164,7 @@ class Aethos_Background_Processor {
                     array( '%d' )
                 );
                 
-                error_log( "Aethos Background Processing Error (ID: {$item->id}): " . $e->getMessage() );
+                aethos_log("Background Processing Error (ID: {$item->id}): " . $e->getMessage());
             }
         }
 

@@ -38,7 +38,7 @@ class Aethos_Embeddings {
         $saas_url = get_option('aethos_saas_url', 'http://localhost:3000');
         
         if (empty($api_key)) {
-            error_log('Aethos Embeddings: No API key configured');
+            aethos_log('Embeddings: No API key configured');
             return false;
         }
 
@@ -52,7 +52,7 @@ class Aethos_Embeddings {
         ]);
         
         if (is_wp_error($response)) {
-            error_log('Aethos Embeddings: Request failed - ' . $response->get_error_message());
+            aethos_log('Embeddings: Request failed - ' . $response->get_error_message());
             return false;
         }
         
@@ -60,7 +60,7 @@ class Aethos_Embeddings {
         $body = json_decode(wp_remote_retrieve_body($response), true);
         
         if ($status_code !== 200) {
-            error_log('Aethos Embeddings: API error ' . $status_code . ' - ' . ($body['message'] ?? 'Unknown error'));
+            aethos_log('Embeddings: API error ' . $status_code . ' - ' . ($body['message'] ?? 'Unknown error'));
             return false;
         }
         
@@ -94,7 +94,7 @@ class Aethos_Embeddings {
             $embedding = $this->generate_embedding($text);
             
             if ($embedding === false) {
-                error_log('Aethos Embeddings: Failed to generate embedding in batch');
+                aethos_log('Embeddings: Failed to generate embedding in batch');
                 // Return what we have or fail completely?
                 // Failing completely ensures integrity.
                 return false;

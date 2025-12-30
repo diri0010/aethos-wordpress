@@ -656,7 +656,7 @@ class Aethos_Admin {
         ));
 
         if ( is_wp_error( $response ) ) {
-            error_log( 'Aethos: Failed to update SaaS connection status - ' . $response->get_error_message() );
+            aethos_log('Failed to update SaaS connection status - ' . $response->get_error_message());
             return false;
         }
 
@@ -669,7 +669,7 @@ class Aethos_Admin {
         // Save sharedSecret if returned (used for JWT token signing)
         if ( $response_code === 200 && isset( $data['sharedSecret'] ) && ! empty( $data['sharedSecret'] ) ) {
             update_option( 'aethos_shared_secret', $data['sharedSecret'] );
-            error_log( 'Aethos: Shared secret received and saved for secure widget authentication' );
+            aethos_log('Shared secret received and saved for secure widget authentication');
         }
         
         return $response_code === 200;

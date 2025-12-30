@@ -177,11 +177,11 @@ class Aethos_REST_Controller {
         $current_page_context = '';
 
         // NEW: Get current page context if URL provided
-        error_log("Aethos: get_context called with currentPageUrl: " . ($current_page_url ?: '(empty)'));
+        aethos_log("get_context called with currentPageUrl: " . ($current_page_url ?: '(empty)'));
         
         if (!empty($current_page_url)) {
             $current_page_chunks = $vector_search->get_by_url($current_page_url, 3);
-            error_log("Aethos: Found " . count($current_page_chunks) . " chunks for URL: " . $current_page_url);
+            aethos_log("Found " . count($current_page_chunks) . " chunks for URL: " . $current_page_url);
             
             if (!empty($current_page_chunks)) {
                 $current_page_context = "CURRENT PAGE CONTENT (User is viewing this page):\n\n";
@@ -203,10 +203,10 @@ class Aethos_REST_Controller {
                     $search_method = 'vector';
                 }
             } else {
-                error_log('Aethos: Embedding generation failed, falling back to keyword search');
+                aethos_log('Embedding generation failed, falling back to keyword search');
             }
         } catch (Exception $e) {
-            error_log('Aethos: Vector search error: ' . $e->getMessage());
+            aethos_log('Vector search error: ' . $e->getMessage());
         }
 
         // Fallback or Augment with Keyword Search if no vector results
@@ -367,10 +367,10 @@ class Aethos_REST_Controller {
         }
         
         // Debug: Log received messages with sources
-        error_log('[Aethos save_conversation] Received ' . count($messages) . ' messages');
+        aethos_log('save_conversation: Received ' . count($messages) . ' messages');
         foreach ($messages as $idx => $msg) {
             $has_sources = isset($msg['sources']) && is_array($msg['sources']) ? count($msg['sources']) : 0;
-            error_log("[Aethos save_conversation] Msg $idx: role=" . ($msg['role'] ?? 'unknown') . ", sources_count=$has_sources");
+            aethos_log("save_conversation: Msg $idx: role=" . ($msg['role'] ?? 'unknown') . ", sources_count=$has_sources");
         }
 
         // Check if conversation logging is enabled (default: enabled)

@@ -33,7 +33,7 @@ class Aethos_Scan_Orchestrator {
             $posts = array_slice($all_posts, $offset, $limit);
             $batch_size = count($posts);
             
-            error_log("Aethos: Batch scan - offset: $offset, limit: $limit, total: $total_posts, processing: $batch_size");
+            aethos_log("Batch scan - offset: $offset, limit: $limit, total: $total_posts, processing: $batch_size");
             
             $vectors_created = 0;
             $vectors_updated = 0;
@@ -41,7 +41,7 @@ class Aethos_Scan_Orchestrator {
 
             foreach ($posts as $post_id) {
                 try {
-                    error_log("Aethos: Scanning post $post_id");
+                    aethos_log("Scanning post $post_id");
                     $result = $this->storage->scan_and_store_post($post_id);
                     
                     if ($result['success']) {
