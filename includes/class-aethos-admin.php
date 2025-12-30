@@ -662,7 +662,24 @@ class Aethos_Admin {
             }
             
             update_option( 'aethos_connection_status', 'error' );
-            wp_send_json_error( array( 'message' => $error_msg ) );
+            
+            // Build response array
+            $response_data = array( 'message' => $error_msg );
+            
+            // Include detailed debug info when WP_DEBUG_DISPLAY is enabled
+            if ( defined( 'WP_DEBUG_DISPLAY' ) && WP_DEBUG_DISPLAY ) {
+                $response_data['debug'] = array(
+                    'endpoint' => $endpoint,
+                    'test_url' => $test_url,
+                    'http_status' => $response_code,
+                    'wordpress_site' => site_url(),
+                    'wordpress_host' => $_SERVER['HTTP_HOST'],
+                    'debug_info' => $debug_info,
+                    'response_body' => substr( $body, 0, 1000 ),
+                );
+            }
+            
+            wp_send_json_error( $response_data );
         }
     }
 
