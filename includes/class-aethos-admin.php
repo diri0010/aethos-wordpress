@@ -576,17 +576,16 @@ class Aethos_Admin {
 
         // Get the endpoint that will be used
         $endpoint = $this->api->get_api_endpoint();
-        $test_url = $endpoint . '/api/chat';
+        $test_url = $endpoint . '/api/sites/verify-key';
         
         // Debug: Log connection attempt
         aethos_log( "Connection Test: Attempting to connect to {$test_url}" );
         aethos_log( "Connection Test: API key prefix: " . substr( $api_key, 0, 15 ) . '...' );
         aethos_log( "Connection Test: WordPress host: " . $_SERVER['HTTP_HOST'] );
 
-        // Test the connection
-        $response = $this->api->post( '/api/chat', array(
-            'apiKey' => $api_key,
-            'message' => 'Connection test'
+        // Test the connection using the verify-key endpoint
+        $response = $this->api->post( '/api/sites/verify-key', array(
+            'apiKey' => $api_key
         ));
 
         if ( is_wp_error( $response ) ) {
@@ -612,8 +611,10 @@ class Aethos_Admin {
         aethos_log( "Connection Test: Response code: {$response_code}" );
         aethos_log( "Connection Test: Response body (first 500 chars): " . substr( $body, 0, 500 ) );
 
-        if ( $response_code === 200 ) {
+        // verify-key returns {valid: true/false, site: {...}} or {valid: false, message: '...'}
+        if ( $response_code === 200 && isset( $data['valid'] ) && $data['valid'] === true ) {
             aethos_log( "Connection Test SUCCESS: Connected to {$endpoint}" );
+            aethos_log( "Connection Test: Site name: " . ( $data['site']['name'] ?? 'unknown' ) );
             
             // Save the API key if connection is successful
             $saved_key = update_option( 'aethos_api_key', $api_key );
@@ -623,7 +624,32 @@ class Aethos_Admin {
             // Update the SaaS backend to set status as 'connected'
             $this->update_saas_connection_status( $api_key, 'connected' );
             
-            wp_send_json_success( array( 'message' => 'Connection successful' ) );
+            $site_name = isset( $data['site']['name'] ) ? $data['site']['name'] : '';
+            wp_send_json_success( array( 
+                'message' => 'Connection successful' . ( $site_name ? " - {$site_name}" : '' )
+            ) );
+        } elseif ( $response_code === 200 && isset( $data['valid'] ) && $data['valid'] === false ) {
+            // API responded but key is invalid
+            $error_msg = isset( $data['message'] ) ? $data['message'] : 'Invalid API Key';
+            $debug_info = "API key validation failed: {$error_msg}";
+            
+            aethos_log( "Connection Test FAILED: {$debug_info}" );
+            
+            update_option( 'aethos_connection_status', 'error' );
+            
+            $response_data = array( 'message' => $error_msg );
+            if ( defined( 'WP_DEBUG_DISPLAY' ) && WP_DEBUG_DISPLAY ) {
+                $response_data['debug'] = array(
+                    'endpoint' => $endpoint,
+                    'test_url' => $test_url,
+                    'http_status' => $response_code,
+                    'wordpress_site' => site_url(),
+                    'wordpress_host' => $_SERVER['HTTP_HOST'],
+                    'debug_info' => $debug_info,
+                    'response_body' => substr( $body, 0, 1000 ),
+                );
+            }
+            wp_send_json_error( $response_data );
         } else {
             // Determine user-friendly error message
             $error_msg = 'Connection failed';
