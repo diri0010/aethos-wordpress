@@ -574,6 +574,15 @@ class Aethos_Admin {
             wp_send_json_error( array( 'message' => 'API key is required' ) );
         }
 
+        // Get the endpoint that will be used
+        $endpoint = $this->api->get_api_endpoint();
+        $test_url = $endpoint . '/api/chat';
+        
+        // Debug: Log connection attempt
+        aethos_log( "Connection Test: Attempting to connect to {$test_url}" );
+        aethos_log( "Connection Test: API key prefix: " . substr( $api_key, 0, 15 ) . '...' );
+        aethos_log( "Connection Test: WordPress host: " . $_SERVER['HTTP_HOST'] );
+
         // Test the connection
         $response = $this->api->post( '/api/chat', array(
             'apiKey' => $api_key,
@@ -581,15 +590,31 @@ class Aethos_Admin {
         ));
 
         if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            $error_code = $response->get_error_code();
+            
+            // Verbose debug log
+            aethos_log( "Connection Test FAILED: WP_Error" );
+            aethos_log( "Connection Test: Error code: {$error_code}" );
+            aethos_log( "Connection Test: Error message: {$error_message}" );
+            aethos_log( "Connection Test: Target endpoint: {$test_url}" );
+            
             update_option( 'aethos_connection_status', 'error' );
-            wp_send_json_error( array( 'message' => 'Connection failed: ' . $response->get_error_message() ) );
+            wp_send_json_error( array( 'message' => 'Connection failed: ' . $error_message ) );
         }
 
         $response_code = wp_remote_retrieve_response_code( $response );
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body, true );
+        $response_headers = wp_remote_retrieve_headers( $response );
+
+        // Debug: Log response details
+        aethos_log( "Connection Test: Response code: {$response_code}" );
+        aethos_log( "Connection Test: Response body (first 500 chars): " . substr( $body, 0, 500 ) );
 
         if ( $response_code === 200 ) {
+            aethos_log( "Connection Test SUCCESS: Connected to {$endpoint}" );
+            
             // Save the API key if connection is successful
             $saved_key = update_option( 'aethos_api_key', $api_key );
             $saved_endpoint = update_option( 'aethos_api_endpoint', $this->api->get_api_endpoint() );
@@ -600,8 +625,43 @@ class Aethos_Admin {
             
             wp_send_json_success( array( 'message' => 'Connection successful' ) );
         } else {
+            // Determine user-friendly error message
+            $error_msg = 'Connection failed';
+            $debug_info = '';
+            
+            if ( isset( $data['error'] ) ) {
+                $error_msg = $data['error'];
+                $debug_info = $data['error'];
+            } elseif ( $response_code === 403 ) {
+                $error_msg = 'Access denied - check if the site URL matches your registered site';
+                $debug_info = 'CORS/Origin mismatch - WordPress origin may not match site URL in SaaS';
+            } elseif ( $response_code === 404 ) {
+                $error_msg = 'API endpoint not found';
+                $debug_info = "Endpoint {$test_url} returned 404";
+            } elseif ( $response_code === 401 ) {
+                $error_msg = 'Invalid API key';
+                $debug_info = 'API key not recognized by SaaS';
+            } elseif ( $response_code === 500 ) {
+                $error_msg = 'Server error - please try again later';
+                $debug_info = 'SaaS returned 500 Internal Server Error';
+            } elseif ( $response_code === 0 || empty( $response_code ) ) {
+                $error_msg = 'Could not reach the server - check your internet connection';
+                $debug_info = 'No response received from server';
+            } else {
+                $error_msg = "Connection failed (HTTP {$response_code})";
+                $debug_info = "Unexpected HTTP status code: {$response_code}";
+            }
+            
+            // Verbose debug log
+            aethos_log( "Connection Test FAILED: {$debug_info}" );
+            aethos_log( "Connection Test: HTTP Status: {$response_code}" );
+            aethos_log( "Connection Test: Target endpoint: {$endpoint}" );
+            aethos_log( "Connection Test: WordPress site: " . site_url() );
+            if ( isset( $response_headers['x-request-id'] ) ) {
+                aethos_log( "Connection Test: Request ID: " . $response_headers['x-request-id'] );
+            }
+            
             update_option( 'aethos_connection_status', 'error' );
-            $error_msg = isset( $data['error'] ) ? $data['error'] : 'Unknown error';
             wp_send_json_error( array( 'message' => $error_msg ) );
         }
     }
