@@ -72,12 +72,31 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    $msg.removeClass('error').addClass('success').css({background: '#d1fae5', color: '#065f46', border: '1px solid #10b981'}).text('Connection successful! Reloading...').show();
+                    $msg.removeClass('error').addClass('success').css({background: '#d1fae5', color: '#065f46', border: '1px solid #10b981'}).html('Connection successful! Reloading...').show();
                     setTimeout(function() {
                         location.reload();
                     }, 1500);
                 } else {
-                    $msg.removeClass('success').addClass('error').css({background: '#fee2e2', color: '#991b1b', border: '1px solid #ef4444'}).text(response.data.message || 'Connection failed').show();
+                    let errorHtml = response.data.message || 'Connection failed';
+                    
+                    // Show debug details if available (when WP_DEBUG_DISPLAY is true)
+                    if (response.data.debug) {
+                        const debug = response.data.debug;
+                        errorHtml += '<div style="margin-top: 12px; padding: 12px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 4px; font-size: 12px; font-family: monospace; text-align: left;">';
+                        errorHtml += '<strong style="color: #92400e;">Debug Info (WP_DEBUG_DISPLAY enabled):</strong><br>';
+                        errorHtml += '<br><strong>Endpoint:</strong> ' + debug.endpoint;
+                        errorHtml += '<br><strong>Test URL:</strong> ' + debug.test_url;
+                        errorHtml += '<br><strong>HTTP Status:</strong> ' + debug.http_status;
+                        errorHtml += '<br><strong>WP Site:</strong> ' + debug.wordpress_site;
+                        errorHtml += '<br><strong>WP Host:</strong> ' + debug.wordpress_host;
+                        errorHtml += '<br><strong>Details:</strong> ' + debug.debug_info;
+                        if (debug.response_body) {
+                            errorHtml += '<br><br><strong>Response:</strong><br><pre style="margin: 4px 0; padding: 8px; background: #fff; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-all;">' + debug.response_body.substring(0, 500) + '</pre>';
+                        }
+                        errorHtml += '</div>';
+                    }
+                    
+                    $msg.removeClass('success').addClass('error').css({background: '#fee2e2', color: '#991b1b', border: '1px solid #ef4444'}).html(errorHtml).show();
                 }
             },
             error: function() {
