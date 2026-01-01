@@ -11,10 +11,10 @@
  * @package           Aethos_Chat
  *
  * @wordpress-plugin
- * Plugin Name:       Aethos AI Chatbot
+ * Plugin Name:       Aethos AI Assistant
  * Plugin URI:        https://aethoslogic.com
- * Description:       Aethos AI Chatbot WordPress Plugin
- * Version:           1.0.0
+ * Description:       AI-powered chat assistant for your WordPress site
+ * Version:           1.2.0
  * Author:            Aethos
  * Author URI:        https://aethoslogic.com
  * License:           GPL-2.0+
@@ -46,8 +46,9 @@ function aethos_log( $message ) {
  * Rename this for your plugin and update it as you release new versions.
  */
 if ( ! defined( 'AETHOS_VERSION' ) ) {
-    define( 'AETHOS_VERSION', '1.0.0' );
+    define( 'AETHOS_VERSION', '1.2.0' );
 }
+
 
 if ( ! defined( 'AETHOS_PLUGIN_URL' ) ) {
     define( 'AETHOS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
