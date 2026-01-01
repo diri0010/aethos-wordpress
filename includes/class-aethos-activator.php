@@ -14,7 +14,7 @@ class Aethos_Activator {
     /**
      * Current schema version for migrations
      */
-    const SCHEMA_VERSION = '1.1.0';
+    const SCHEMA_VERSION = '1.2.0';
 
     /**
      * Plugin activation handler
@@ -207,6 +207,11 @@ class Aethos_Activator {
             self::migrate_to_1_1_0();
         }
 
+        // Migration to 1.2.0: Add missing columns to vectors table
+        if ( version_compare( $current_version, '1.2.0', '<' ) ) {
+            self::migrate_to_1_2_0();
+        }
+
         // Update version
         update_option( 'aethos_db_version', self::SCHEMA_VERSION );
     }
@@ -235,6 +240,43 @@ class Aethos_Activator {
 
         foreach ( $deprecated_options as $option ) {
             delete_option( $option );
+        }
+    }
+
+    /**
+     * Migration to v1.2.0
+     * - Add missing columns to wp_aethos_vectors table for older installations
+     *
+     * @since    1.2.0
+     */
+    private static function migrate_to_1_2_0() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aethos_vectors';
+
+        // Check if magnitude column exists
+        $magnitude_exists = $wpdb->get_results( 
+            $wpdb->prepare(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'magnitude'",
+                DB_NAME,
+                $table_name
+            )
+        );
+
+        if ( empty( $magnitude_exists ) ) {
+            $wpdb->query( "ALTER TABLE $table_name ADD COLUMN magnitude float DEFAULT NULL AFTER embedding" );
+        }
+
+        // Check if token_count column exists
+        $token_count_exists = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'token_count'",
+                DB_NAME,
+                $table_name
+            )
+        );
+
+        if ( empty( $token_count_exists ) ) {
+            $wpdb->query( "ALTER TABLE $table_name ADD COLUMN token_count int DEFAULT NULL AFTER magnitude" );
         }
     }
 }
