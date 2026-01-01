@@ -11,35 +11,97 @@
 
 class Aethos_Activator {
 
-	/**
-	 * Short Description. (use period)
-	 *
-	 * Long Description.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function activate() {
+    /**
+     * Current schema version for migrations
+     */
+    const SCHEMA_VERSION = '1.1.0';
+
+    /**
+     * Plugin activation handler
+     *
+     * @since    1.0.0
+     */
+    public static function activate() {
         global $wpdb;
         
         // Load dbDelta function
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-        // Create default options if they don't exist
+        // Set all default options
+        self::set_default_options();
+
+        // Create database tables
+        self::create_tables();
+
+        // Run migrations if needed
+        self::run_migrations();
+
+        // Schedule daily data retention cleanup
+        if ( ! wp_next_scheduled( 'aethos_data_retention_cleanup' ) ) {
+            wp_schedule_event( time(), 'daily', 'aethos_data_retention_cleanup' );
+        }
+    }
+
+    /**
+     * Set all default options on activation
+     *
+     * @since    1.1.0
+     */
+    private static function set_default_options() {
+        // Core options
         if ( false === get_option( 'aethos_api_key' ) ) {
             add_option( 'aethos_api_key', '' );
         }
 
         // Generate shared secret if it doesn't exist
         if ( false === get_option( 'aethos_shared_secret' ) ) {
-            $shared_secret = bin2hex( random_bytes( 32 ) ); // 64-character hex string
+            $shared_secret = bin2hex( random_bytes( 32 ) );
             add_option( 'aethos_shared_secret', $shared_secret );
         }
 
-        // Create vector storage table
-        $table_name = $wpdb->prefix . 'aethos_vectors';
+        // Knowledge Base options (REQUIRED for scan to work)
+        $kb_defaults = array(
+            'aethos_kb_include_all_pages'          => '1',
+            'aethos_kb_include_all_posts'          => '1',
+            'aethos_kb_include_all_woo_products'   => '1',
+            'aethos_kb_include_all_woo_categories' => '1',
+            'aethos_kb_include_all_categories'     => '1',
+        );
+
+        foreach ( $kb_defaults as $option => $value ) {
+            if ( false === get_option( $option ) ) {
+                add_option( $option, $value );
+            }
+        }
+
+        // Widget visibility options (chatbot display)
+        $visibility_defaults = array(
+            'aethos_global_visibility'   => '1',
+            'aethos_include_all_pages'   => '1',
+        );
+
+        foreach ( $visibility_defaults as $option => $value ) {
+            if ( false === get_option( $option ) ) {
+                add_option( $option, $value );
+            }
+        }
+
+        // Scan schedule
+        if ( false === get_option( 'aethos_scan_schedule' ) ) {
+            add_option( 'aethos_scan_schedule', 'daily' );
+        }
+    }
+
+    /**
+     * Create all database tables
+     *
+     * @since    1.0.0
+     */
+    private static function create_tables() {
+        global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
 
-        // Create Q&A table
+        // Q&A table
         $qna_table = $wpdb->prefix . 'aethos_qna';
         $sql_qna = "CREATE TABLE IF NOT EXISTS $qna_table (
             id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -61,7 +123,8 @@ class Aethos_Activator {
         
         dbDelta( $sql_qna );
 
-        // Enhanced vector storage table
+        // Vector storage table
+        $table_name = $wpdb->prefix . 'aethos_vectors';
         $sql_vectors = "CREATE TABLE IF NOT EXISTS $table_name (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             post_id bigint(20) unsigned NOT NULL,
@@ -84,10 +147,9 @@ class Aethos_Activator {
             UNIQUE KEY unique_chunk (post_id, chunk_index)
         ) $charset_collate;";
 
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-	    dbDelta( $sql_vectors );
+        dbDelta( $sql_vectors );
 
-        // Create sync log table
+        // Sync log table
         $sync_log_table = $wpdb->prefix . 'aethos_sync_log';
         $sql_sync_log = "CREATE TABLE IF NOT EXISTS $sync_log_table (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -107,7 +169,7 @@ class Aethos_Activator {
         
         dbDelta( $sql_sync_log );
 
-        // Create background processing table
+        // Background processing table
         $bg_table = $wpdb->prefix . 'aethos_background_processing';
         $sql_bg = "CREATE TABLE IF NOT EXISTS $bg_table (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -126,15 +188,53 @@ class Aethos_Activator {
         
         dbDelta( $sql_bg );
 
-	    // Create analytics table
-	    require_once plugin_dir_path( __FILE__ ) . 'class-aethos-analytics.php';
-	    $analytics = new Aethos_Analytics();
-	    $analytics->create_tables();
+        // Create analytics table
+        require_once plugin_dir_path( __FILE__ ) . 'class-aethos-analytics.php';
+        $analytics = new Aethos_Analytics();
+        $analytics->create_tables();
+    }
 
-        // Schedule daily data retention cleanup
-        if ( ! wp_next_scheduled( 'aethos_data_retention_cleanup' ) ) {
-            wp_schedule_event( time(), 'daily', 'aethos_data_retention_cleanup' );
+    /**
+     * Run version-based migrations
+     *
+     * @since    1.1.0
+     */
+    private static function run_migrations() {
+        $current_version = get_option( 'aethos_db_version', '1.0.0' );
+
+        // Migration to 1.1.0: Remove deprecated widget appearance options
+        if ( version_compare( $current_version, '1.1.0', '<' ) ) {
+            self::migrate_to_1_1_0();
         }
-	}
 
+        // Update version
+        update_option( 'aethos_db_version', self::SCHEMA_VERSION );
+    }
+
+    /**
+     * Migration to v1.1.0
+     * - Remove deprecated widget appearance options (now controlled by SaaS)
+     *
+     * @since    1.1.0
+     */
+    private static function migrate_to_1_1_0() {
+        // Widget appearance options are now controlled by SaaS dashboard
+        $deprecated_options = array(
+            'aethos_theme',
+            'aethos_widget_position',
+            'aethos_primary_color',
+            'aethos_greeting_message',
+            'aethos_chat_icon',
+            'aethos_placeholder_text',
+            'aethos_button_text',
+            'aethos_header_title',
+            'aethos_chat_subtitle',
+            'aethos_auto_open',
+            'aethos_auto_open_delay',
+        );
+
+        foreach ( $deprecated_options as $option ) {
+            delete_option( $option );
+        }
+    }
 }
