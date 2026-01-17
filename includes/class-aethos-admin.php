@@ -619,10 +619,26 @@ class Aethos_Admin {
             // Save the API key if connection is successful
             $saved_key = update_option( 'aethos_api_key', $api_key );
             $saved_endpoint = update_option( 'aethos_api_endpoint', $this->api->get_api_endpoint() );
-            $saved_status = update_option( 'aethos_connection_status', 'connected' );
             
-            // Update the SaaS backend to set status as 'connected'
-            $this->update_saas_connection_status( $api_key, 'connected' );
+            // Update the SaaS backend to set status as 'connected' (backend converts to 'active')
+            $activation_result = $this->update_saas_connection_status( $api_key, 'connected' );
+            
+            // Check if activation failed (tier limit, etc.)
+            if ( ! $activation_result['success'] ) {
+                aethos_log( "Connection Test FAILED: Activation blocked - " . $activation_result['message'] );
+                update_option( 'aethos_connection_status', 'error' );
+                
+                $error_message = $activation_result['message'];
+                if ( isset( $activation_result['tier_limit'] ) && $activation_result['tier_limit'] ) {
+                    $error_message .= ' Visit your Aethos dashboard to upgrade or deactivate another site.';
+                }
+                
+                wp_send_json_error( array( 'message' => $error_message ) );
+                return;
+            }
+            
+            // Activation successful
+            update_option( 'aethos_connection_status', 'connected' );
             
             $site_name = isset( $data['site']['name'] ) ? $data['site']['name'] : '';
             wp_send_json_success( array( 
@@ -760,14 +776,28 @@ class Aethos_Admin {
 
         if ( is_wp_error( $response ) ) {
             aethos_log('Failed to update SaaS connection status - ' . $response->get_error_message());
-            return false;
+            return array(
+                'success' => false,
+                'message' => 'Could not connect to Aethos server: ' . $response->get_error_message()
+            );
         }
 
         $response_code = wp_remote_retrieve_response_code( $response );
         
-        // Parse response body to check for sharedSecret
+        // Parse response body to check for sharedSecret or errors
         $body = wp_remote_retrieve_body( $response );
         $data = json_decode( $body, true );
+        
+        // Handle tier limit errors (500 or 400 with error message)
+        if ( $response_code >= 400 ) {
+            $error_message = isset( $data['error'] ) ? $data['error'] : 'Activation failed';
+            aethos_log('SaaS activation error: ' . $error_message);
+            return array(
+                'success' => false,
+                'message' => $error_message,
+                'tier_limit' => strpos( $error_message, 'maximum' ) !== false
+            );
+        }
         
         // Save sharedSecret if returned (used for JWT token signing)
         if ( $response_code === 200 && isset( $data['sharedSecret'] ) && ! empty( $data['sharedSecret'] ) ) {
@@ -775,7 +805,10 @@ class Aethos_Admin {
             aethos_log('Shared secret received and saved for secure widget authentication');
         }
         
-        return $response_code === 200;
+        return array(
+            'success' => true,
+            'message' => 'Status updated successfully'
+        );
     }
 
     /**
