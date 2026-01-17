@@ -130,6 +130,14 @@ class Aethos_Public {
 			return;
 		}
 
+		// Check connection status - only render if site is connected/active
+		$connection_status = get_option( 'aethos_connection_status', '' );
+		if ( $connection_status !== 'connected' ) {
+			// Site is not connected/active - don't load widget
+			// This prevents console errors and unnecessary API calls
+			return;
+		}
+
 		// Get site ID (using the API key as the site identifier for now)
 		$site_id = $api_key;
 
