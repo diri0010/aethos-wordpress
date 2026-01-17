@@ -45,6 +45,22 @@
         </div>
     </div>
     
+    <!-- Developer Options -->
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 20px;">
+        <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">Developer Options</h3>
+        <p style="margin: 0 0 24px 0; color: #6b7280; font-size: 14px;">Settings for debugging and development purposes.</p>
+        
+        <div>
+            <label style="display: flex; align-items: start; gap: 12px; cursor: pointer;">
+                <input type="checkbox" name="aethos_debug_mode" value="1" <?php checked( $debug_mode, true ); ?> style="margin-top: 4px; width: 18px; height: 18px;">
+                <div>
+                    <div style="font-weight: 500; margin-bottom: 4px;">Debug Mode</div>
+                    <div style="color: #6b7280; font-size: 14px;">Enable console logging for the chat widget. Useful for troubleshooting. <strong>Disable in production</strong> for a cleaner browser console.</div>
+                </div>
+            </label>
+        </div>
+    </div>
+    
     <!-- Danger Zone -->
     <div style="background: #fff; border: 2px solid #ef4444; border-radius: 8px; padding: 24px;">
         <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #ef4444;">Danger Zone</h3>

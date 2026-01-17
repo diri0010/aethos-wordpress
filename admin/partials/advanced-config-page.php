@@ -16,6 +16,7 @@ include_once AETHOS_PLUGIN_DIR . 'admin/partials/admin-header.php';
 $log_conversations = get_option( 'aethos_log_conversations', true );
 $data_retention = get_option( 'aethos_data_retention', 30 );
 $delete_on_uninstall = get_option( 'aethos_delete_on_uninstall', false );
+$debug_mode = get_option( 'aethos_debug_mode', false );
 ?>
 
 <div class="aethos-page-header" style="margin-bottom: 32px;">

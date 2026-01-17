@@ -158,6 +158,7 @@ class Aethos_Public {
 				saasUrl: <?php echo json_encode($api_endpoint); ?>,
 				wpContextUrl: <?php echo json_encode(rest_url('aethos/v1/context')); ?>,
 				containerId: 'aethos-widget-root',
+				debug: <?php echo json_encode((bool) get_option('aethos_debug_mode', false)); ?>,
 				config: {
 					// These will be fetched from SaaS during init
 					// But we can pass initial values if available
